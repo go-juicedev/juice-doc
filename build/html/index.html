@@ -97,7 +97,7 @@
 <ul class="simple">
 <li><p>go 1.18+</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>go get -u github.com/eatmoreapple/juice
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>go<span class="w"> </span>get<span class="w"> </span>-u<span class="w"> </span>github.com/eatmoreapple/juice
 </pre></div>
 </div>
 </section>
@@ -108,20 +108,20 @@
 </ol>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;environments</span> <span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;environment</span> <span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
-            <span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
-        <span class="nt">&lt;/environment&gt;</span>
-    <span class="nt">&lt;/environments&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
 
-    <span class="nt">&lt;mappers&gt;</span>
-        <span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
-                select &quot;hello world&quot; as message
-            <span class="nt">&lt;/select&gt;</span>
-        <span class="nt">&lt;/mapper&gt;</span>
-    <span class="nt">&lt;/mappers&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mappers&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
+<span class="w">                </span>select<span class="w"> </span>&quot;hello<span class="w"> </span>world&quot;<span class="w"> </span>as<span class="w"> </span>message
+<span class="w">            </span><span class="nt">&lt;/select&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/mapper&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mappers&gt;</span>
 <span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
@@ -132,35 +132,35 @@
 <ol class="arabic simple" start="2">
 <li><p>编写代码</p></li>
 </ol>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
-<span class="w">   </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
-<span class="w">   </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span><span class="w"></span>
-<span class="w">   </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span><span class="w"></span>
-<span class="p">)</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">   </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">   </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="w">   </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span>
+<span class="p">)</span>
 
-<span class="kd">func</span><span class="w"> </span><span class="nx">HelloWorld</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">HelloWorld</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">   </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">return</span><span class="w"></span>
-<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">   </span><span class="p">}</span>
 
-<span class="w">   </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">return</span><span class="w"></span>
-<span class="w">   </span><span class="p">}</span><span class="w"></span>
-<span class="w">   </span><span class="nx">message</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">string</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">HelloWorld</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">return</span><span class="w"></span>
-<span class="w">   </span><span class="p">}</span><span class="w"></span>
-<span class="w">   </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="nx">message</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">string</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">HelloWorld</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <div class="admonition attention">
@@ -172,14 +172,14 @@
 <ol class="arabic simple" start="3">
 <li><p>运行代码</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>go run main.go
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>go<span class="w"> </span>run<span class="w"> </span>main.go
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>输出结果</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>juice<span class="o">]</span> <span class="m">2022</span>/11/05 <span class="m">19</span>:56:49 <span class="o">[</span>main.HelloWorld<span class="o">]</span>  <span class="k">select</span> <span class="s2">&quot;hello world&quot;</span> as message  <span class="o">[]</span>  <span class="m">5</span>.3138ms
-hello world
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>juice<span class="o">]</span><span class="w"> </span><span class="m">2022</span>/11/05<span class="w"> </span><span class="m">19</span>:56:49<span class="w"> </span><span class="o">[</span>main.HelloWorld<span class="o">]</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span>as<span class="w"> </span>message<span class="w">  </span><span class="o">[]</span><span class="w">  </span><span class="m">5</span>.3138ms
+hello<span class="w"> </span>world
 </pre></div>
 </div>
 <p>如果你看到了上面的输出结果，那么恭喜你，你已经成功运行了 juice。</p>

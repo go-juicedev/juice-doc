@@ -50,6 +50,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id2">定义参数实例</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">参数查找</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">参数传递</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#paramconverter">ParamConverter</a></li>
 </ul>
 </li>
 </ul>
@@ -87,18 +88,18 @@
 <h2>mappers标签<a class="headerlink" href="#mappers" title="此标题的永久链接"></a></h2>
 <p>mappers 是mapper标签的父标签，它是一个集合标签，用来存放mapper标签。</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
- <span class="nt">&lt;configuration&gt;</span>
-     <span class="nt">&lt;environments</span> <span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
-         <span class="nt">&lt;environment</span> <span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
-             <span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
-             <span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
-         <span class="nt">&lt;/environment&gt;</span>
-     <span class="nt">&lt;/environments&gt;</span>
+<span class="w"> </span><span class="nt">&lt;configuration&gt;</span>
+<span class="w">     </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">             </span><span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">             </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">         </span><span class="nt">&lt;/environment&gt;</span>
+<span class="w">     </span><span class="nt">&lt;/environments&gt;</span>
 
-     <span class="nt">&lt;mappers&gt;</span>
+<span class="w">     </span><span class="nt">&lt;mappers&gt;</span>
 
-     <span class="nt">&lt;/mappers&gt;</span>
- <span class="nt">&lt;/configuration&gt;</span>
+<span class="w">     </span><span class="nt">&lt;/mappers&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
 </section>
@@ -107,17 +108,17 @@
 <p>mapper标签是用来存储sql语句的集合标签。</p>
 <p>简单的例子：</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mappers&gt;</span>
-     <span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
-         <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
-             select &quot;hello world&quot; as message
-         <span class="nt">&lt;/select&gt;</span>
-     <span class="nt">&lt;/mapper&gt;</span>
+<span class="w">     </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
+<span class="w">             </span>select<span class="w"> </span>&quot;hello<span class="w"> </span>world&quot;<span class="w"> </span>as<span class="w"> </span>message
+<span class="w">         </span><span class="nt">&lt;/select&gt;</span>
+<span class="w">     </span><span class="nt">&lt;/mapper&gt;</span>
 
-     <span class="nt">&lt;mapper</span> <span class="na">resource=</span><span class="s">&quot;path_to_another_mapper.xml&quot;</span><span class="nt">/&gt;</span>
-     <span class="nt">&lt;mapper</span> <span class="na">url=</span><span class="s">&quot;http(s)://domain:port/path&quot;</span><span class="nt">/&gt;</span>
-     <span class="nt">&lt;mapper</span> <span class="na">url=</span><span class="s">&quot;file://path to your mapper&quot;</span><span class="nt">/&gt;</span>
+<span class="w">     </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">resource=</span><span class="s">&quot;path_to_another_mapper.xml&quot;</span><span class="nt">/&gt;</span>
+<span class="w">     </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">url=</span><span class="s">&quot;http(s)://domain:port/path&quot;</span><span class="nt">/&gt;</span>
+<span class="w">     </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">url=</span><span class="s">&quot;file://path to your mapper&quot;</span><span class="nt">/&gt;</span>
 
- <span class="nt">&lt;/mappers&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/mappers&gt;</span>
 </pre></div>
 </div>
 <ul>
@@ -145,23 +146,23 @@
 <section id="select-insert-update-delete">
 <h2>select，insert，update，delete标签<a class="headerlink" href="#select-insert-update-delete" title="此标题的永久链接"></a></h2>
 <p>select标签用来存储select语句。 select标签必须在mapper标签中才能使用。</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
-     <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
-         select * from user
-     <span class="nt">&lt;/select&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">     </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user
+<span class="w">     </span><span class="nt">&lt;/select&gt;</span>
 
-     <span class="nt">&lt;insert</span> <span class="na">id=</span><span class="s">&quot;insertUser&quot;</span><span class="nt">&gt;</span>
-         insert into user (name, age) values (&quot;eatmoreapple&quot;, 18)&quot;)
-     <span class="nt">&lt;/insert&gt;</span>
+<span class="w">     </span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;insertUser&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>insert<span class="w"> </span>into<span class="w"> </span>user<span class="w"> </span>(name,<span class="w"> </span>age)<span class="w"> </span>values<span class="w"> </span>(&quot;eatmoreapple&quot;,<span class="w"> </span>18)&quot;)
+<span class="w">     </span><span class="nt">&lt;/insert&gt;</span>
 
-     <span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;updateUser&quot;</span><span class="nt">&gt;</span>
-         update user set age = 19 where name = &quot;eatmoreapple&quot;
-     <span class="nt">&lt;/update&gt;</span>
+<span class="w">     </span><span class="nt">&lt;update</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;updateUser&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>update<span class="w"> </span>user<span class="w"> </span>set<span class="w"> </span>age<span class="w"> </span>=<span class="w"> </span>19<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>&quot;eatmoreapple&quot;
+<span class="w">     </span><span class="nt">&lt;/update&gt;</span>
 
-     <span class="nt">&lt;delete</span> <span class="na">id=</span><span class="s">&quot;deleteUser&quot;</span><span class="nt">&gt;</span>
-         delete from user where name = &quot;eatmoreapple&quot;
-     <span class="nt">&lt;/delete&gt;</span>
- <span class="nt">&lt;/mapper&gt;</span>
+<span class="w">     </span><span class="nt">&lt;delete</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;deleteUser&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>delete<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>&quot;eatmoreapple&quot;
+<span class="w">     </span><span class="nt">&lt;/delete&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
 <p>上述的select，insert，update，delete标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。</p>
@@ -171,20 +172,20 @@
 <p>我们可以在我们的sql语句中使用参数，这些参数可以通过外部传递进来，我们只需要通过特定的语法来引用这些参数即可。</p>
 <section id="id2">
 <h3>定义参数实例<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h3>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
-     <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
-         select count(*) from user where name = #{name}
-     <span class="nt">&lt;/select&gt;</span>
- <span class="nt">&lt;/mapper&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">     </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
+<span class="w">     </span><span class="nt">&lt;/select&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
 <p>上述的sql语句中，我们使用了#{name}来引用参数，这个参数的值将会在执行sql语句的时候传递进来。</p>
 <p>#{}的语法会在运行时被替换成占位符，这样可以防止sql注入。但是，如果我们需要使用字符串拼接的方式来构造sql语句，那么我们就需要使用${}来引用参数了。</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
-     <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
-         select count(*) from user where name = ${name}
-     <span class="nt">&lt;/select&gt;</span>
- <span class="nt">&lt;/mapper&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">     </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>${name}
+<span class="w">     </span><span class="nt">&lt;/select&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
 <p>上述的sql语句中，我们使用了${name}来引用参数，这个参数的值将会在执行sql语句的时候传递进来。</p>
@@ -197,55 +198,104 @@
 <li><p>#{}语法只会在参数中查找对应的值，如果找不到，那么就会抛出异常。</p></li>
 <li><p>${}语法会在参数中查找对应的值，如果找不到，那么它会从当前的action标签中查找对应的值，如果还是找不到，那么它会从当前的mapper标签中查找对应的值，如果还是找不到，那么就会抛出异常。</p></li>
 </ul>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;main&quot;</span> <span class="na">table2=</span><span class="s">user</span><span class="nt">&gt;</span>
-     <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span> <span class="na">table=</span><span class="s">&quot;user&quot;</span><span class="nt">&gt;</span>
-         select count(*) from ${table} where name = ${name}
-     <span class="nt">&lt;/select&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="w"> </span><span class="na">table2=</span><span class="s">user</span><span class="nt">&gt;</span>
+<span class="w">     </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="w"> </span><span class="na">table=</span><span class="s">&quot;user&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>${table}<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>${name}
+<span class="w">     </span><span class="nt">&lt;/select&gt;</span>
 
-     <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
-         select count(*) from ${table2} where name = ${name}
-     <span class="nt">&lt;/select&gt;</span>
- <span class="nt">&lt;/mapper&gt;</span>
+<span class="w">     </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
+<span class="w">         </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>${table2}<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>${name}
+<span class="w">     </span><span class="nt">&lt;/select&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
 <p>如上实例，这两个select是等价的。</p>
 </section>
 <section id="id4">
 <h3>参数传递<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h3>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span><span class="w"></span>
-<span class="p">)</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span>
+<span class="p">)</span>
 
-<span class="kd">func</span><span class="w"> </span><span class="nx">CountUserByName</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">CountUserByName</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="nx">count</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int64</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">CountUserByName</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span><span class="w"></span>
-<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">})</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">count</span><span class="p">)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">count</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int64</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">CountUserByName</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">count</span><span class="p">)</span>
+<span class="p">}</span>
 </pre></div>
 </div>
+<p>如上所示，我们在创建完engine之后, 使用NewGenericManager来创建一个GenericManager, 这个方法接受一个泛型参数, 这个参数是用来指定返回值的类型的, 这里我们指定的是int64。</p>
+<p>然后，我们使用Object方法来指定我们要执行的sql语句，这个方法接受一个参数，这里我们传入了CountUserByName这个函数，因为CountUserByName这个函数在main包下，并且它不属于任何自定义结构，所以它的全名就是main.CountUserByName。</p>
+<p>对应到xml配置文件中，它就会去找main这个命名空间下的CountUserByName这个id。当然，我们也可以在直接调用Object方法的时候，传入一个字符串，这个字符串就是我们要执行的sql语句的id，如”main.CountUserByName”。</p>
+<p>最后，我们使用Query方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。</p>
+<p>如上所示，我们传递了一个map，这个map的key就是我们在sql语句中使用的参数名，这个map的value就是我们要传递给sql语句的参数值。</p>
+<p>当然我们也可以传递一个struct，这个struct的字段名就是我们在sql语句中使用的参数名，这个struct的字段值就是我们要传递给sql语句的参数值。</p>
+<p>如果我们想自定义struct的字段名和sql语句中的参数名不一致，那么我们可以使用`juice`的`tag`来指定，如下所示：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`param:&quot;name&quot;`</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>指定结构体字段的tag为`param`，那么这个字段就会被当作sql语句中的参数名，而不是字段名。</p>
+<p>如果我们传递一个非struct的参数或者非map的参数，那么这个参数传递到xml中的key是什么呢？</p>
+<p>这个时候，juice就会将这个参数当作一个单独的参数来处理，这个参数的key就是`param`，这个参数的value就是我们传递的参数值。</p>
+<p>如下所示：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">count</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int64</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">CountUserByName</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{param}
+<span class="w">    </span><span class="nt">&lt;/select&gt;</span>
+<span class="nt">&lt;/mapper&gt;</span>
+</pre></div>
+</div>
+<p>如果这个时候我们想指定这个参数的key，而不是使用默认的`param`，那么在对应的action标签上，我们可以使用`paramName`属性来指定，如下所示：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="w"> </span><span class="na">paramName=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
+<span class="w">    </span><span class="nt">&lt;/select&gt;</span>
+<span class="nt">&lt;/mapper&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="paramconverter">
+<h3>ParamConverter<a class="headerlink" href="#paramconverter" title="此标题的永久链接"></a></h3>
+<p>我们也可以自己实现一个ParamConverter，这个ParamConverter可以用来将我们传递给sql语句的参数转换成我们想要的类型。</p>
+<p>ParamConverter的定义如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// ParamConverter is an interface that can convert itself to Param</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ParamConverter</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ParamConvert</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="nx">Param</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ParamConverter接口只有一个方法，这个方法就是ParamConvert，这个方法返回一个Param和一个error。</p>
+<p>如果error不为nil，那么这个error就会被返回给调用者。</p>
+<p>juice 默认提供了一个ParamConverter，juice.H</p>
+<p>juice.H是一个map[string]interface{}的别名，它实现了ParamConverter接口，所以我们可以直接使用juice.H来传递参数。</p>
 </section>
 </section>
 </section>
