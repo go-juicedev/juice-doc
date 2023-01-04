@@ -44,10 +44,24 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">配置详情</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">结果集映射</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">结果集映射</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sql-rows">sql.Rows</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#object">Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#executor">Executor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bindermanager">BinderManager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#binderexecutor">BinderExecutor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#binder">Binder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#genericexecutor">GenericExecutor</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
 
         </div>
@@ -76,6 +90,168 @@
              
   <section id="id1">
 <h1>结果集映射<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<p>将查询结果映射到对象的过程称为结果集映射。结果集映射的目的是将查询结果映射到对象，以便于后续的处理。</p>
+<p>我们先定义好需要查询的mapper和实体：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectUser&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>select<span class="w"> </span>id,<span class="w"> </span>name,<span class="w"> </span>age<span class="w"> </span>from<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;/select&gt;</span>
+<span class="nt">&lt;/mapper&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Id</span><span class="w">   </span><span class="kt">int64</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">Age</span><span class="w">  </span><span class="kt">int</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>juice框架提供了三种结果集映射的方式：</p>
+<section id="sql-rows">
+<h2>sql.Rows<a class="headerlink" href="#sql-rows" title="此标题的永久链接"></a></h2>
+<p>sql.Rows是database/sql包中的一个接口，它的定义如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">Rows</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Columns</span><span class="p">()</span><span class="w"> </span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span>
+<span class="w">    </span><span class="nx">Next</span><span class="p">()</span><span class="w"> </span><span class="kt">bool</span>
+<span class="w">    </span><span class="nx">Scan</span><span class="p">(</span><span class="nx">dest</span><span class="w"> </span><span class="o">...</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="kt">error</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>如果你熟悉database/sql包，那么你应该知道，sql.Rows是一个迭代器，它的Next方法用于遍历查询结果，Scan方法用于将查询结果映射到对象。</p>
+<p>我们使用 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 来查询</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">rows</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.SelectUser&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="k">defer</span><span class="w"> </span><span class="nx">rows</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+
+<span class="k">for</span><span class="w"> </span><span class="nx">rows</span><span class="p">.</span><span class="nx">Next</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="nx">User</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rows</span><span class="p">.</span><span class="nx">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">user</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">user</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">user</span><span class="p">.</span><span class="nx">Age</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">rows</span><span class="p">.</span><span class="nx">Err</span><span class="p">()</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="object">
+<h3>Object<a class="headerlink" href="#object" title="此标题的永久链接"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Object</span></code> 用来指定我们要执行的mapper, 它接受一个interface{}类型的参数, 它可以是以下几种类型</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatementIDGetter</span></code> 类型，它有一个 <code class="docutils literal notranslate"><span class="pre">StatementID</span></code> 方法，返回一个字符串，该字符串就是对应的id</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// StatementIDGetter is an interface for getting statement id.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">StatementIDGetter</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// StatementID returns a statement id.</span>
+<span class="w">    </span><span class="nx">StatementID</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">string</span></code> 类型，表示mapper的id</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">engine</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.SelectUser&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>函数类型, juice 内部会去获取这个函数在代码里面的位置作为对应的id，例如在传入的是 <code class="docutils literal notranslate"><span class="pre">main</span></code> 包下的 <code class="docutils literal notranslate"><span class="pre">SelectUser</span></code> 函数，那么id就是 <code class="docutils literal notranslate"><span class="pre">main.SelectUser</span></code></p>
+<p>如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的包名.类型名.方法名（注意区分interface和struct）</p>
+</li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>这里介绍的 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 是 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 的 <code class="docutils literal notranslate"><span class="pre">Object</span></code> ，下面几种方式的 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 的作用其实是一样的，就不一一介绍了。</p>
+</div>
+</section>
+<section id="executor">
+<h3>Executor<a class="headerlink" href="#executor" title="此标题的永久链接"></a></h3>
+<p>调用完 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法后，它会返回一个 <code class="docutils literal notranslate"><span class="pre">Executor</span></code> 对象。<code class="docutils literal notranslate"><span class="pre">Executor</span></code> 的定义如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Executor is an executor of SQL.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Executor</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Query</span><span class="p">(</span><span class="nx">param</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Rows</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">param</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Rows</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Exec</span><span class="p">(</span><span class="nx">param</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">param</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Statement</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Query</span></code> : 接受一个参数，执行查询操作，返回 <code class="docutils literal notranslate"><span class="pre">sql.Rows</span></code> 对象和 <code class="docutils literal notranslate"><span class="pre">error</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QueryContext</span></code> : 接受一个 <code class="docutils literal notranslate"><span class="pre">context.Context</span></code> 和一个参数，执行查询操作，返回 <code class="docutils literal notranslate"><span class="pre">sql.Rows</span></code> 对象和 <code class="docutils literal notranslate"><span class="pre">error</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Exec</span></code> : 接受一个参数，执行非查询操作，返回 <code class="docutils literal notranslate"><span class="pre">sql.Result</span></code> 对象和 <code class="docutils literal notranslate"><span class="pre">error</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExecContext</span></code> : 接受一个 <code class="docutils literal notranslate"><span class="pre">context.Context</span></code> 和一个参数，执行非查询操作，返回 <code class="docutils literal notranslate"><span class="pre">sql.Result</span></code> 对象和 <code class="docutils literal notranslate"><span class="pre">error</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Statement</span></code> : 返回当前的statement对象</p></li>
+</ul>
+<p>因为我们这里是查询操作，所以我们使用 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法，并且我们的sql语句没有参数，所以我们传入 <code class="docutils literal notranslate"><span class="pre">nil</span></code></p>
+<p>得到sql.Rows后，我们可以使用sql.Rows的方法来遍历查询结果，最后关闭sql.Rows。</p>
+<p>这种方式跟database/sql包的使用方式是一样的，所以如果你熟悉database/sql包，那么你应该很容易上手。</p>
+</section>
+</section>
+<section id="bindermanager">
+<h2>BinderManager<a class="headerlink" href="#bindermanager" title="此标题的永久链接"></a></h2>
+<p>BinderManager是一个接口类型，它的定义如下</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">BinderManager</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Object</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="nx">BinderExecutor</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>它只有一个 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法，它接受一个参数，返回一个 <code class="docutils literal notranslate"><span class="pre">BinderExecutor</span></code> 对象。</p>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。</p>
+<section id="binderexecutor">
+<h3>BinderExecutor<a class="headerlink" href="#binderexecutor" title="此标题的永久链接"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">BinderExecutor</span></code> 是一个接口类型，它的定义如下</p>
+<p>BinderExecutor是一个接口类型</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// BinderExecutor is a binder executor.</span>
+<span class="c1">// It is used to bind the result to the given value.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">BinderExecutor</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Query</span><span class="p">(</span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">Binder</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">Binder</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Exec</span><span class="p">(</span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>BinderExecutor 跟上面的Executor的区别在于，它的 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法返回的是一个 <code class="docutils literal notranslate"><span class="pre">Binder</span></code> 对象，而不是 <code class="docutils literal notranslate"><span class="pre">sql.Rows</span></code> 对象。</p>
+<p>Query接受的参数依然是我们需要传递给mapper的参数，如果没有参数，那么传入 <code class="docutils literal notranslate"><span class="pre">nil</span></code> 即可。</p>
+</section>
+<section id="binder">
+<h3>Binder<a class="headerlink" href="#binder" title="此标题的永久链接"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Binder</span></code> 是一个接口类型，它的定义如下</p>
+<p>Binder是一个接口类型</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Binder bind sql.Rows to dest</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Binder</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Scan sql.Rows to dest</span>
+<span class="w">    </span><span class="c1">// dest can be a pointer to a struct, a pointer to a slice of struct, or a pointer to a slice of any type.</span>
+<span class="w">    </span><span class="nx">Scan</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Scan</span></code> 方法接受一个参数，这个参数可以是一个指向结构体的指针，也可以是一个指向结构体切片的指针，也可以是一个指向任意类型切片的指针。</p>
+<p>具体用法可以参考下面的例子:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">binder</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewBinderManager</span><span class="p">(</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.SelectUser&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="p">[]</span><span class="nx">User</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">binder</span><span class="p">.</span><span class="nx">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">users</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">users</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>因为我们查询集是一个list，所以我们传入一个指向User切片的指针，然后调用 <code class="docutils literal notranslate"><span class="pre">Scan</span></code> 方法，将查询结果绑定到切片中。</p>
+<p>但是我们一运行，会发现报错了</p>
+</section>
+</section>
+<section id="genericexecutor">
+<h2>GenericExecutor<a class="headerlink" href="#genericexecutor" title="此标题的永久链接"></a></h2>
+</section>
 </section>
 
 
