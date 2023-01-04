@@ -156,3 +156,5 @@ http://github.com/eatmoreapple/juice
    expr
 
    middleware
+
+   code_generate
