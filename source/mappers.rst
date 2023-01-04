@@ -184,6 +184,9 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
 
 最后，我们使用 ``Query`` 方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。
 
+map-struct参数
+""""""
+
 如上所示，我们传递了一个map，这个map的key就是我们在sql语句中使用的参数名，这个map的value就是我们要传递给sql语句的参数值。
 
 当然我们也可以传递一个struct，这个struct的字段名就是我们在sql语句中使用的参数名，这个struct的字段值就是我们要传递给sql语句的参数值。
@@ -197,6 +200,10 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
     }
 
 指定结构体字段的tag为param，那么这个字段就会被当作sql语句中的参数名，而不是字段名。
+
+
+非map-struct的参数传递
+""""""
 
 既然map和struct都可以转换成key-value结构，那么如果我们传递一个非struct的参数或者非map的参数，那么这个参数传递到xml中的key是什么呢？
 
@@ -228,7 +235,7 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
 
 
 ParamConverter
-~~~~~~~~~~~~~~~~
+""""""
 
 我们也可以自己实现一个 ``ParamConverter`` ，这个 ``ParamConverter`` 可以用来将我们传递给sql语句的参数转换成我们想要的类型。
 
