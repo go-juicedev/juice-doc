@@ -148,3 +148,11 @@ http://github.com/eatmoreapple/juice
    configuration
 
    mappers
+
+   result_mapping
+
+   tx
+
+   expr
+
+   middleware
