@@ -151,6 +151,8 @@ http://github.com/eatmoreapple/juice
 
    result_mapping
 
+   dynamic_sql
+
    tx
 
    expr
