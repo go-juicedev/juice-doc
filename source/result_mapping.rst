@@ -26,7 +26,7 @@ juice框架提供了三种结果集映射的方式：
 sql.Rows
 ----------------
 
-sql.Rows是database/sql包中的一个结构体，它可以被定义为下面的Rows接口：
+``sql.Rows`` 是database/sql包中的一个结构体，它可以被定义为下面的 ``Rows`` 接口：
 
 .. code-block:: go
 
@@ -38,7 +38,7 @@ sql.Rows是database/sql包中的一个结构体，它可以被定义为下面的
     }
 
 
-如果你熟悉database/sql包，那么你应该知道，sql.Rows是一个迭代器，它的Next方法用于遍历查询结果，Scan方法用于将查询结果映射到对象。
+如果你熟悉database/sql包，那么你应该知道，``sql.Rows`` 是一个迭代器，它的 ``Next`` 方法用于遍历查询结果，``Scan`` 方法用于将查询结果映射到对象。
 
 我们使用 ``engine`` 来查询
 
@@ -122,7 +122,7 @@ Executor
 
 因为我们这里是查询操作，所以我们使用 ``Query`` 方法，并且我们的sql语句没有参数，所以我们传入 ``nil``
 
-得到sql.Rows后，我们可以使用sql.Rows的方法来遍历查询结果，最后关闭sql.Rows。
+得到 ``sql.Rows`` 后，我们可以使用 ``sql.Rows`` 的方法来遍历查询结果，最后关闭 ``sql.Rows``。
 
 这种方式跟database/sql包的使用方式是一样的，所以如果你熟悉database/sql包，那么你应该很容易上手。
 
