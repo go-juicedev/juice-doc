@@ -26,7 +26,7 @@ juice框架提供了三种结果集映射的方式：
 sql.Rows
 ----------------
 
-sql.Rows是database/sql包中的一个接口，它的定义如下：
+sql.Rows是database/sql包中的一个结构体，它可以被定义为下面的Rows接口：
 
 .. code-block:: go
 
