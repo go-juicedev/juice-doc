@@ -262,3 +262,7 @@ GenericExecutor
 这里我们使用 ``NewGenericManager`` 方法创建了一个 ``GenericManager`` 对象，因为我们的查询结果是一个list，所以我们指定这个对象的泛型参数是 ``[]User`` ，也就是说它的返回值类型是 ``[]User`` ，然后我们调用 ``Object`` 方法指定查询的mapper，然后调用 ``Query`` 方法执行查询，最后返回一个 ``[]User`` 类型的结果。
 
 同样的，我们需要在User结构体上指定数据库字段名。
+
+
+ResultMap
+---------
