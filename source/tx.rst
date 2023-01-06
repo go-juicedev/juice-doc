@@ -10,10 +10,13 @@
 .. code-block:: go
 
 	cfg, err := juice.NewXMLConfiguration("config.xml")
+
 	if err != nil {
 		panic(err)
 	}
+
 	engine, err := juice.DefaultEngine(cfg)
+
 	if err != nil {
 		panic(err)
 	}
@@ -31,14 +34,14 @@
 	}
 
 
-在上面的代码中，我们可以看到，我们都是通过 ``engine`` 来进行操作的，engine 会从数据库的连接池中获取一个连接，然后进行操作，操作完毕后，会将连接放回连接池中。
+在上面的代码中，我们可以看到，我们都是通过 ``engine`` 来进行操作的，``engine`` 会从数据库的连接池中获取一个连接，然后进行操作，操作完毕后，会将连接放回连接池中。
 
 那么，如果我们需要使用事务，我们该如何操作呢？
 
 Manager
 -------
 
-通过查看 ``NewBinderManager`` 和 ``NewGenericManager`` 的源码，我们可以看到，它们都是通过 ``NewManager`` 来创建的，它们接受的参数都是一个名为 ``Manager`` 的接口。
+通过查看 ``NewBinderManager`` 和 ``NewGenericManager`` 的源码，我们可以看到，它们接受的参数都是一个名为 ``Manager`` 的接口。
 
 Manager 接口的定义如下:
 
@@ -49,7 +52,7 @@ Manager 接口的定义如下:
 		Object(v any) Executor
 	}
 
-我们上面使用的engine就是一个实现了Manager接口的结构体。
+我们上面使用的 ``engine`` 就是一个实现了 ``Manager`` 接口的结构体。
 
 开启事务
 --------
@@ -65,10 +68,13 @@ Manager 接口的定义如下:
 .. code-block:: go
 
 	cfg, err := juice.NewXMLConfiguration("config.xml")
+
 	if err != nil {
 		panic(err)
 	}
+
 	engine, err := juice.DefaultEngine(cfg)
+
 	if err != nil {
 		panic(err)
 	}
