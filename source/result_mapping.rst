@@ -254,10 +254,10 @@ GenericExecutor
 .. code-block:: go
 
     users, err := juice.NewGenericManager[[]User](engine).Object("main.SelectUser").Query(nil)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(users)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(users)
 
 这里我们使用 ``NewGenericManager`` 方法创建了一个 ``GenericManager`` 对象，因为我们的查询结果是一个list，所以我们指定这个对象的泛型参数是 ``[]User`` ，也就是说它的返回值类型是 ``[]User`` ，然后我们调用 ``Object`` 方法指定查询的mapper，然后调用 ``Query`` 方法执行查询，最后返回一个 ``[]User`` 类型的结果。
 
