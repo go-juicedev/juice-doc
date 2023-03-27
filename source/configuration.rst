@@ -84,6 +84,51 @@ environments 标签用于配置不同的环境，如开发环境，测试环境�
     }
 
 
+provider
+----------------
+
+有时候我们不想在配置直接写数据库连接信息，而是想通过代码来配置数据库连接信息，这时候我们就可以使用 provider 标签来配置数据库连接信息。
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <environments default="prod">
+
+            <environment id="prod" provider="env">
+                <dataSource>${DATA_SOURCE}</provider>
+                <driver>mysql</driver>
+            </environment>
+
+        </environments>
+    </configuration>
+
+如上所示，我们在 prod 环境中配置了一个 provider 标签，它的值为 env。
+
+env 是 juice 提供的一个默认的 provider，它会从环境变量中获取数据库连接信息。
+
+如果你想自定义 provider，可以参考 juice 提供的 provider 的实现，实现自己的 provider。
+
+.. code-block:: go
+
+    // EnvValueProvider defines a environment value provider.
+    type EnvValueProvider interface {
+        Get(key string) (string, error)
+    }
+
+
+    // RegisterEnvValueProvider registers an environment value provider.
+    // The key is a name of the provider.
+    // The value is a provider.
+    // It allows to override the default provider.
+    func RegisterEnvValueProvider(name string, provider EnvValueProvider)
+
+
+如上所示，只要实现了 EnvValueProvider 接口，就可以通过 juice 提供的 RegisterEnvValueProvider 方法，我们可以注册自己的 provider。
+
+
+
+
 连接池配置
 ----------------
 
