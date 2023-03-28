@@ -128,7 +128,7 @@ foreach语句用来遍历集合，将集合中的元素作为参数传递给sql�
 trim
 ----
 
-trim语句用来去除多余的前缀和后缀，trim语句的语法如下：
+trim语句用来去除sql语句中开头和结尾的多余的关键字，例如and和or。trim语句的语法如下：
 
 .. code-block:: xml
 
@@ -137,13 +137,14 @@ trim语句用来去除多余的前缀和后缀，trim语句的语法如下：
     </trim>
 
 
-其中，prefix属性用来指定前缀，prefixOverrides属性用来指定前缀覆盖，suffix属性用来指定后缀，suffixOverrides属性用来指定后缀覆盖。下面我们来看一个例子：
+其中，prefix属性用来设置要添加到sql语句开头的关键字，suffix属性用来设置要添加到sql语句结尾的关键字，prefixOverrides属性用来设置要去除的前缀关键字列表，suffixOverrides属性用来设置要去除的后缀关键字列表。如果prefix属性和suffix属性都不设置，则不添加前缀和后缀关键字；如果prefixOverrides属性和suffixOverrides属性都不设置，则不去除前缀和后缀关键字。下面我们来看一个例子：
+
 
 .. code-block:: xml
 
     <select id="SelectByCondition">
         select * from user
-        <trim prefix="where" prefixOverrides="and">
+        <trim prefix="where" prefixOverrides="and | or">
             <if test='name != ""'>
                 and name = #{name}
             </if>
@@ -156,11 +157,10 @@ trim语句用来去除多余的前缀和后缀，trim语句的语法如下：
 
 上面的例子中，如果name的值不为空，则在sql语句中添加where name = #{name}，否则不添加。如果age的值不为0，则在sql语句中添加where age = #{age}，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为select * from user。如果name的值不为空，age的值不为0，则生成的sql语句为select * from user where name = #{name} and age = #{age}。
 
-choose
+choose、when和otherwise
 ------
 
-choose语句用来实现多个if语句的效果，choose语句的语法如下：
-
+choose、when、otherwise语句用来实现类似于switch语句的功能。choose语句相当于switch语句，when语句相当于case语句，otherwise语句相当于default语句。choose、when、otherwise语句的语法如下：
 .. code-block:: xml
 
     <choose>
@@ -195,8 +195,6 @@ choose语句用来实现多个if语句的效果，choose语句的语法如下：
 
 上面的例子中，如果name的值不为空，则在sql语句中添加and name = #{name}，否则不添加。如果age的值不为0，则在sql语句中添加and age = #{age}，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为select * from user where name = #{name} and age = #{age}。如果name的值不为空，age的值不为0，则生成的sql语句为select * from user where and name = #{name} and age = #{age}。
 
-otherwise
----------
 
 otherwise语句用来实现else语句的效果，otherwise语句的语法如下：
 
