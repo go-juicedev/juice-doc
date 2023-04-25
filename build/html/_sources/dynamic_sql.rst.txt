@@ -38,7 +38,7 @@ if语句用来判断条件，如果条件成立，则执行if语句中的sql语�
 上面的例子中，如果name的值不为空，则在sql语句中添加 ``where name = #{name}``，否则不添加。如果name的值为空，则生成的sql语句为 ``select * from user``。
 
 where
------
+--------
 
 where语句用来判断条件，如果条件成立，则执行where语句中的sql语句，否则不执行。where语句的语法如下
 
@@ -80,7 +80,7 @@ where语句用来判断条件，如果条件成立，则执行where语句中的s
 如果name的值不为空，age的值不为0，则生成的sql语句为 ``select * from user where name = #{name} and age = #{age}``。
 
 set
----
+-----
 
 set语法用于更新语句中，用来设置更新的字段，它会在set语句中去除多余的逗号。set语法的语法如下：
 
@@ -123,7 +123,7 @@ set语法用于更新语句中，用来设置更新的字段，它会在set语�
 如果name的值不为空，age的值不为0，则生成的sql语句为 ``update user SET name = #{name}, age = #{age} where id = #{id}``。
 
 foreach
--------
+----------
 
 foreach语句用来遍历集合，将集合中的元素作为参数传递给sql语句。foreach语句的语法如下：
 
@@ -152,7 +152,7 @@ foreach语句用来遍历集合，将集合中的元素作为参数传递给sql�
 
 
 trim
-----
+-------
 
 trim语句用来去除sql语句中开头和结尾的多余的关键字，例如and和or。trim语句的语法如下：
 
@@ -188,7 +188,7 @@ trim语句用来去除sql语句中开头和结尾的多余的关键字，例如a
 上面的例子中，如果name的值不为空，则在sql语句中添加 ``where name = #{name}``，否则不添加。如果age的值不为0，则在sql语句中添加 ``where age = #{age}``，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为 ``select * from user``。如果name的值不为空，age的值不为0，则生成的sql语句为``select * from user where name = #{name} and age = #{age}``。
 
 choose、when和otherwise
-------
+----------------------------
 
 choose、when、otherwise语句用来实现类似于switch语句的功能。choose语句相当于switch语句，when语句相当于case语句，otherwise语句相当于default语句。choose、when、otherwise语句的语法如下：
 
@@ -237,6 +237,55 @@ otherwise语句用来实现else语句的效果，otherwise语句的语法如下�
 
 当choose语句中的所有when语句的条件表达式都不成立时，执行otherwise语句。
 
+values、value
+--------
 
+values语句用来将参数值作为列值插入到表中。values只会在insert action中使用，values语句的语法如下：
+
+.. code-block:: xml
+
+    <insert id="Insert">
+        insert into user
+        <values>
+        </values>
+    </insert>
+
+光有values语句是不够的，还需要使用value语句来指定参数值。value语句的语法如下：
+
+.. code-block:: xml
+
+    <insert id="Insert">
+            insert into user
+            <values>
+                <value column="uid" value="#{uid}"/>
+                <value column="create_at" value="NOW()"/>
+                <value column="name"/>
+            </values>
+        </insert>
+
+其中，column属性用来指定列名，value属性用来指定参数值。
+
+注意：如果value属性不设置，则默认使用参数名作为占位符拼接到sql语句中，例如上面的例子中的name列，生成的sql语句为 ``insert into user (uid, create_at, name) values (#{uid}, NOW(), #{name})``。
+
+同时，如果value属性的值为一个字符串字面值，则会直接将字符串字面值拼接到sql语句中，例如上面的例子中的create_at列，生成的sql语句为 ``insert into user (uid, create_at, name) values (#{uid}, NOW(), name)``。
+
+alias、field
+--------------
+
+alias语句用来设置表的别名，field语句用来设置列的别名。alias 只在select action中使用，filed 是alias的子元素。alias和field语句的语法如下：
+
+.. code-block:: xml
+
+    <select id="Select">
+        select
+        <alias>
+            <field column="uid" alias="id"/>
+            <field column="name"/>
+        </alias>
+    </select>
+
+其中，column属性用来指定列名，alias属性用来指定列的别名。当alias属性不设置时，使用column属性的值作为列的别名。
+
+如上面的例子中，生成的sql语句为 ``select uid as id, name from user``。
 
 
