@@ -1,17 +1,30 @@
 动态sql
 ============
 
+.. note::
 
-动态sql是指在运行时根据条件动态生成sql语句的sql语句。juice 提供了动态sql的支持，可以通过动态sql来实现动态的sql语句。动态sql的语法和xml语法类似，但是动态sql的语法更加简单，更加灵活。动态sql的语法主要包括if、where、set、foreach、trim、choose、when、otherwise等。下面我们来看看这些语法的使用方法。
+    动态SQL是指在运行时（而不是编译时）根据不同条件动态地生成SQL语句的技术。通常，这些条件包括用户输入、程序逻辑或查询参数等。动态SQL可以帮助开发人员更加灵活地构建数据库查询，从而实现更好的性能和可维护性。在动态SQL中，应用程序会使用字符串拼接或参数化查询等技术来构建SQL查询语句。这些查询语句可能包含一个或多个查询参数，在运行时由应用程序提供。通过将查询参数与SQL查询语句结合使用，可以生成具有不同条件的不同查询语句。这些查询语句可以执行查询、插入、更新或删除等操作。动态SQL的优点是可以根据不同条件动态地生成查询语句，从而使查询更加灵活和可定制。然而，使用动态SQL也存在一些风险，例如SQL注入攻击等安全问题，因此需要谨慎使用。
+
+
+juice 提供了动态sql的支持，可以通过动态sql来实现动态的sql语句。
+
+动态sql的语法和xml语法类似，但是动态sql的语法更加简单，更加灵活。
+
+动态sql的语法主要包括 ``if、where、set、foreach、trim、choose、when、otherwise`` 等。下面我们来看看这些语法的使用方法。
 
 if
 ----
 
 if语句用来判断条件，如果条件成立，则执行if语句中的sql语句，否则不执行。if语句的语法如下：
 
-<if test="条件表达式">sql语句</if>
+.. code-block:: xml
 
-其中，条件表达式可以是任意的表达式，表达式的值必须是boolean类型。如果条件表达式的值为true，则执行if语句中的sql语句，否则不执行。下面我们来看一个例子：
+    <if test="条件表达式 // 如: 1 + 1 > 0">sql语句</if>
+
+.. note::
+    其中，条件表达式可以是任意的表达式，表达式的值必须是boolean类型。如果条件表达式的值为true，则执行if语句中的sql语句，否则不执行。
+
+下面我们来看一个例子：
 
 .. code-block:: xml
 
@@ -22,12 +35,12 @@ if语句用来判断条件，如果条件成立，则执行if语句中的sql语�
         </if>
     </select>
 
-上面的例子中，如果name的值不为空，则在sql语句中添加where name = #{name}，否则不添加。如果name的值为空，则生成的sql语句为select * from user。
+上面的例子中，如果name的值不为空，则在sql语句中添加 ``where name = #{name}``，否则不添加。如果name的值为空，则生成的sql语句为 ``select * from user``。
 
 where
 -----
 
-where语句用来判断条件，如果条件成立，则执行where语句中的sql语句，否则不执行。where语句的语法如下：
+where语句用来判断条件，如果条件成立，则执行where语句中的sql语句，否则不执行。where语句的语法如下
 
 .. code-block:: xml
 
@@ -37,7 +50,12 @@ where语句用来判断条件，如果条件成立，则执行where语句中的s
         ...
     </where>
 
-where语句中可以包含多个if语句，如果where语句中的所有if语句的条件表达式的值都为false，则不执行where语句中的sql语句。如果where语句中的所有if语句的条件表达式的值都为true，则执行where语句中的sql语句。如果where语句中的if语句的条件表达式的值不全为true或false，则执行where语句中的sql语句，并且去除多余的and 和 or。下面我们来看一个例子：
+.. note::
+
+    where语句中可以包含多个if语句，如果where语句中的所有if语句的条件表达式的值都为false，则不执行where语句中的sql语句。
+
+
+如果where语句中的所有if语句的条件表达式的值都为true，则执行where语句中的sql语句。如果where语句中的if语句的条件表达式的值不全为true或false，则执行where语句中的sql语句，并且去除多余的and 和 or。下面我们来看一个例子：
 
 .. code-block:: xml
 
@@ -53,13 +71,13 @@ where语句中可以包含多个if语句，如果where语句中的所有if语句
         </where>
     </select>
 
-上面的例子中，如果name的值不为空，则在sql语句中添加 where name = #{name}，否则不添加。
+上面的例子中，如果name的值不为空，则在sql语句中添加 ``where name = #{name}``，否则不添加。
 
-如果age的值不为0，则在sql语句中添加where age = #{age}，否则不添加。
+如果age的值不为0，则在sql语句中添加 ``where age = #{age}``，否则不添加。
 
-如果name的值为空，age的值为0，则生成的sql语句为select * from user。
+如果name的值为空，age的值为0，则生成的sql语句为 ``select * from user``。
 
-如果name的值不为空，age的值不为0，则生成的sql语句为select * from user where name = #{name} and age = #{age}。
+如果name的值不为空，age的值不为0，则生成的sql语句为 ``select * from user where name = #{name} and age = #{age}``。
 
 set
 ---
@@ -74,7 +92,11 @@ set语法用于更新语句中，用来设置更新的字段，它会在set语�
         ...
     </set>
 
-set语句中可以包含多个if语句，如果set语句中的所有if语句的条件表达式的值都为false，则不执行set语句中的sql语句。如果set语句中的所有if语句的条件表达式的值都为true，则执行set语句中的sql语句。如果set语句中的if语句的条件表达式的值不全为true或false，则执行set语句中的sql语句，并且去除多余的逗号。下面我们来看一个例子：
+.. note::
+    set语句中可以包含多个if语句，如果set语句中的所有if语句的条件表达式的值都为false，则不执行set语句中的sql语句。如果set语句中的所有if语句的条件表达式的值都为true，则执行set语句中的sql语句。如果set语句中的if语句的条件表达式的值不全为true或false，则执行set语句中的sql语句，并且去除多余的逗号。
+
+
+下面我们来看一个例子：
 
 .. code-block:: xml
 
@@ -92,13 +114,13 @@ set语句中可以包含多个if语句，如果set语句中的所有if语句的�
     </update>
 
 
-上面的例子中，如果name的值不为空，则在sql语句中添加name = #{name}，否则不添加。sql 语句为update user SET name = #{name} where id = #{id}。
+上面的例子中，如果name的值不为空，则在sql语句中添加 ``name = #{name}``，否则不添加。sql 语句为 ``update user SET name = #{name} where id = #{id}``。
 
-如果age的值不为0，则在sql语句中添加age = #{age}，否则不添加。sql 语句为update user SET age = #{age} where id = #{id}。
+如果age的值不为0，则在sql语句中添加 ``age = #{age}``，否则不添加。sql 语句为 ``update user SET age = #{age} where id = #{id}``。
 
-如果name的值为空，age的值为0，则生成的sql语句为update user where id = #{id}。错误的sql语句。
+如果name的值为空，age的值为0，则生成的sql语句为 ``update user where id = #{id}``。错误的sql语句。
 
-如果name的值不为空，age的值不为0，则生成的sql语句为update user SET name = #{name}, age = #{age} where id = #{id}。
+如果name的值不为空，age的值不为0，则生成的sql语句为 ``update user SET name = #{name}, age = #{age} where id = #{id}``。
 
 foreach
 -------
@@ -111,7 +133,11 @@ foreach语句用来遍历集合，将集合中的元素作为参数传递给sql�
         sql语句
     </foreach>
 
-其中，collection属性用来指定集合，item属性用来指定集合中的元素，index属性用来指定集合中的索引，open属性用来指定开始符，close属性用来指定结束符，separator属性用来指定分隔符。下面我们来看一个例子：
+.. note::
+    其中，collection属性用来指定集合，item属性用来指定集合中的元素，index属性用来指定集合中的索引，open属性用来指定开始符，close属性用来指定结束符，separator属性用来指定分隔符。
+
+
+下面我们来看一个例子：
 
 .. code-block:: xml
 
@@ -122,7 +148,7 @@ foreach语句用来遍历集合，将集合中的元素作为参数传递给sql�
         </foreach>
     </select>
 
-上面的例子中，将ids集合中的元素作为参数传递给sql语句，生成的sql语句为select * from user where id in (?, ?, ?)。 ? 为占位符（不同的驱动占位符不同），实际的值为ids集合中的元素。
+上面的例子中，将ids集合中的元素作为参数传递给sql语句，生成的sql语句为 ``select * from user where id in (?, ?, ?)``。 ``?`` 为占位符（不同的驱动占位符不同），实际的值为 ``ids`` 集合中的元素。
 
 
 trim
@@ -137,7 +163,11 @@ trim语句用来去除sql语句中开头和结尾的多余的关键字，例如a
     </trim>
 
 
-其中，prefix属性用来设置要添加到sql语句开头的关键字，suffix属性用来设置要添加到sql语句结尾的关键字，prefixOverrides属性用来设置要去除的前缀关键字列表，suffixOverrides属性用来设置要去除的后缀关键字列表。如果prefix属性和suffix属性都不设置，则不添加前缀和后缀关键字；如果prefixOverrides属性和suffixOverrides属性都不设置，则不去除前缀和后缀关键字。下面我们来看一个例子：
+.. note::
+    其中，prefix属性用来设置要添加到sql语句开头的关键字，suffix属性用来设置要添加到sql语句结尾的关键字，prefixOverrides属性用来设置要去除的前缀关键字列表，suffixOverrides属性用来设置要去除的后缀关键字列表。如果prefix属性和suffix属性都不设置，则不添加前缀和后缀关键字；如果prefixOverrides属性和suffixOverrides属性都不设置，则不去除前缀和后缀关键字。
+
+
+下面我们来看一个例子：
 
 
 .. code-block:: xml
@@ -155,12 +185,13 @@ trim语句用来去除sql语句中开头和结尾的多余的关键字，例如a
     </select>
 
 
-上面的例子中，如果name的值不为空，则在sql语句中添加where name = #{name}，否则不添加。如果age的值不为0，则在sql语句中添加where age = #{age}，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为select * from user。如果name的值不为空，age的值不为0，则生成的sql语句为select * from user where name = #{name} and age = #{age}。
+上面的例子中，如果name的值不为空，则在sql语句中添加 ``where name = #{name}``，否则不添加。如果age的值不为0，则在sql语句中添加 ``where age = #{age}``，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为 ``select * from user``。如果name的值不为空，age的值不为0，则生成的sql语句为``select * from user where name = #{name} and age = #{age}``。
 
 choose、when和otherwise
 ------
 
 choose、when、otherwise语句用来实现类似于switch语句的功能。choose语句相当于switch语句，when语句相当于case语句，otherwise语句相当于default语句。choose、when、otherwise语句的语法如下：
+
 .. code-block:: xml
 
     <choose>
@@ -193,7 +224,7 @@ choose、when、otherwise语句用来实现类似于switch语句的功能。choo
     </select>
 
 
-上面的例子中，如果name的值不为空，则在sql语句中添加and name = #{name}，否则不添加。如果age的值不为0，则在sql语句中添加and age = #{age}，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为select * from user where name = #{name} and age = #{age}。如果name的值不为空，age的值不为0，则生成的sql语句为select * from user where and name = #{name} and age = #{age}。
+上面的例子中，如果name的值不为空，则在sql语句中添加 ``and name = #{name}``，否则不添加。如果age的值不为0，则在sql语句中添加 ``and age = #{age}``，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为 ``select * from user where name = #{name} and age = #{age}``。如果name的值不为空，age的值不为0，则生成的sql语句为 ``select * from user where and name = #{name} and age = #{age}``。
 
 
 otherwise语句用来实现else语句的效果，otherwise语句的语法如下：
