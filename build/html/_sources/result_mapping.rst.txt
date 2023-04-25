@@ -26,7 +26,7 @@ juice框架提供了三种结果集映射的方式：
 sql.Rows
 ----------------
 
-sql.Rows是database/sql包中的一个接口，它的定义如下：
+``sql.Rows`` 是database/sql包中的一个结构体，它可以被定义为下面的 ``Rows`` 接口：
 
 .. code-block:: go
 
@@ -38,7 +38,7 @@ sql.Rows是database/sql包中的一个接口，它的定义如下：
     }
 
 
-如果你熟悉database/sql包，那么你应该知道，sql.Rows是一个迭代器，它的Next方法用于遍历查询结果，Scan方法用于将查询结果映射到对象。
+如果你熟悉database/sql包，那么你应该知道，``sql.Rows`` 是一个迭代器，它的 ``Next`` 方法用于遍历查询结果，``Scan`` 方法用于将查询结果映射到对象。
 
 我们使用 ``engine`` 来查询
 
@@ -122,7 +122,7 @@ Executor
 
 因为我们这里是查询操作，所以我们使用 ``Query`` 方法，并且我们的sql语句没有参数，所以我们传入 ``nil``
 
-得到sql.Rows后，我们可以使用sql.Rows的方法来遍历查询结果，最后关闭sql.Rows。
+得到 ``sql.Rows`` 后，我们可以使用 ``sql.Rows`` 的方法来遍历查询结果，最后关闭 ``sql.Rows``。
 
 这种方式跟database/sql包的使用方式是一样的，所以如果你熟悉database/sql包，那么你应该很容易上手。
 
@@ -185,7 +185,7 @@ Binder是一个接口类型
 
 .. code-block:: go
 
-    binder, err := NewBinderManager(engine).Object("main.SelectUser").Query(nil)
+    binder, err := juice.NewBinderManager(engine).Object("main.SelectUser").Query(nil)
     if err != nil {
         panic(err)
     }
@@ -197,10 +197,72 @@ Binder是一个接口类型
 
 因为我们查询集是一个list，所以我们传入一个指向User切片的指针，然后调用 ``Scan`` 方法，将查询结果绑定到切片中。
 
-但是我们一运行，会发现报错了
+但是我们一运行，发现我们的users切片有元素，但是结构体全部都是零值结构体，这是为什么呢？
+
+这是因为我们的User结构体中的字段名和数据库中的字段名不一致，所以在结构体字段上指定数据库的字段名即可。
+
+我们修改一下User结构体
+
+.. code-block:: go
+
+    type User struct {
+        Id   int64  `column:"id"`
+        Name string `column:"name"`
+        Age  int    `column:"age"`
+    }
+
+我们使用 ``column`` 标签指定了数据库中的字段名，然后再次运行，发现我们的users切片中的元素已经有值了。
 
 
-GenericExecutor
+GenericManager
 ---------------
 
+GenericManager是一个接口类型，它的定义如下
 
+.. code-block:: go
+
+    type GenericManager[T any] interface {
+        Object(v any) GenericExecutor[T]
+    }
+
+它只有一个 ``Object`` 方法，它接受一个参数，返回一个 ``GenericExecutor`` 对象。
+
+其中 ``Object`` 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。
+
+注意的是，这里的 ``GenericManager`` 需要接受一个泛型参数，这个参数用来指定 ``GenericExecutor`` 的返回值类型，也就是我们的查询结果类型。
+
+GenericExecutor
+"""""""""""""""
+
+``GenericExecutor`` 是一个接口类型，它的定义如下
+
+.. code-block:: go
+
+    // GenericExecutor is a generic executor.
+    type GenericExecutor[result any] interface {
+        Query(param any) (result, error)
+        QueryContext(ctx context.Context, param any) (result, error)
+        Exec(param any) (sql.Result, error)
+        ExecContext(ctx context.Context, param any) (sql.Result, error)
+    }
+
+
+它的 ``Query`` 方法返回我们指定的查询结果类型和一个 ``error`` ，而不是 ``Binder`` 对象。
+
+使用示例
+
+.. code-block:: go
+
+    users, err := juice.NewGenericManager[[]User](engine).Object("main.SelectUser").Query(nil)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(users)
+
+这里我们使用 ``NewGenericManager`` 方法创建了一个 ``GenericManager`` 对象，因为我们的查询结果是一个list，所以我们指定这个对象的泛型参数是 ``[]User`` ，也就是说它的返回值类型是 ``[]User`` ，然后我们调用 ``Object`` 方法指定查询的mapper，然后调用 ``Query`` 方法执行查询，最后返回一个 ``[]User`` 类型的结果。
+
+同样的，我们需要在User结构体上指定数据库字段名。
+
+
+ResultMap
+---------

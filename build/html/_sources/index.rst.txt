@@ -153,6 +153,8 @@ http://github.com/eatmoreapple/juice
 
    tx
 
+   dynamic_sql
+
    expr
 
    middleware

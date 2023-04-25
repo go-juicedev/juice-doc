@@ -45,12 +45,18 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">配置详情</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#configuring">configuring</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#environments">environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#provider">provider</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id2">连接池配置</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#settings">settings</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="params.html">参数传递</a></li>
+<li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
 
         </div>
@@ -149,6 +155,40 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+</section>
+<section id="provider">
+<h2>provider<a class="headerlink" href="#provider" title="此标题的永久链接"></a></h2>
+<p>有时候我们不想在配置直接写数据库连接信息，而是想通过代码来配置数据库连接信息，这时候我们就可以使用 provider 标签来配置数据库连接信息。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="w"> </span><span class="na">provider=</span><span class="s">&quot;env&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>${DATA_SOURCE}<span class="nt">&lt;/provider&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>如上所示，我们在 prod 环境中配置了一个 provider 标签，它的值为 env。</p>
+<p>env 是 juice 提供的一个默认的 provider，它会从环境变量中获取数据库连接信息。</p>
+<p>如果你想自定义 provider，可以参考 juice 提供的 provider 的实现，实现自己的 provider。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// EnvValueProvider defines a environment value provider.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">EnvValueProvider</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Get</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<span class="c1">// RegisterEnvValueProvider registers an environment value provider.</span>
+<span class="c1">// The key is a name of the provider.</span>
+<span class="c1">// The value is a provider.</span>
+<span class="c1">// It allows to override the default provider.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">RegisterEnvValueProvider</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">provider</span><span class="w"> </span><span class="nx">EnvValueProvider</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如上所示，只要实现了 EnvValueProvider 接口，就可以通过 juice 提供的 RegisterEnvValueProvider 方法，我们可以注册自己的 provider。</p>
 </section>
 <section id="id2">
 <h2>连接池配置<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>

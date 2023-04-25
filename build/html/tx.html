@@ -20,7 +20,9 @@
         <script src="_static/translations.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="搜索" href="search.html" /> 
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="动态sql" href="dynamic_sql.html" />
+    <link rel="prev" title="结果集映射" href="result_mapping.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,10 +41,19 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
               <p class="caption" role="heading"><span class="caption-text">Juice 简介</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">配置详情</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">事务</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#manager">Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">开启事务</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
 
         </div>
@@ -71,12 +82,98 @@
              
   <section id="id1">
 <h1>事务<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<p>我们在操作数据库的时候，经常会遇到事务的问题，比如说，我们在操作数据库的时候，需要对多个表进行操作，这时候，我们就需要使用事务来保证数据的一致性。</p>
+<p>那么在 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 中，我们是如何使用事务的呢？</p>
+<p>首先我们回顾一下我们之前的用法:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+<span class="w">        </span><span class="nx">engine</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewBinderManager</span><span class="p">(</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在上面的代码中，我们可以看到，我们都是通过 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 来进行操作的，<code class="docutils literal notranslate"><span class="pre">engine</span></code> 会从数据库的连接池中获取一个连接，然后进行操作，操作完毕后，会将连接放回连接池中。</p>
+<p>那么，如果我们需要使用事务，我们该如何操作呢？</p>
+<section id="manager">
+<h2>Manager<a class="headerlink" href="#manager" title="此标题的永久链接"></a></h2>
+<p>通过查看 <code class="docutils literal notranslate"><span class="pre">NewBinderManager</span></code> 和 <code class="docutils literal notranslate"><span class="pre">NewGenericManager</span></code> 的源码，我们可以看到，它们接受的参数都是一个名为 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 的接口。</p>
+<p>Manager 接口的定义如下:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Manager is an interface for managing database operations.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Manager</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Object</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="nx">Executor</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>我们上面使用的 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 就是一个实现了 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 接口的结构体。</p>
+</section>
+<section id="id2">
+<h2>开启事务<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>我们可以通过 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 来开启一个事务，它会返回一个 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 接口的实现，我们可以通过这个实现来进行事务的操作。</p>
+<p>注意，当调用 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 事务就已经开启了。</p>
+<p>我们可以通过 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 返回的事务对象来进行事务的操作。</p>
+<p>如上面的示例我们可以这样写:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">tx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">Tx</span><span class="p">()</span>
+
+<span class="k">defer</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">Rollback</span><span class="p">()</span>
+
+<span class="p">{</span>
+<span class="w">        </span><span class="nx">tx</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewBinderManager</span><span class="p">(</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">tx</span><span class="p">.</span><span class="nx">Commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>在上面的示例中，我们可以看到，我们将 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 由 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 改成 <code class="docutils literal notranslate"><span class="pre">tx</span></code> 之后，上面的操作都会在一个事务中进行了，我们就通过 <code class="docutils literal notranslate"><span class="pre">tx</span></code> 来进行事务的操作，当我们需要提交事务的时候，我们调用 <code class="docutils literal notranslate"><span class="pre">tx.Commit()</span></code> 来提交事务，如果我们需要回滚事务，我们调用 <code class="docutils literal notranslate"><span class="pre">tx.Rollback()</span></code> 来回滚事务。</p>
+<p>注意，当我们调用 <code class="docutils literal notranslate"><span class="pre">tx.Commit()</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">tx.Rollback()</span></code> 之后，事务就已经结束了，我们不能再对事务进行操作了。</p>
+<p>如果你需要使用嵌套事务，多次调用 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 来开启事务，但是需要注意的是，你需要在每次调用 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 之后，都要调用 <code class="docutils literal notranslate"><span class="pre">tx.Rollback()</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">tx.Commit()</span></code> 来终止事务，否则你的事务会一直处于开启状态。</p>
+</section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="result_mapping.html" class="btn btn-neutral float-left" title="结果集映射" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="dynamic_sql.html" class="btn btn-neutral float-right" title="动态sql" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
