@@ -85,7 +85,7 @@
              
   <section id="id1">
 <h1>配置详情<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
-<p>juice 默认配置文件为 xml 格式，我们可以在项目的目录下创建一个xml 的文件，然后在其中配置 juice 的相关信息。</p>
+<p><code class="docutils literal notranslate"><span class="pre">juice</span></code> 默认配置文件为 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 格式，我们可以在项目的目录下创建一个 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 的文件，然后在其中配置 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 的相关信息。</p>
 <section id="configuring">
 <h2>configuring<a class="headerlink" href="#configuring" title="此标题的永久链接"></a></h2>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
@@ -94,12 +94,12 @@
 <span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
-<p>juice 的配置信息都写在 configuration 标签中，如数据库连接信息，sql 语句，setting 等。</p>
+<p><code class="docutils literal notranslate"><span class="pre">juice</span></code> 的配置信息都写在 <code class="docutils literal notranslate"><span class="pre">configuration</span></code> 标签中，如数据库连接信息， <code class="docutils literal notranslate"><span class="pre">sql</span></code> 语句， <code class="docutils literal notranslate"><span class="pre">setting</span></code> 等。</p>
 </section>
 <section id="environments">
 <h2>environments<a class="headerlink" href="#environments" title="此标题的永久链接"></a></h2>
-<p>environments 标签用于配置不同的环境，如开发环境，测试环境，生产环境等。</p>
-<p>开发者可以根据自己的需要配置不同的环境，juice 会根据environments的default标签来加载特定的配置信息。</p>
+<p><code class="docutils literal notranslate"><span class="pre">environments</span></code> 标签用于配置不同的环境，如开发环境，测试环境，生产环境等。</p>
+<p>开发者可以根据自己的需要配置不同的环境， <code class="docutils literal notranslate"><span class="pre">juice</span></code> 会根据 <code class="docutils literal notranslate"><span class="pre">environments</span></code> 的 <code class="docutils literal notranslate"><span class="pre">default</span></code> 标签来加载特定的配置信息。</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="nt">&lt;configuration&gt;</span>
 <span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
@@ -118,13 +118,13 @@
 <span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
-<p>在上面的配置中，我们配置了两个环境，分别是 prod 和 dev，其中 prod 是默认的环境，juice 会根据这个配置来加载数据库连接信息。</p>
+<p>在上面的配置中，我们配置了两个环境，分别是 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dev</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 是默认的环境， <code class="docutils literal notranslate"><span class="pre">juice</span></code> 会根据这个配置来加载数据库连接信息。</p>
 <div class="admonition attention">
 <p class="admonition-title">注意</p>
 <p>注意：environments 标签中的 default 属性是必须的，如果没有配置这个属性，juice 不知道去加载哪个环境的配置信息。</p>
 <p>每个环境的配置信息都是在 environment 标签中，其中 id 属性是必须且唯一，用于标识不同的环境，dataSource 标签用于配置数据库连接信息，driver 标签用于配置数据库驱动。</p>
 </div>
-<p>配置好环境信息后，我们就可以在代码中使用 juice 的数据库连接了。</p>
+<p>配置好环境信息后，我们就可以在代码中使用 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 的数据库连接了。</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -158,7 +158,7 @@
 </section>
 <section id="provider">
 <h2>provider<a class="headerlink" href="#provider" title="此标题的永久链接"></a></h2>
-<p>有时候我们不想在配置直接写数据库连接信息，而是想通过代码来配置数据库连接信息，这时候我们就可以使用 provider 标签来配置数据库连接信息。</p>
+<p>有时候我们不想在配置直接写数据库连接信息，而是想通过代码来配置数据库连接信息，这时候我们就可以使用 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 标签来配置数据库连接信息。</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="nt">&lt;configuration&gt;</span>
 <span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
@@ -172,9 +172,9 @@
 <span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
-<p>如上所示，我们在 prod 环境中配置了一个 provider 标签，它的值为 env。</p>
-<p>env 是 juice 提供的一个默认的 provider，它会从环境变量中获取数据库连接信息。</p>
-<p>如果你想自定义 provider，可以参考 juice 提供的 provider 的实现，实现自己的 provider。</p>
+<p>如上所示，我们在 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 环境中配置了一个 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 标签，它的值为 <code class="docutils literal notranslate"><span class="pre">env</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">env</span></code> 是 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的一个默认的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>，它会从环境变量中获取数据库连接信息。</p>
+<p>如果你想自定义 <code class="docutils literal notranslate"><span class="pre">provider</span></code>，可以参考 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 的实现，实现自己的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>。</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// EnvValueProvider defines a environment value provider.</span>
 <span class="kd">type</span><span class="w"> </span><span class="nx">EnvValueProvider</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">Get</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
@@ -188,7 +188,7 @@
 <span class="kd">func</span><span class="w"> </span><span class="nx">RegisterEnvValueProvider</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">provider</span><span class="w"> </span><span class="nx">EnvValueProvider</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>如上所示，只要实现了 EnvValueProvider 接口，就可以通过 juice 提供的 RegisterEnvValueProvider 方法，我们可以注册自己的 provider。</p>
+<p>如上所示，只要实现了 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code> 接口，就可以通过 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的 <code class="docutils literal notranslate"><span class="pre">RegisterEnvValueProvider</span></code> 方法，我们可以注册自己的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>。</p>
 </section>
 <section id="id2">
 <h2>连接池配置<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
@@ -236,15 +236,15 @@
 
 </li>
 </ul>
-<p>开发者可以根据自己的需要配置连接池的相关信息，juice 会根据配置信息来初始化连接池。</p>
+<p>开发者可以根据自己的需要配置连接池的相关信息， <cite>juice</cite> 会根据配置信息来初始化连接池。</p>
 </section>
 <section id="settings">
 <h2>settings<a class="headerlink" href="#settings" title="此标题的永久链接"></a></h2>
-<p>settings 标签用于往 juice 中注入自定义的配置信息。</p>
-<p>settings 标签是 settings 标签的父标签，settings 标签中可以有多个 setting 标签，setting 标签中的 name 属性是必须的，用于标识配置信息的名称，value 属性是可选的，用于配置配置信息的值。</p>
-<p>settings 标签是可选的，可以不配置。</p>
+<p><cite>settings</cite> 标签用于往 <cite>juice</cite> 中注入自定义的配置信息。</p>
+<p><cite>settings</cite> 标签是 <cite>settings</cite> 标签的父标签， <cite>settings</cite> 标签中可以有多个 <cite>setting</cite> 标签， <cite>setting</cite> 标签中的 <cite>name</cite> 属性是必须的，用于标识配置信息的名称， <cite>value</cite> 属性是可选的，用于配置配置信息的值。</p>
+<p><cite>settings</cite> 标签是可选的，可以不配置。</p>
 <p>具体的用途得看开发者自己的需求了。</p>
-<p>如在juice 提供的 DebugMiddleware 中间件中，它会根据配置信息来决定是否开启调试模式。默认是开启的，可以在配置文件中关闭。</p>
+<p>如在 <cite>juice</cite> 提供的 <cite>DebugMiddleware</cite> 中间件中，它会根据配置信息来决定是否开启调试模式。默认是开启的，可以在配置文件中关闭。</p>
 <p>关闭调试模式的配置如下：</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="w">    </span><span class="nt">&lt;configuration&gt;</span>

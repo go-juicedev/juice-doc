@@ -53,7 +53,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">参数传递</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#map-struct">map-struct参数</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id5">非map-struct的参数传递</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#paramconverter">ParamConverter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#h">H</a></li>
 </ul>
 </li>
 </ul>
@@ -153,6 +153,10 @@
 </li>
 </ul>
 <p>通过引用mapper文件，我们可以将sql语句分散到不同的文件中，这样可以使得我们的结构更加清晰。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>namespace、resource、url三个属性是互斥的，一个mapper标签只能使用其中的一个。</p>
+</div>
 </section>
 <section id="select-insert-update-delete">
 <h2>select，insert，update，delete标签<a class="headerlink" href="#select-insert-update-delete" title="此标题的永久链接"></a></h2>
@@ -176,7 +180,7 @@
 <span class="w"> </span><span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
-<p>上述的select，insert，update，delete标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。</p>
+<p>上述的 <cite>select，insert，update，delete</cite> 标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。</p>
 </section>
 <section id="id1">
 <h2>接受参数<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h2>
@@ -258,14 +262,12 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>如上所示，我们在创建完 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 之后, 使用 <code class="docutils literal notranslate"><span class="pre">NewGenericManager</span></code> 来创建一个 <code class="docutils literal notranslate"><span class="pre">GenericManager</span></code> , 这个方法接受一个泛型参数, 这个参数是用来指定返回值的类型的, 这里我们指定的是 <code class="docutils literal notranslate"><span class="pre">int64</span></code> 。</p>
-<p>然后，我们使用 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法来指定我们要执行的sql语句，这个方法接受一个参数，这里我们传入了 <code class="docutils literal notranslate"><span class="pre">CountUserByName</span></code> 这个函数，因为 <code class="docutils literal notranslate"><span class="pre">CountUserByName</span></code> 这个函数在main包下，并且它不属于任何自定义结构，所以它的全名就是 <code class="docutils literal notranslate"><span class="pre">main.CountUserByName</span></code> 。</p>
-<p>对应到xml配置文件中，它就会去找main这个命名空间下的 <code class="docutils literal notranslate"><span class="pre">CountUserByName</span></code> 这个id。当然，我们也可以在直接调用 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法的时候，传入一个字符串，这个字符串就是我们要执行的sql语句的id，如 <code class="docutils literal notranslate"><span class="pre">main.CountUserByName</span></code> 。</p>
-<p>最后，我们使用 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。</p>
+<p>如上所示，我们在创建完 <cite>engine</cite> 之后, 使用 <cite>NewGenericManager</cite> 来创建一个 <cite>GenericManager</cite> , 这个方法接受一个泛型参数, 这个参数是用来指定返回值的类型的, 这里我们指定的是 <code class="docutils literal notranslate"><span class="pre">int64</span></code> 。然后，我们使用 <cite>Object</cite> 方法来指定我们要执行的sql语句，这个方法接受一个参数，这里我们传入了 <cite>CountUserByName</cite> 这个函数，因为 <cite>CountUserByName</cite> 这个函数在main包下，并且它不属于任何自定义结构，所以它的全名就是 <cite>main.CountUserByName</cite> 。</p>
+<p>对应到xml配置文件中，它就会去找main这个命名空间下的 <cite>CountUserByName</cite> 这个id。当然，我们也可以在直接调用 <cite>Object</cite> 方法的时候，传入一个字符串，这个字符串就是我们要执行的sql语句的id，如 <cite>main.CountUserByName</cite> 。</p>
+<p>最后，我们使用 <cite>Query</cite> 方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。</p>
 <section id="map-struct">
 <h4>map-struct参数<a class="headerlink" href="#map-struct" title="此标题的永久链接"></a></h4>
-<p>如上所示，我们传递了一个map，这个map的key就是我们在sql语句中使用的参数名，这个map的value就是我们要传递给sql语句的参数值。</p>
-<p>当然我们也可以传递一个struct，这个struct的字段名就是我们在sql语句中使用的参数名，这个struct的字段值就是我们要传递给sql语句的参数值。</p>
+<p>如上所示，我们传递了一个 <cite>map</cite>，这个 <cite>map</cite> 的key就是我们在sql语句中使用的参数名，这个map的value就是我们要传递给sql语句的参数值。当然我们也可以传递一个struct，这个struct的字段名就是我们在sql语句中使用的参数名，这个struct的字段值就是我们要传递给sql语句的参数值。</p>
 <p>如果我们想自定义struct的字段名和sql语句中的参数名不一致，那么我们可以使用juice的tag来指定，如下所示：</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`param:&quot;name&quot;`</span>
@@ -273,11 +275,15 @@
 </pre></div>
 </div>
 <p>指定结构体字段的tag为param，那么这个字段就会被当作sql语句中的参数名，而不是字段名。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>当你的参数是一个map的时候，这个map的key必须是string类型的。</p>
+</div>
 </section>
 <section id="id5">
 <h4>非map-struct的参数传递<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h4>
 <p>既然map和struct都可以转换成key-value结构，那么如果我们传递一个非struct的参数或者非map的参数，那么这个参数传递到xml中的key是什么呢？</p>
-<p>这个时候，juice就会将这个参数当作一个单独的参数来处理，这个参数的key就是param，这个参数的value就是我们传递的参数值。</p>
+<p>这个时候，juice就会将这个参数包装成一个 <cite>map</cite>，这个 <cite>map</cite> 的key就是 <code class="docutils literal notranslate"><span class="pre">param</span></code> ，这个 <cite>map</cite> 的value就是我们传递的参数。</p>
 <p>如下所示：</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">count</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int64</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">CountUserByName</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">)</span>
 </pre></div>
@@ -289,7 +295,7 @@
 <span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
-<p>如果这个时候我们想指定这个参数的key，而不是使用默认的 <code class="docutils literal notranslate"><span class="pre">param</span></code> ，那么在对应的action标签上，我们可以使用 <code class="docutils literal notranslate"><span class="pre">paramName</span></code> 属性来指定，如下所示：</p>
+<p>包装的 <cite>map</cite> 的key也是可以自定义的，我们可以在对应的action标签上，使用 <code class="docutils literal notranslate"><span class="pre">paramName</span></code> 属性来指定，如下所示：</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CountUserByName&quot;</span><span class="w"> </span><span class="na">paramName=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>
 <span class="w">        </span>select<span class="w"> </span>count(*)<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
@@ -297,21 +303,11 @@
 <span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
+<p>或者通过环境变量 <code class="docutils literal notranslate"><span class="pre">JUICE_PARAM_NAME</span></code> 来设置。</p>
 </section>
-<section id="paramconverter">
-<h4>ParamConverter<a class="headerlink" href="#paramconverter" title="此标题的永久链接"></a></h4>
-<p>我们也可以自己实现一个 <code class="docutils literal notranslate"><span class="pre">ParamConverter</span></code> ，这个 <code class="docutils literal notranslate"><span class="pre">ParamConverter</span></code> 可以用来将我们传递给sql语句的参数转换成我们想要的类型。</p>
-<p>ParamConverter的定义如下：</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// ParamConverter is an interface that can convert itself to Param</span>
-<span class="kd">type</span><span class="w"> </span><span class="nx">ParamConverter</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">ParamConvert</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="nx">Param</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">ParamConverter</span></code> 接口只有一个方法，这个方法就是 <code class="docutils literal notranslate"><span class="pre">ParamConvert</span></code> ，这个方法返回一个 <code class="docutils literal notranslate"><span class="pre">Param</span></code> 和一个 <code class="docutils literal notranslate"><span class="pre">error</span></code> 。</p>
-<p>如果 <code class="docutils literal notranslate"><span class="pre">error</span></code> 不为 <code class="docutils literal notranslate"><span class="pre">nil</span></code> ，那么这个 <code class="docutils literal notranslate"><span class="pre">error</span></code> 就会被返回给调用者。</p>
-<p>juice 默认提供了一个 <code class="docutils literal notranslate"><span class="pre">ParamConverter</span></code> ， <code class="docutils literal notranslate"><span class="pre">juice.H</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">juice.H</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">map[string]interface{}</span></code> 的别名，它实现了 <code class="docutils literal notranslate"><span class="pre">ParamConverter</span></code> 接口，所以我们可以直接使用 <code class="docutils literal notranslate"><span class="pre">juice.H</span></code> 来传递参数。</p>
+<section id="h">
+<h4>H<a class="headerlink" href="#h" title="此标题的永久链接"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">juice.H</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">map[string]interface{}</span></code> 的别名。用来方便开发者传递参数。</p>
 </section>
 </section>
 </section>

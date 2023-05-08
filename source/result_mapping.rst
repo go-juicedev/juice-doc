@@ -88,7 +88,7 @@ Object
 
 * 函数类型, juice 内部会去获取这个函数在代码里面的位置作为对应的id，例如在传入的是 ``main`` 包下的 ``SelectUser`` 函数，那么id就是 ``main.SelectUser``
 
-  如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的包名.类型名.方法名（注意区分interface和struct）
+  如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 ``pkgpath.interface|struct.methodname`` （包名.类型名.方法名, 注意区分 ``interface`` 和 ``struct``）
 
 
 .. attention::

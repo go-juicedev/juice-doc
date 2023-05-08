@@ -165,7 +165,7 @@
 </div>
 </li>
 <li><p>函数类型, juice 内部会去获取这个函数在代码里面的位置作为对应的id，例如在传入的是 <code class="docutils literal notranslate"><span class="pre">main</span></code> 包下的 <code class="docutils literal notranslate"><span class="pre">SelectUser</span></code> 函数，那么id就是 <code class="docutils literal notranslate"><span class="pre">main.SelectUser</span></code></p>
-<p>如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的包名.类型名.方法名（注意区分interface和struct）</p>
+<p>如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 <code class="docutils literal notranslate"><span class="pre">pkgpath.interface|struct.methodname</span></code> （包名.类型名.方法名, 注意区分 <code class="docutils literal notranslate"><span class="pre">interface</span></code> 和 <code class="docutils literal notranslate"><span class="pre">struct</span></code>）</p>
 </li>
 </ul>
 <div class="admonition attention">

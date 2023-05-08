@@ -53,6 +53,9 @@ mapper标签是用来存储sql语句的集合标签。
 
 通过引用mapper文件，我们可以将sql语句分散到不同的文件中，这样可以使得我们的结构更加清晰。
 
+.. attention::
+   namespace、resource、url三个属性是互斥的，一个mapper标签只能使用其中的一个。
+
 
 select，insert，update，delete标签
 -----------------------------------
@@ -80,7 +83,7 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
     </mapper>
 
 
-上述的select，insert，update，delete标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。
+上述的 `select，insert，update，delete` 标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。
 
 接受参数
 ----------------
@@ -176,20 +179,16 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
 
 
 
-如上所示，我们在创建完 ``engine`` 之后, 使用 ``NewGenericManager`` 来创建一个 ``GenericManager`` , 这个方法接受一个泛型参数, 这个参数是用来指定返回值的类型的, 这里我们指定的是 ``int64`` 。
+如上所示，我们在创建完 `engine` 之后, 使用 `NewGenericManager` 来创建一个 `GenericManager` , 这个方法接受一个泛型参数, 这个参数是用来指定返回值的类型的, 这里我们指定的是 ``int64`` 。然后，我们使用 `Object` 方法来指定我们要执行的sql语句，这个方法接受一个参数，这里我们传入了 `CountUserByName` 这个函数，因为 `CountUserByName` 这个函数在main包下，并且它不属于任何自定义结构，所以它的全名就是 `main.CountUserByName` 。
 
-然后，我们使用 ``Object`` 方法来指定我们要执行的sql语句，这个方法接受一个参数，这里我们传入了 ``CountUserByName`` 这个函数，因为 ``CountUserByName`` 这个函数在main包下，并且它不属于任何自定义结构，所以它的全名就是 ``main.CountUserByName`` 。
+对应到xml配置文件中，它就会去找main这个命名空间下的 `CountUserByName` 这个id。当然，我们也可以在直接调用 `Object` 方法的时候，传入一个字符串，这个字符串就是我们要执行的sql语句的id，如 `main.CountUserByName` 。
 
-对应到xml配置文件中，它就会去找main这个命名空间下的 ``CountUserByName`` 这个id。当然，我们也可以在直接调用 ``Object`` 方法的时候，传入一个字符串，这个字符串就是我们要执行的sql语句的id，如 ``main.CountUserByName`` 。
-
-最后，我们使用 ``Query`` 方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。
+最后，我们使用 `Query` 方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。
 
 map-struct参数
 """""""""""""""
 
-如上所示，我们传递了一个map，这个map的key就是我们在sql语句中使用的参数名，这个map的value就是我们要传递给sql语句的参数值。
-
-当然我们也可以传递一个struct，这个struct的字段名就是我们在sql语句中使用的参数名，这个struct的字段值就是我们要传递给sql语句的参数值。
+如上所示，我们传递了一个 `map`，这个 `map` 的key就是我们在sql语句中使用的参数名，这个map的value就是我们要传递给sql语句的参数值。当然我们也可以传递一个struct，这个struct的字段名就是我们在sql语句中使用的参数名，这个struct的字段值就是我们要传递给sql语句的参数值。
 
 如果我们想自定义struct的字段名和sql语句中的参数名不一致，那么我们可以使用juice的tag来指定，如下所示：
 
@@ -202,12 +201,16 @@ map-struct参数
 指定结构体字段的tag为param，那么这个字段就会被当作sql语句中的参数名，而不是字段名。
 
 
+.. attention::
+    当你的参数是一个map的时候，这个map的key必须是string类型的。
+
 非map-struct的参数传递
 """""""""""""""""""""""
 
 既然map和struct都可以转换成key-value结构，那么如果我们传递一个非struct的参数或者非map的参数，那么这个参数传递到xml中的key是什么呢？
 
-这个时候，juice就会将这个参数当作一个单独的参数来处理，这个参数的key就是param，这个参数的value就是我们传递的参数值。
+这个时候，juice就会将这个参数包装成一个 `map`，这个 `map` 的key就是 ``param`` ，这个 `map` 的value就是我们传递的参数。
+
 
 如下所示：
 
@@ -223,7 +226,7 @@ map-struct参数
         </select>
     </mapper>
 
-如果这个时候我们想指定这个参数的key，而不是使用默认的 ``param`` ，那么在对应的action标签上，我们可以使用 ``paramName`` 属性来指定，如下所示：
+包装的 `map` 的key也是可以自定义的，我们可以在对应的action标签上，使用 ``paramName`` 属性来指定，如下所示：
 
 .. code-block:: xml
 
@@ -234,27 +237,13 @@ map-struct参数
     </mapper>
 
 
-ParamConverter
-""""""""""""""
+或者通过环境变量 ``JUICE_PARAM_NAME`` 来设置。
 
-我们也可以自己实现一个 ``ParamConverter`` ，这个 ``ParamConverter`` 可以用来将我们传递给sql语句的参数转换成我们想要的类型。
 
-ParamConverter的定义如下：
+H
+"""""
 
-.. code-block:: go
-
-    // ParamConverter is an interface that can convert itself to Param
-    type ParamConverter interface {
-        ParamConvert() (Param, error)
-    }
-
-``ParamConverter`` 接口只有一个方法，这个方法就是 ``ParamConvert`` ，这个方法返回一个 ``Param`` 和一个 ``error`` 。
-
-如果 ``error`` 不为 ``nil`` ，那么这个 ``error`` 就会被返回给调用者。
-
-juice 默认提供了一个 ``ParamConverter`` ， ``juice.H``
-
-``juice.H`` 是一个 ``map[string]interface{}`` 的别名，它实现了 ``ParamConverter`` 接口，所以我们可以直接使用 ``juice.H`` 来传递参数。
+``juice.H`` 是一个 ``map[string]interface{}`` 的别名。用来方便开发者传递参数。
 
 
 
