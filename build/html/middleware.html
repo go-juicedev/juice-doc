@@ -48,7 +48,11 @@
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">中间件</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">中间件</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">什么是中间件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">自定义中间件</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
 
@@ -78,6 +82,106 @@
              
   <section id="id1">
 <h1>中间件<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<section id="id2">
+<h2>什么是中间件<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>在juice中，中间件是一个接口，接口的描述如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// QueryHandler defines the handler of the query.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">QueryHandler</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Rows</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+
+<span class="c1">// ExecHandler defines the handler of the exec.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ExecHandler</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+
+<span class="c1">// Middleware is a wrapper of QueryHandler and ExecHandler.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Middleware</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// QueryContext wraps the QueryHandler.</span>
+<span class="w">    </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">QueryHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">QueryHandler</span>
+<span class="w">    </span><span class="c1">// ExecContext wraps the ExecHandler.</span>
+<span class="w">    </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">ExecHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">ExecHandler</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>中间件的作用是在执行SQL语句之前，对SQL语句进行一些处理，比如SQL语句的日志记录，SQL语句的缓存等等。</p>
+<p>当执行的是查询操作的时候，<code class="docutils literal notranslate"><span class="pre">QueryContext</span></code> 将会被执行。否则执行 <code class="docutils literal notranslate"><span class="pre">ExecContext</span></code></p>
+<p>juice中内置了一些中间件，比如：</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">juice/middleware/DebugMiddleware</span></code>：用于打印SQL语句的中间件。</p></li>
+</ul>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// logger is a default logger for debug.</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">log</span><span class="p">.</span><span class="nx">Writer</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;[juice] &quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">Flags</span><span class="p">())</span>
+
+<span class="c1">// DebugMiddleware is a middleware that prints the sql statement and the execution time.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">DebugMiddleware</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+
+<span class="c1">// QueryContext implements Middleware.</span>
+<span class="c1">// QueryContext will print the sql statement and the execution time.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">DebugMiddleware</span><span class="p">)</span><span class="w"> </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">QueryHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">QueryHandler</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">m</span><span class="p">.</span><span class="nx">isBugMode</span><span class="p">(</span><span class="nx">stmt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// wrapper QueryHandler</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Rows</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">start</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">()</span>
+<span class="w">            </span><span class="nx">rows</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">next</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">...</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">spent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Since</span><span class="p">(</span><span class="nx">start</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">logger</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;\x1b[33m[%s]\x1b[0m \x1b[32m %s\x1b[0m \x1b[34m %v\x1b[0m \x1b[31m %v\x1b[0m\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">stmt</span><span class="p">.</span><span class="nx">Name</span><span class="p">(),</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="p">,</span><span class="w"> </span><span class="nx">spent</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">rows</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ExecContext implements Middleware.</span>
+<span class="c1">// ExecContext will print the sql statement and the execution time.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">DebugMiddleware</span><span class="p">)</span><span class="w"> </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">ExecHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">ExecHandler</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">m</span><span class="p">.</span><span class="nx">isBugMode</span><span class="p">(</span><span class="nx">stmt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// wrapper ExecContext</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">start</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">()</span>
+<span class="w">            </span><span class="nx">rows</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">next</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">...</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">spent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Since</span><span class="p">(</span><span class="nx">start</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">logger</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;\x1b[33m[%s]\x1b[0m \x1b[32m %s\x1b[0m \x1b[34m %v\x1b[0m \x1b[31m %v\x1b[0m\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">stmt</span><span class="p">.</span><span class="nx">Name</span><span class="p">(),</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="p">,</span><span class="w"> </span><span class="nx">spent</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">rows</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// isBugMode returns true if the debug mode is on.</span>
+<span class="c1">// Default debug mode is on.</span>
+<span class="c1">// You can turn off the debug mode by setting the debug tag to false in the mapper statement attribute or the configuration.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">DebugMiddleware</span><span class="p">)</span><span class="w"> </span><span class="nx">isBugMode</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// try to one the bug mode from the Statement</span>
+<span class="w">    </span><span class="nx">debug</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">stmt</span><span class="p">.</span><span class="nx">Attribute</span><span class="p">(</span><span class="s">&quot;debug&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// if the bug mode is not set, try to one the bug mode from the Context</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">debug</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">cfg</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">stmt</span><span class="p">.</span><span class="nx">Configuration</span><span class="p">();</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Settings</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;debug&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>当你启用了这个中间件，juice会将每次执行的sql语句和参数写入到log包的默认的writer里面（默认是console），并且记录耗时。</p>
+<p>当不想使用这个中间件的时候，可以在setting里面讲debug设置为false, 这样就会全局关闭这个中间件。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;settings&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;debug&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/settings&gt;</span>
+</pre></div>
+</div>
+<p>当你想局部禁用这个功能的时候，可以在对应的action上面配置，如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;xxx&quot;</span><span class="w"> </span><span class="na">debug=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/insert&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">juice/middleware/TimeoutMiddleware</span></code>：用于控制sql执行超时。</p></li>
+</ul>
+<p>在对应action标签的属性上面加上timeout属性，即可启用这个功能，timeout的单位为毫秒，如：</p>
+</section>
+<section id="id3">
+<h2>自定义中间件<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p>自定义中间只需要实现 <code class="docutils literal notranslate"><span class="pre">Middleware</span></code> 接口, 然后注册入对应的engine即可，如：</p>
+</section>
 </section>
 
 
