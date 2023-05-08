@@ -47,7 +47,11 @@
 <li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">表达式</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">表达式</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">函数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">自定义函数</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
@@ -78,6 +82,106 @@
              
   <section id="id1">
 <h1>表达式<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<p>从上面的动态sql里面我们可以看出 juice 支持在 <code class="docutils literal notranslate"><span class="pre">if</span></code> 和 <code class="docutils literal notranslate"><span class="pre">when</span></code> 标签中使用表达式，这些表达式的语法和 go 语言中的语法基本一致。</p>
+<p>你可以在表达式里面书写大部分的 go 语言表达式，但是有一些特殊的地方需要注意：</p>
+<ol class="arabic">
+<li><p>juice 采用的是值传递，当你传递的是一个指针的时候，juice会将指针所指向的值传递给模板，而不是指针本身。所以无法比较一个元素是否为 <cite>nil</cite>。</p></li>
+<li><p>juice 只支持单行表达式，不支持多行表达式。</p></li>
+<li><p>当在表达式里面写一个字符串的时候，需要将test属性的的值用单引号包裹起来，例如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p>尽量写简单一点的表达式。</p></li>
+</ol>
+<section id="id2">
+<h2>函数<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>为了丰富表达式的功能，juice 支持在表达式里面调用函数。</p>
+<p>juice 内置了一些函数，你可以在表达式里面使用。</p>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">length</span></code>: 返回字符串的长度，或者数组、切片、map的长度。</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">func</span> <span class="n">length</span><span class="p">[</span><span class="n">T</span> <span class="nb">slice</span><span class="o">|</span><span class="nb">map</span><span class="o">|</span><span class="n">string</span><span class="p">](</span><span class="n">T</span><span class="p">)</span> <span class="nb">int</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">substr</span></code>: 返回字符串的子串，第一个参数是字符串，第二个参数是开始位置，第三个参数是结束位置。</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">func</span> <span class="n">substr</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="n">string</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">join</span></code>: 将字符串数组或者字符串切片转换成字符串，第一个参数是数组或者切片，第二个参数是分隔符。</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">func</span> <span class="n">join</span><span class="p">[</span><span class="n">T</span> <span class="nb">slice</span><span class="p">](</span><span class="n">T</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span> <span class="n">string</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">contains</span></code>: 判断字符串、切片、map中是否包含制定元素</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">func</span> <span class="n">contains</span><span class="p">[</span><span class="n">T</span> <span class="nb">slice</span><span class="o">|</span><span class="nb">map</span><span class="o">|</span><span class="n">string</span><span class="p">](</span><span class="n">T</span><span class="p">,</span> <span class="n">interface</span><span class="p">{})</span> <span class="nb">bool</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slice</span></code>: 将数组或者切片进行切片，第一个参数是数组或者切片，第二个参数是开始位置，第三个参数是结束位置。</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">func</span> <span class="nb">slice</span><span class="p">[</span><span class="n">T</span> <span class="nb">slice</span><span class="p">](</span><span class="n">T</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="n">T</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code>: 将字符串的首字母大写。</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">func</span> <span class="n">title</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="n">string</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code>: 将字符串转换成小写。</p>
+<blockquote>
+<div><p>func lower(string) string</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code>: 将字符串转换成大写。</p>
+<blockquote>
+<div><p>func upper(string) string</p>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="id3">
+<h2>自定义函数<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p>当我觉得内置的函数不够用的时候，我可以自定义函数，自定义函数需要满足以下条件：</p>
+<ol class="arabic simple">
+<li><p>必须是一个函数（emm，这个很好理解）。</p></li>
+<li><p>必须有一个返回值，类型可以是任意类型。</p></li>
+</ol>
+<p>ok，当满足上述两个条件之后，我们就可以往juice里面注册自定义函数了。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">add</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="w"> </span><span class="nx">y</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">y</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">RegisterEvalFunc</span><span class="p">(</span><span class="s">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">add</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在上面的代码中，我们定义了一个 <code class="docutils literal notranslate"><span class="pre">add</span></code> 函数，然后我们调用 <code class="docutils literal notranslate"><span class="pre">RegisterEvalFunc</span></code> 方法将这个函数注册到 juice 里面。</p>
+<p>在 juice 里面，我们可以这样使用这个函数：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;add(1, 2) == 3&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
