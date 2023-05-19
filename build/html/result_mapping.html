@@ -60,6 +60,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#resultmap">ResultMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">自增主键映射</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
@@ -302,6 +303,44 @@
 </section>
 <section id="resultmap">
 <h2>ResultMap<a class="headerlink" href="#resultmap" title="此标题的永久链接"></a></h2>
+<p>后续补充</p>
+</section>
+<section id="id2">
+<h2>自增主键映射<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>当我们往数据库中插入一条数据时，如果这条数据的主键是自增的，那么我们需要获取这条数据的主键值，将这个值赋值给我们的结构体。</p>
+<p>如果想要实现这个功能，我们需要需要满足以下条件:</p>
+<ol class="arabic simple">
+<li><p>对应的sql.Driver需要支持 <code class="docutils literal notranslate"><span class="pre">LastInsertId</span></code> 方法。</p></li>
+<li><p>传入的参数必须是一个指向结构体的指针。</p></li>
+<li><p>在xml中执行的sql语句必须是 <code class="docutils literal notranslate"><span class="pre">insert</span></code> 语句。</p></li>
+<li><p>在xml中执行的insert语句的中必须指定 <code class="docutils literal notranslate"><span class="pre">useGeneratedKeys</span></code> 属性为 <code class="docutils literal notranslate"><span class="pre">true</span></code> 。</p></li>
+<li><p>在xml中执行的insert语句的中必须指定 <code class="docutils literal notranslate"><span class="pre">keyProperty</span></code> 属性为我们传入结构体主键字段名。</p></li>
+</ol>
+<p>下面是一个例子:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;InsertUser&quot;</span><span class="w"> </span><span class="na">useGeneratedKeys=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">keyProperty=</span><span class="s">&quot;Id&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>insert<span class="w"> </span>into<span class="w"> </span>user(name,<span class="w"> </span>age)<span class="w"> </span>values(#{name},<span class="w"> </span>#{age})
+<span class="w">    </span><span class="nt">&lt;/insert&gt;</span>
+<span class="nt">&lt;/mapper&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Id</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`column:&quot;name&quot;`</span>
+<span class="w">    </span><span class="nx">Age</span><span class="w">  </span><span class="kt">int</span><span class="w">    </span><span class="s">`column:&quot;age&quot;`</span>
+<span class="p">}</span>
+
+<span class="nx">user</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">User</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;张三&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">Age</span><span class="p">:</span><span class="w">  </span><span class="mi">18</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewExecutor</span><span class="p">(</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.InsertUser&quot;</span><span class="p">).</span><span class="nx">Exec</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">user</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">Id</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 
