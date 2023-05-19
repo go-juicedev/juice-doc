@@ -266,3 +266,47 @@ GenericExecutor
 
 ResultMap
 ---------
+
+后续补充
+
+
+自增主键映射
+------------
+
+当我们往数据库中插入一条数据时，如果这条数据的主键是自增的，那么我们需要获取这条数据的主键值，将这个值赋值给我们的结构体。
+
+如果想要实现这个功能，我们需要需要满足以下条件:
+
+1. 对应的sql.Driver需要支持 ``LastInsertId`` 方法。
+2. 传入的参数必须是一个指向结构体的指针。
+3. 在xml中执行的sql语句必须是 ``insert`` 语句。
+4. 在xml中执行的insert语句的中必须指定 ``useGeneratedKeys`` 属性为 ``true`` 。
+5. 在xml中执行的insert语句的中必须指定 ``keyProperty`` 属性为我们传入结构体主键字段名。
+
+下面是一个例子:
+
+.. code-block:: xml
+
+    <mapper namespace="main">
+        <insert id="InsertUser" useGeneratedKeys="true" keyProperty="Id">
+            insert into user(name, age) values(#{name}, #{age})
+        </insert>
+    </mapper>
+
+.. code-block:: go
+
+    type User struct {
+        Id   int64  `column:"id"`
+        Name string `column:"name"`
+        Age  int    `column:"age"`
+    }
+
+    user := User{
+        Name: "张三",
+        Age:  18,
+    }
+    _, err := juice.NewExecutor(engine).Object("main.InsertUser").Exec(&user)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(user.Id)
