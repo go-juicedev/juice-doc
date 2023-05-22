@@ -296,7 +296,7 @@ ResultMap
 .. code-block:: go
 
     type User struct {
-        Id   int64  `column:"id"`
+        Id   int64  `column:"id" autoincr:"true"`
         Name string `column:"name"`
         Age  int    `column:"age"`
     }
