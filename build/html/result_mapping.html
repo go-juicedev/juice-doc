@@ -64,6 +64,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
@@ -314,7 +315,7 @@
 <li><p>传入的参数必须是一个指向结构体的指针。</p></li>
 <li><p>在xml中执行的sql语句必须是 <code class="docutils literal notranslate"><span class="pre">insert</span></code> 语句。</p></li>
 <li><p>在xml中执行的insert语句的中必须指定 <code class="docutils literal notranslate"><span class="pre">useGeneratedKeys</span></code> 属性为 <code class="docutils literal notranslate"><span class="pre">true</span></code> 。</p></li>
-<li><p>在xml中执行的insert语句的中必须指定 <code class="docutils literal notranslate"><span class="pre">keyProperty</span></code> 属性为我们传入结构体主键字段名。</p></li>
+<li><p>在xml中执行的insert语句的中指定 <code class="docutils literal notranslate"><span class="pre">keyProperty</span></code> 属性为我们传入结构体主键字段名。当这个字段为空时，juice会自动从当前传入的结构体字段中寻找tag为 `` autoincr:”true” `` 的字段，如果找到了，那么就将这个字段作为主键字段。</p></li>
 </ol>
 <p>下面是一个例子:</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
@@ -325,7 +326,7 @@
 </pre></div>
 </div>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">Id</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Id</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot; autoincr:&quot;true&quot;`</span>
 <span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`column:&quot;name&quot;`</span>
 <span class="w">    </span><span class="nx">Age</span><span class="w">  </span><span class="kt">int</span><span class="w">    </span><span class="s">`column:&quot;age&quot;`</span>
 <span class="p">}</span>

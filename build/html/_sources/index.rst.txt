@@ -153,6 +153,8 @@ http://github.com/eatmoreapple/juice
 
    tx
 
+   cache
+
    dynamic_sql
 
    expr

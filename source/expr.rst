@@ -66,13 +66,13 @@ juice 内置了一些函数，你可以在表达式里面使用。
 
 7. ``lower``: 将字符串转换成小写。
 
-        .. code::
+     .. code::
 
         func lower(string) string
 
 8. ``upper``: 将字符串转换成大写。
 
-        .. code::
+      .. code::
 
         func upper(string) string
 
