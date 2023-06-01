@@ -59,6 +59,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
@@ -196,6 +197,7 @@
 <p class="admonition-title">备注</p>
 <p>其中，collection属性用来指定集合，item属性用来指定集合中的元素，index属性用来指定集合中的索引，open属性用来指定开始符，close属性用来指定结束符，separator属性用来指定分隔符。</p>
 </div>
+<p>当传递的 collection 是一个切片或者数组时，index 属性为元素在切片或者数组中的索引，item 属性为元素的值。当传递的 collection 是一个 map 时，index 属性为 map 中的 key，item 属性为 map 中的 value。</p>
 <p>下面我们来看一个例子：</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectByIds&quot;</span><span class="nt">&gt;</span>
 <span class="w">    </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>id<span class="w"> </span>in
