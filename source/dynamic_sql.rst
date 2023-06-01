@@ -137,6 +137,9 @@ foreach语句用来遍历集合，将集合中的元素作为参数传递给sql�
     其中，collection属性用来指定集合，item属性用来指定集合中的元素，index属性用来指定集合中的索引，open属性用来指定开始符，close属性用来指定结束符，separator属性用来指定分隔符。
 
 
+当传递的 collection 是一个切片或者数组时，index 属性为元素在切片或者数组中的索引，item 属性为元素的值。当传递的 collection 是一个 map 时，index 属性为 map 中的 key，item 属性为 map 中的 value。
+
+
 下面我们来看一个例子：
 
 .. code-block:: xml
