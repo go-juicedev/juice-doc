@@ -159,6 +159,8 @@ http://github.com/eatmoreapple/juice
 
    expr
 
+   hot_reload
+
    middleware
 
    code_generate
