@@ -1,7 +1,7 @@
 配置详情
 ==============================
 
-``juice`` 默认配置文件为 ``xml`` 格式，我们可以在项目的目录下创建一个 ``xml`` 的文件，然后在其中配置 ``juice`` 的相关信息。
+juice默认配置文件为 ``xml`` 格式，我们可以在项目的目录下创建一个 ``xml`` 的文件，然后在其中配置juice的相关信息。
 
 configuring
 ----------------
@@ -13,7 +13,7 @@ configuring
 
    </configuration>
 
-``juice`` 的配置信息都写在 ``configuration`` 标签中，如数据库连接信息， ``sql`` 语句， ``setting`` 等。
+``juice`` 的配置信息都写在 ``configuration`` 标签中，如数据库连接信息。
 
 
 environments
@@ -42,7 +42,7 @@ environments
         </environments>
     </configuration>
 
-在上面的配置中，我们配置了两个环境，分别是 ``prod`` 和 ``dev``，其中 ``prod`` 是默认的环境， ``juice`` 会根据这个配置来加载数据库连接信息。
+在上面的配置中，我们配置了两个环境，分别是 ``prod`` 和 ``dev``，其中 ``prod`` 是 ``environments`` 指定的默认的环境， juice会根据这个配置来加载数据库连接信息。
 
 .. attention::
     注意：environments 标签中的 default 属性是必须的，如果没有配置这个属性，juice 不知道去加载哪个环境的配置信息。
@@ -63,12 +63,14 @@ environments
     )
 
     func main() {
-        cfg, err := juice.NewXMLConfiguration("config.xml")
+        // 解析配置文件
+        cfg, err := juice.NewXMLConfiguration("config.xml") // config.xml 即为我们刚刚编写的配置文件。
         if err != nil {
             fmt.Println(err)
             return
         }
 
+        // 根据配置文件构建engine
         engine, err := juice.DefaultEngine(cfg)
         if err != nil {
             fmt.Println(err)
@@ -83,11 +85,13 @@ environments
         fmt.Println(" connected to database")
     }
 
+.. attention::
+    在默认情况下，juice只会去连接 ``environments`` 中 ``default`` 属性指定的 ``environment``。
 
 provider
 ----------------
 
-有时候我们不想在配置直接写数据库连接信息，而是想通过代码来配置数据库连接信息，这时候我们就可以使用 ``provider`` 标签来配置数据库连接信息。
+有时候我们不想在配置文件里面把数据库连接信息写死，而是想通过一些别的途径来动态加载数据库连接信息，这时候我们就可以使用 ``provider`` 标签来配置数据库连接信息。
 
 .. code-block:: xml
 
@@ -126,6 +130,36 @@ provider
 
 如上所示，只要实现了 ``EnvValueProvider`` 接口，就可以通过 ``juice`` 提供的 ``RegisterEnvValueProvider`` 方法，我们可以注册自己的 ``provider``。
 
+
+``RegisterEnvValueProvider`` 函数的 name 参数即为在xml中指定的provider的值。
+
+当我们自己实现了 ``EnvValueProvider``, juice 会将 ``environment`` 中读到的配置信息的内容原封不动的传递给 ``EnvValueProvider``。
+
+如上所示，当指定 ``provider`` 的值为 ``env`` 的时候，它会根据提前定义好的规则去解析，以下是具体实现。
+
+.. code-block:: go
+
+    var formatRegexp = regexp.MustCompile(`\$\{ *?([a-zA-Z0-9_\.]+) *?\}`)
+
+    // OsEnvValueProvider is a environment value provider that uses os.Getenv.
+    type OsEnvValueProvider struct{}
+
+    // Get returns a value of the environment variable.
+    // It uses os.Getenv.
+    func (p OsEnvValueProvider) Get(key string) (string, error) {
+        var err error
+        key = formatRegexp.ReplaceAllStringFunc(key, func(find string) string {
+            value := os.Getenv(formatRegexp.FindStringSubmatch(find)[1])
+            if len(value) == 0 {
+                err = fmt.Errorf("environment variable %s not found", find)
+            }
+            return value
+        })
+        return key, err
+    }
+
+
+通过查看代码，我们可以知道，当解析 ``${}`` 语法格式时，会将尝试将里面的内容通过环境变量来查找，否则直接返回原始内容。
 
 
 

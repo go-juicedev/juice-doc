@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
@@ -86,7 +87,7 @@
              
   <section id="id1">
 <h1>配置详情<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">juice</span></code> 默认配置文件为 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 格式，我们可以在项目的目录下创建一个 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 的文件，然后在其中配置 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 的相关信息。</p>
+<p>juice默认配置文件为 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 格式，我们可以在项目的目录下创建一个 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 的文件，然后在其中配置juice的相关信息。</p>
 <section id="configuring">
 <h2>configuring<a class="headerlink" href="#configuring" title="此标题的永久链接"></a></h2>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
@@ -95,7 +96,7 @@
 <span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">juice</span></code> 的配置信息都写在 <code class="docutils literal notranslate"><span class="pre">configuration</span></code> 标签中，如数据库连接信息， <code class="docutils literal notranslate"><span class="pre">sql</span></code> 语句， <code class="docutils literal notranslate"><span class="pre">setting</span></code> 等。</p>
+<p><code class="docutils literal notranslate"><span class="pre">juice</span></code> 的配置信息都写在 <code class="docutils literal notranslate"><span class="pre">configuration</span></code> 标签中，如数据库连接信息。</p>
 </section>
 <section id="environments">
 <h2>environments<a class="headerlink" href="#environments" title="此标题的永久链接"></a></h2>
@@ -119,7 +120,7 @@
 <span class="nt">&lt;/configuration&gt;</span>
 </pre></div>
 </div>
-<p>在上面的配置中，我们配置了两个环境，分别是 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dev</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 是默认的环境， <code class="docutils literal notranslate"><span class="pre">juice</span></code> 会根据这个配置来加载数据库连接信息。</p>
+<p>在上面的配置中，我们配置了两个环境，分别是 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dev</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 是 <code class="docutils literal notranslate"><span class="pre">environments</span></code> 指定的默认的环境， juice会根据这个配置来加载数据库连接信息。</p>
 <div class="admonition attention">
 <p class="admonition-title">注意</p>
 <p>注意：environments 标签中的 default 属性是必须的，如果没有配置这个属性，juice 不知道去加载哪个环境的配置信息。</p>
@@ -135,12 +136,14 @@
 <span class="p">)</span>
 
 <span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// 解析配置文件</span>
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// config.xml 即为我们刚刚编写的配置文件。</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span>
 <span class="w">    </span><span class="p">}</span>
 
+<span class="w">    </span><span class="c1">// 根据配置文件构建engine</span>
 <span class="w">    </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
@@ -156,10 +159,14 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>在默认情况下，juice只会去连接 <code class="docutils literal notranslate"><span class="pre">environments</span></code> 中 <code class="docutils literal notranslate"><span class="pre">default</span></code> 属性指定的 <code class="docutils literal notranslate"><span class="pre">environment</span></code>。</p>
+</div>
 </section>
 <section id="provider">
 <h2>provider<a class="headerlink" href="#provider" title="此标题的永久链接"></a></h2>
-<p>有时候我们不想在配置直接写数据库连接信息，而是想通过代码来配置数据库连接信息，这时候我们就可以使用 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 标签来配置数据库连接信息。</p>
+<p>有时候我们不想在配置文件里面把数据库连接信息写死，而是想通过一些别的途径来动态加载数据库连接信息，这时候我们就可以使用 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 标签来配置数据库连接信息。</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="nt">&lt;configuration&gt;</span>
 <span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
@@ -190,6 +197,30 @@
 </pre></div>
 </div>
 <p>如上所示，只要实现了 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code> 接口，就可以通过 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的 <code class="docutils literal notranslate"><span class="pre">RegisterEnvValueProvider</span></code> 方法，我们可以注册自己的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">RegisterEnvValueProvider</span></code> 函数的 name 参数即为在xml中指定的provider的值。</p>
+<p>当我们自己实现了 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code>, juice 会将 <code class="docutils literal notranslate"><span class="pre">environment</span></code> 中读到的配置信息的内容原封不动的传递给 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code>。</p>
+<p>如上所示，当指定 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 的值为 <code class="docutils literal notranslate"><span class="pre">env</span></code> 的时候，它会根据提前定义好的规则去解析，以下是具体实现。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">formatRegexp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">regexp</span><span class="p">.</span><span class="nx">MustCompile</span><span class="p">(</span><span class="s">`\$\{ *?([a-zA-Z0-9_\.]+) *?\}`</span><span class="p">)</span>
+
+<span class="c1">// OsEnvValueProvider is a environment value provider that uses os.Getenv.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">OsEnvValueProvider</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+
+<span class="c1">// Get returns a value of the environment variable.</span>
+<span class="c1">// It uses os.Getenv.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="nx">OsEnvValueProvider</span><span class="p">)</span><span class="w"> </span><span class="nx">Get</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span>
+<span class="w">    </span><span class="nx">key</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">formatRegexp</span><span class="p">.</span><span class="nx">ReplaceAllStringFunc</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">find</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">value</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="nx">formatRegexp</span><span class="p">.</span><span class="nx">FindStringSubmatch</span><span class="p">(</span><span class="nx">find</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;environment variable %s not found&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">find</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">value</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过查看代码，我们可以知道，当解析 <code class="docutils literal notranslate"><span class="pre">${}</span></code> 语法格式时，会将尝试将里面的内容通过环境变量来查找，否则直接返回原始内容。</p>
 </section>
 <section id="id2">
 <h2>连接池配置<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
