@@ -21,7 +21,6 @@
         Age  int
     }
 
-juice框架提供了三种结果集映射的方式：
 
 sql.Rows
 ----------------
@@ -80,7 +79,7 @@ Object
       }
 
 
-* ``string`` 类型，表示mapper的id
+* ``string`` 类型，表示对于 ``action`` 的完整id。
 
   .. code-block:: go
 
@@ -88,7 +87,7 @@ Object
 
 * 函数类型, juice 内部会去获取这个函数在代码里面的位置作为对应的id，例如在传入的是 ``main`` 包下的 ``SelectUser`` 函数，那么id就是 ``main.SelectUser``
 
-  如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 ``pkgpath.interface|struct.methodname`` （包名.类型名.方法名, 注意区分 ``interface`` 和 ``struct``）
+  如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 ``pkgpath.(interface|struct).methodname`` （包名.类型名.方法名, 注意区分 ``interface`` 和 ``struct``）
 
 
 .. attention::
@@ -126,95 +125,7 @@ Executor
 
 这种方式跟database/sql包的使用方式是一样的，所以如果你熟悉database/sql包，那么你应该很容易上手。
 
-BinderManager
----------------
-
-BinderManager是一个接口类型，它的定义如下
-
-.. code-block:: go
-
-    type BinderManager interface {
-        Object(v any) BinderExecutor
-    }
-
-它只有一个 ``Object`` 方法，它接受一个参数，返回一个 ``BinderExecutor`` 对象。
-
-其中 ``Object`` 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。
-
-BinderExecutor
-""""""""""""""
-
-``BinderExecutor`` 是一个接口类型，它的定义如下
-
-BinderExecutor是一个接口类型
-
-.. code-block:: go
-
-    // BinderExecutor is a binder executor.
-    // It is used to bind the result to the given value.
-    type BinderExecutor interface {
-        Query(param any) (Binder, error)
-        QueryContext(ctx context.Context, param any) (Binder, error)
-        Exec(param any) (sql.Result, error)
-        ExecContext(ctx context.Context, param any) (sql.Result, error)
-    }
-
-BinderExecutor 跟上面的Executor的区别在于，它的 ``Query`` 方法返回的是一个 ``Binder`` 对象，而不是 ``sql.Rows`` 对象。
-
-Query接受的参数依然是我们需要传递给mapper的参数，如果没有参数，那么传入 ``nil`` 即可。
-
-Binder
-""""""
-
-``Binder`` 是一个接口类型，它的定义如下
-
-Binder是一个接口类型
-
-.. code-block:: go
-
-    // Binder bind sql.Rows to dest
-    type Binder interface {
-        // Scan sql.Rows to dest
-        // dest can be a pointer to a struct, a pointer to a slice of struct, or a pointer to a slice of any type.
-        Scan(v any) error
-    }
-
-``Scan`` 方法接受一个参数，这个参数可以是一个指向结构体的指针，也可以是一个指向结构体切片的指针，也可以是一个指向任意类型切片的指针。
-
-具体用法可以参考下面的例子:
-
-.. code-block:: go
-
-    binder, err := juice.NewBinderManager(engine).Object("main.SelectUser").Query(nil)
-    if err != nil {
-        panic(err)
-    }
-    var users []User
-    if err = binder.Scan(&users); err != nil {
-        panic(err)
-    }
-    fmt.Println(users)
-
-因为我们查询集是一个list，所以我们传入一个指向User切片的指针，然后调用 ``Scan`` 方法，将查询结果绑定到切片中。
-
-但是我们一运行，发现我们的users切片有元素，但是结构体全部都是零值结构体，这是为什么呢？
-
-这是因为我们的User结构体中的字段名和数据库中的字段名不一致，所以在结构体字段上指定数据库的字段名即可。
-
-我们修改一下User结构体
-
-.. code-block:: go
-
-    type User struct {
-        Id   int64  `column:"id"`
-        Name string `column:"name"`
-        Age  int    `column:"age"`
-    }
-
-我们使用 ``column`` 标签指定了数据库中的字段名，然后再次运行，发现我们的users切片中的元素已经有值了。
-
-
-GenericManager
+泛型结果集映射
 ---------------
 
 GenericManager是一个接口类型，它的定义如下
@@ -229,7 +140,7 @@ GenericManager是一个接口类型，它的定义如下
 
 其中 ``Object`` 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。
 
-注意的是，这里的 ``GenericManager`` 需要接受一个泛型参数，这个参数用来指定 ``GenericExecutor`` 的返回值类型，也就是我们的查询结果类型。
+这里的 ``GenericManager`` 需要接受一个泛型参数，这个参数用来指定 ``GenericExecutor`` 的返回值类型，也就是我们的查询结果类型。
 
 GenericExecutor
 """""""""""""""
@@ -247,28 +158,211 @@ GenericExecutor
     }
 
 
-它的 ``Query`` 方法返回我们指定的查询结果类型和一个 ``error`` ，而不是 ``Binder`` 对象。
+它的 ``Query`` 方法返回我们指定的查询结果类型和一个 ``error``。
 
-使用示例
+需要注意，这里会直接将查询的结构直接映射到指定的结果集的泛型参数上面。
+
+结果集的映射可以分为以下几种情况：
+
+1、单个字段，单条结果。
 
 .. code-block:: go
 
-    users, err := juice.NewGenericManager[[]User](engine).Object("main.SelectUser").Query(nil)
-    if err != nil {
-        panic(err)
+    // select count(*) from table
+
+    result, err := juice.NewGenericManager[int](engine).Object("your object id").Query(nil)
+
+    // result => int
+
+
+
+    // select count(*) from table
+
+    result, err := juice.NewGenericManager[[]int](engine).Object("your object id").Query(nil)
+
+    // result => []int 有且只有一个元素
+
+
+
+    // select c_time from table limit 1
+
+    result, err := juice.NewGenericManager[time.Time](engine).Object("your object id").Query(nil)
+
+    // result => time.Time
+
+2、多个字段，单条结果。
+
+.. code-block:: go
+
+    type User struct {
+        ID   int64  `column:"id"`
+        Name string `column:"name"`
     }
-    fmt.Println(users)
 
-这里我们使用 ``NewGenericManager`` 方法创建了一个 ``GenericManager`` 对象，因为我们的查询结果是一个list，所以我们指定这个对象的泛型参数是 ``[]User`` ，也就是说它的返回值类型是 ``[]User`` ，然后我们调用 ``Object`` 方法指定查询的mapper，然后调用 ``Query`` 方法执行查询，最后返回一个 ``[]User`` 类型的结果。
+    // select id, name from table limit 1
 
-同样的，我们需要在User结构体上指定数据库字段名。
+    result, err := juice.NewGenericManager[User](engine).Object("your object id").Query(nil)
+
+    // result => User
 
 
-ResultMap
+
+    // select id, name from table limit 1
+
+    result, err := juice.NewGenericManager[*User](engine).Object("your object id").Query(nil)
+
+    // result => *User
+
+
+
+    // select id, name from table limit 1
+
+    result, err := juice.NewGenericManager[[]User](engine).Object("your object id").Query(nil)
+
+    // result => []User 有且只有一个元素
+
+
+    // select id, name from table limit 1
+
+    result, err := juice.NewGenericManager[[]*User](engine).Object("your object id").Query(nil)
+
+    // result => []*User 有且只有一个元素
+
+*需要注意的是，当返回的字段有多条的时候，需要用结构体来接收，并且结构体字段中需要标注`column`来制定对应的字段*
+
+*问: 可以用map来代替结构体吗？*
+
+*答: 不可以，因为我个人不喜欢用map（开玩笑），map呈现给用户的往往是一个黑盒，开发者不知道这个map中有哪些信息，而结构体相比map而言，显的更清晰一点*
+
+如下，当返回的字段在结构体中找不到映射怎么办？
+
+.. code-block:: go
+
+    type User struct {
+        ID   int64  `column:"id"`
+        Name string `column:"name"`
+    }   
+
+    // SELECT id, name, age from table
+
+这种情况下，juice会将找不到字段映射的值给丢弃掉，如上面的age。
+
+3. 单个字段，多条结果。
+
+.. code-block:: go
+
+    // select id from table limit 10
+
+    result, err := juice.NewGenericManager[[]int64](engine).Object("your object id").Query(nil)
+
+    // result => []int64
+
+注意的是，当查询返回的行数有多条时，必须指定结果集为一个切片，否则会返回错误。
+
+4. 多个字段，多条结果。
+
+.. code-block:: go
+
+    type User struct {
+        ID   int64  `column:"id"`
+        Name string `column:"name"`
+    }   
+
+    // select id, name from table limit 10
+
+    result, err := juice.NewGenericManager[[]User](engine).Object("your object id").Query(nil)
+
+    // result => []User
+
+跟上面一样，多条查询结果需要用切片接受，多个字段需要用结构体接受。
+
+
+自定义结果集映射
 ---------
 
-后续补充
+有时候我们的映射关系比较复杂，我们需要自己去定义这种映射关系。
 
+resultMap
+``resultMap`` 是juice提供的一个自定义结果集映射规则的标签，下面我们通过几个例子来了解它的用法。
+
+简单查询
+""""""""""""""
+
+.. code-block:: xml
+
+    <resultMap id="User">
+        <result column="id" property="ID"/>
+        <result column="name" property="Name"/>
+    </resultMap>
+
+    <select id="QueryUserList" resultMap="User">
+        select id, name from classes
+    </select>
+
+.. code-block:: go
+
+    type User struct {
+        ID   int64  
+        Name string 
+    }
+
+    result, err := juice.NewGenericManager[[]User](engine).Object("object id").Query(nil)
+
+当我们在 ``select`` 标签里面指定我们的resultMap的时候, juice就会采用resultMap指定的规则去进行映射。
+
+resultMap生效的作用域在mapper标签下面。它需要一个id属性作为它的唯一身份标识符。
+
+result标签的作用是用来指定sql字段和结构体字段的映射关系。
+
+*   column是sql字段。
+*   property是结构体映射字段名称（需要的是一个合法的可导出的字段的名称）。
+
+一对一查询。
+""""""""""""""
+
+.. code-block:: xml
+
+    <resultMap id="User">
+        <result column="id" property="ID"/>
+        <result column="name" property="Name"/>
+        <association property="Detail">
+            <result column="id_card" property="IDCard"/>
+        </association>
+    </resultMap>
+
+    <select id="QueryUser" resultMap="User">
+        select a.id as id, a.name as name, b.id_card as id_card from user a join user_detail b where b.uid = a.id limit 1
+    </select>
+
+.. code-block:: go
+
+    type UserDetail struct {
+        UID    int64
+        IDCard string
+    }
+
+    type User struct {
+        ID         int64  
+        Name       string 
+        Detail     UserDetail
+    }
+
+    result, err := juice.NewGenericManager[User](manager).Object("QueryUser").Query(nil)
+
+在resultMap中可以使用 association 来对结构体进行嵌套映射。
+
+association需要一个property属性来制定嵌套结构体的字段名称。如上，嵌套结构体 UserDetail 在 User 中的字段名称为Detail，我们只需要在xml中将
+property的属性置为Detail即可。
+
+result标签在association中的使用方式跟在resultMap中一致。
+
+一对多查询
+""""""""""""""
+TODO
+
+多对多查询
+""""""""""
+TODO
 
 自增主键映射
 ------------

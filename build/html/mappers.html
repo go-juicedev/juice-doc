@@ -65,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
@@ -168,7 +169,7 @@
 <span class="w">     </span><span class="nt">&lt;/select&gt;</span>
 
 <span class="w">     </span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;insertUser&quot;</span><span class="nt">&gt;</span>
-<span class="w">         </span>insert<span class="w"> </span>into<span class="w"> </span>user<span class="w"> </span>(name,<span class="w"> </span>age)<span class="w"> </span>values<span class="w"> </span>(&quot;eatmoreapple&quot;,<span class="w"> </span>18)&quot;)
+<span class="w">         </span>insert<span class="w"> </span>into<span class="w"> </span>user<span class="w"> </span>(name,<span class="w"> </span>age)<span class="w"> </span>values<span class="w"> </span>(&quot;eatmoreapple&quot;,<span class="w"> </span>18))
 <span class="w">     </span><span class="nt">&lt;/insert&gt;</span>
 
 <span class="w">     </span><span class="nt">&lt;update</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;updateUser&quot;</span><span class="nt">&gt;</span>
@@ -181,7 +182,9 @@
 <span class="w"> </span><span class="nt">&lt;/mapper&gt;</span>
 </pre></div>
 </div>
-<p>上述的 <cite>select，insert，update，delete</cite> 标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。</p>
+<p>上述的 <cite>select、insert、update、delete</cite> 标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。</p>
+<p><em>问：可不可以在 select 标签里面写 delete 语句呢？</em></p>
+<p><em>答：可以，但不推荐，每个标签都要有自己的语义。</em></p>
 </section>
 <section id="id1">
 <h2>接受参数<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h2>

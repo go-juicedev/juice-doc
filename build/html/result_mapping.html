@@ -50,23 +50,25 @@
 <li class="toctree-l3"><a class="reference internal" href="#executor">Executor</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#bindermanager">BinderManager</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#binderexecutor">BinderExecutor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#binder">Binder</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#genericmanager">GenericManager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">泛型结果集映射</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#genericexecutor">GenericExecutor</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#resultmap">ResultMap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">自增主键映射</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">自定义结果集映射</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">简单查询</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">一对一查询。</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">一对多查询</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">多对多查询</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">自增主键映射</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
@@ -113,7 +115,6 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>juice框架提供了三种结果集映射的方式：</p>
 <section id="sql-rows">
 <h2>sql.Rows<a class="headerlink" href="#sql-rows" title="此标题的永久链接"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">sql.Rows</span></code> 是database/sql包中的一个结构体，它可以被定义为下面的 <code class="docutils literal notranslate"><span class="pre">Rows</span></code> 接口：</p>
@@ -161,13 +162,13 @@
 </pre></div>
 </div>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">string</span></code> 类型，表示mapper的id</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">string</span></code> 类型，表示对于 <code class="docutils literal notranslate"><span class="pre">action</span></code> 的完整id。</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">engine</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.SelectUser&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
 <li><p>函数类型, juice 内部会去获取这个函数在代码里面的位置作为对应的id，例如在传入的是 <code class="docutils literal notranslate"><span class="pre">main</span></code> 包下的 <code class="docutils literal notranslate"><span class="pre">SelectUser</span></code> 函数，那么id就是 <code class="docutils literal notranslate"><span class="pre">main.SelectUser</span></code></p>
-<p>如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 <code class="docutils literal notranslate"><span class="pre">pkgpath.interface|struct.methodname</span></code> （包名.类型名.方法名, 注意区分 <code class="docutils literal notranslate"><span class="pre">interface</span></code> 和 <code class="docutils literal notranslate"><span class="pre">struct</span></code>）</p>
+<p>如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 <code class="docutils literal notranslate"><span class="pre">pkgpath.(interface|struct).methodname</span></code> （包名.类型名.方法名, 注意区分 <code class="docutils literal notranslate"><span class="pre">interface</span></code> 和 <code class="docutils literal notranslate"><span class="pre">struct</span></code>）</p>
 </li>
 </ul>
 <div class="admonition attention">
@@ -200,74 +201,8 @@
 <p>这种方式跟database/sql包的使用方式是一样的，所以如果你熟悉database/sql包，那么你应该很容易上手。</p>
 </section>
 </section>
-<section id="bindermanager">
-<h2>BinderManager<a class="headerlink" href="#bindermanager" title="此标题的永久链接"></a></h2>
-<p>BinderManager是一个接口类型，它的定义如下</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">BinderManager</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">Object</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="nx">BinderExecutor</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>它只有一个 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法，它接受一个参数，返回一个 <code class="docutils literal notranslate"><span class="pre">BinderExecutor</span></code> 对象。</p>
-<p>其中 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。</p>
-<section id="binderexecutor">
-<h3>BinderExecutor<a class="headerlink" href="#binderexecutor" title="此标题的永久链接"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">BinderExecutor</span></code> 是一个接口类型，它的定义如下</p>
-<p>BinderExecutor是一个接口类型</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// BinderExecutor is a binder executor.</span>
-<span class="c1">// It is used to bind the result to the given value.</span>
-<span class="kd">type</span><span class="w"> </span><span class="nx">BinderExecutor</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">Query</span><span class="p">(</span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">Binder</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-<span class="w">    </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">Binder</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-<span class="w">    </span><span class="nx">Exec</span><span class="p">(</span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-<span class="w">    </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">param</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>BinderExecutor 跟上面的Executor的区别在于，它的 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法返回的是一个 <code class="docutils literal notranslate"><span class="pre">Binder</span></code> 对象，而不是 <code class="docutils literal notranslate"><span class="pre">sql.Rows</span></code> 对象。</p>
-<p>Query接受的参数依然是我们需要传递给mapper的参数，如果没有参数，那么传入 <code class="docutils literal notranslate"><span class="pre">nil</span></code> 即可。</p>
-</section>
-<section id="binder">
-<h3>Binder<a class="headerlink" href="#binder" title="此标题的永久链接"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">Binder</span></code> 是一个接口类型，它的定义如下</p>
-<p>Binder是一个接口类型</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Binder bind sql.Rows to dest</span>
-<span class="kd">type</span><span class="w"> </span><span class="nx">Binder</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Scan sql.Rows to dest</span>
-<span class="w">    </span><span class="c1">// dest can be a pointer to a struct, a pointer to a slice of struct, or a pointer to a slice of any type.</span>
-<span class="w">    </span><span class="nx">Scan</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Scan</span></code> 方法接受一个参数，这个参数可以是一个指向结构体的指针，也可以是一个指向结构体切片的指针，也可以是一个指向任意类型切片的指针。</p>
-<p>具体用法可以参考下面的例子:</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">binder</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewBinderManager</span><span class="p">(</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.SelectUser&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="kd">var</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="p">[]</span><span class="nx">User</span>
-<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">binder</span><span class="p">.</span><span class="nx">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">users</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">users</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>因为我们查询集是一个list，所以我们传入一个指向User切片的指针，然后调用 <code class="docutils literal notranslate"><span class="pre">Scan</span></code> 方法，将查询结果绑定到切片中。</p>
-<p>但是我们一运行，发现我们的users切片有元素，但是结构体全部都是零值结构体，这是为什么呢？</p>
-<p>这是因为我们的User结构体中的字段名和数据库中的字段名不一致，所以在结构体字段上指定数据库的字段名即可。</p>
-<p>我们修改一下User结构体</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">Id</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
-<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`column:&quot;name&quot;`</span>
-<span class="w">    </span><span class="nx">Age</span><span class="w">  </span><span class="kt">int</span><span class="w">    </span><span class="s">`column:&quot;age&quot;`</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>我们使用 <code class="docutils literal notranslate"><span class="pre">column</span></code> 标签指定了数据库中的字段名，然后再次运行，发现我们的users切片中的元素已经有值了。</p>
-</section>
-</section>
-<section id="genericmanager">
-<h2>GenericManager<a class="headerlink" href="#genericmanager" title="此标题的永久链接"></a></h2>
+<section id="id2">
+<h2>泛型结果集映射<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
 <p>GenericManager是一个接口类型，它的定义如下</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">GenericManager</span><span class="p">[</span><span class="nx">T</span><span class="w"> </span><span class="kt">any</span><span class="p">]</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">Object</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="nx">GenericExecutor</span><span class="p">[</span><span class="nx">T</span><span class="p">]</span>
@@ -276,7 +211,7 @@
 </div>
 <p>它只有一个 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法，它接受一个参数，返回一个 <code class="docutils literal notranslate"><span class="pre">GenericExecutor</span></code> 对象。</p>
 <p>其中 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。</p>
-<p>注意的是，这里的 <code class="docutils literal notranslate"><span class="pre">GenericManager</span></code> 需要接受一个泛型参数，这个参数用来指定 <code class="docutils literal notranslate"><span class="pre">GenericExecutor</span></code> 的返回值类型，也就是我们的查询结果类型。</p>
+<p>这里的 <code class="docutils literal notranslate"><span class="pre">GenericManager</span></code> 需要接受一个泛型参数，这个参数用来指定 <code class="docutils literal notranslate"><span class="pre">GenericExecutor</span></code> 的返回值类型，也就是我们的查询结果类型。</p>
 <section id="genericexecutor">
 <h3>GenericExecutor<a class="headerlink" href="#genericexecutor" title="此标题的永久链接"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">GenericExecutor</span></code> 是一个接口类型，它的定义如下</p>
@@ -289,25 +224,189 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>它的 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法返回我们指定的查询结果类型和一个 <code class="docutils literal notranslate"><span class="pre">error</span></code> ，而不是 <code class="docutils literal notranslate"><span class="pre">Binder</span></code> 对象。</p>
-<p>使用示例</p>
-<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">users</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;main.SelectUser&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">users</span><span class="p">)</span>
+<p>它的 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法返回我们指定的查询结果类型和一个 <code class="docutils literal notranslate"><span class="pre">error</span></code>。</p>
+<p>需要注意，这里会直接将查询的结构直接映射到指定的结果集的泛型参数上面。</p>
+<p>结果集的映射可以分为以下几种情况：</p>
+<p>1、单个字段，单条结果。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// select count(*) from table</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; int</span>
+
+
+
+<span class="c1">// select count(*) from table</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="kt">int</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; []int 有且只有一个元素</span>
+
+
+
+<span class="c1">// select c_time from table limit 1</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; time.Time</span>
 </pre></div>
 </div>
-<p>这里我们使用 <code class="docutils literal notranslate"><span class="pre">NewGenericManager</span></code> 方法创建了一个 <code class="docutils literal notranslate"><span class="pre">GenericManager</span></code> 对象，因为我们的查询结果是一个list，所以我们指定这个对象的泛型参数是 <code class="docutils literal notranslate"><span class="pre">[]User</span></code> ，也就是说它的返回值类型是 <code class="docutils literal notranslate"><span class="pre">[]User</span></code> ，然后我们调用 <code class="docutils literal notranslate"><span class="pre">Object</span></code> 方法指定查询的mapper，然后调用 <code class="docutils literal notranslate"><span class="pre">Query</span></code> 方法执行查询，最后返回一个 <code class="docutils literal notranslate"><span class="pre">[]User</span></code> 类型的结果。</p>
-<p>同样的，我们需要在User结构体上指定数据库字段名。</p>
+<p>2、多个字段，单条结果。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`column:&quot;name&quot;`</span>
+<span class="p">}</span>
+
+<span class="c1">// select id, name from table limit 1</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; User</span>
+
+
+
+<span class="c1">// select id, name from table limit 1</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="o">*</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; *User</span>
+
+
+
+<span class="c1">// select id, name from table limit 1</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; []User 有且只有一个元素</span>
+
+
+<span class="c1">// select id, name from table limit 1</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="o">*</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; []*User 有且只有一个元素</span>
+</pre></div>
+</div>
+<p><em>需要注意的是，当返回的字段有多条的时候，需要用结构体来接收，并且结构体字段中需要标注`column`来制定对应的字段</em></p>
+<p><em>问: 可以用map来代替结构体吗？</em></p>
+<p><em>答: 不可以，因为我个人不喜欢用map（开玩笑），map呈现给用户的往往是一个黑盒，开发者不知道这个map中有哪些信息，而结构体相比map而言，显的更清晰一点</em></p>
+<p>如下，当返回的字段在结构体中找不到映射怎么办？</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`column:&quot;name&quot;`</span>
+<span class="p">}</span>
+
+<span class="c1">// SELECT id, name, age from table</span>
+</pre></div>
+</div>
+<p>这种情况下，juice会将找不到字段映射的值给丢弃掉，如上面的age。</p>
+<ol class="arabic simple" start="3">
+<li><p>单个字段，多条结果。</p></li>
+</ol>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// select id from table limit 10</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="kt">int64</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; []int64</span>
+</pre></div>
+</div>
+<p>注意的是，当查询返回的行数有多条时，必须指定结果集为一个切片，否则会返回错误。</p>
+<ol class="arabic simple" start="4">
+<li><p>多个字段，多条结果。</p></li>
+</ol>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`column:&quot;name&quot;`</span>
+<span class="p">}</span>
+
+<span class="c1">// select id, name from table limit 10</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+
+<span class="c1">// result =&gt; []User</span>
+</pre></div>
+</div>
+<p>跟上面一样，多条查询结果需要用切片接受，多个字段需要用结构体接受。</p>
 </section>
 </section>
-<section id="resultmap">
-<h2>ResultMap<a class="headerlink" href="#resultmap" title="此标题的永久链接"></a></h2>
-<p>后续补充</p>
+<section id="id3">
+<h2>自定义结果集映射<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p>有时候我们的映射关系比较复杂，我们需要自己去定义这种映射关系。</p>
+<p>resultMap
+<code class="docutils literal notranslate"><span class="pre">resultMap</span></code> 是juice提供的一个自定义结果集映射规则的标签，下面我们通过几个例子来了解它的用法。</p>
+<section id="id4">
+<h3>简单查询<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h3>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;resultMap</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;ID&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Name&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/resultMap&gt;</span>
+
+<span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;QueryUserList&quot;</span><span class="w"> </span><span class="na">resultMap=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>id,<span class="w"> </span>name<span class="w"> </span>from<span class="w"> </span>classes
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">   </span><span class="kt">int64</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>当我们在 <code class="docutils literal notranslate"><span class="pre">select</span></code> 标签里面指定我们的resultMap的时候, juice就会采用resultMap指定的规则去进行映射。</p>
+<p>resultMap生效的作用域在mapper标签下面。它需要一个id属性作为它的唯一身份标识符。</p>
+<p>result标签的作用是用来指定sql字段和结构体字段的映射关系。</p>
+<ul class="simple">
+<li><p>column是sql字段。</p></li>
+<li><p>property是结构体映射字段名称（需要的是一个合法的可导出的字段的名称）。</p></li>
+</ul>
 </section>
-<section id="id2">
-<h2>自增主键映射<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<section id="id5">
+<h3>一对一查询。<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h3>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;resultMap</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;ID&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Name&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;association</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Detail&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;id_card&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;IDCard&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/association&gt;</span>
+<span class="nt">&lt;/resultMap&gt;</span>
+
+<span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;QueryUser&quot;</span><span class="w"> </span><span class="na">resultMap=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>a.id<span class="w"> </span>as<span class="w"> </span>id,<span class="w"> </span>a.name<span class="w"> </span>as<span class="w"> </span>name,<span class="w"> </span>b.id_card<span class="w"> </span>as<span class="w"> </span>id_card<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>a<span class="w"> </span>join<span class="w"> </span>user_detail<span class="w"> </span>b<span class="w"> </span>where<span class="w"> </span>b.uid<span class="w"> </span>=<span class="w"> </span>a.id<span class="w"> </span>limit<span class="w"> </span>1
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">UserDetail</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">UID</span><span class="w">    </span><span class="kt">int64</span>
+<span class="w">    </span><span class="nx">IDCard</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">         </span><span class="kt">int64</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w">       </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">Detail</span><span class="w">     </span><span class="nx">UserDetail</span>
+<span class="p">}</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">manager</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;QueryUser&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>在resultMap中可以使用 association 来对结构体进行嵌套映射。</p>
+<p>association需要一个property属性来制定嵌套结构体的字段名称。如上，嵌套结构体 UserDetail 在 User 中的字段名称为Detail，我们只需要在xml中将
+property的属性置为Detail即可。</p>
+<p>result标签在association中的使用方式跟在resultMap中一致。</p>
+</section>
+<section id="id6">
+<h3>一对多查询<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h3>
+<p>TODO</p>
+</section>
+<section id="id7">
+<h3>多对多查询<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h3>
+<p>TODO</p>
+</section>
+</section>
+<section id="id8">
+<h2>自增主键映射<a class="headerlink" href="#id8" title="此标题的永久链接"></a></h2>
 <p>当我们往数据库中插入一条数据时，如果这条数据的主键是自增的，那么我们需要获取这条数据的主键值，将这个值赋值给我们的结构体。</p>
 <p>如果想要实现这个功能，我们需要需要满足以下条件:</p>
 <ol class="arabic simple">

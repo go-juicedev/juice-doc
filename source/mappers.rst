@@ -70,7 +70,7 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
         </select>
 
         <insert id="insertUser">
-            insert into user (name, age) values ("eatmoreapple", 18)")
+            insert into user (name, age) values ("eatmoreapple", 18))
         </insert>
 
         <update id="updateUser">
@@ -83,7 +83,11 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
     </mapper>
 
 
-上述的 `select，insert，update，delete` 标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。
+上述的 `select、insert、update、delete` 标签都是sql语句的集合标签，它们都有一个id属性，这个属性是用来标识sql语句的，它的值在同一个mapper中必须是唯一的。
+
+*问：可不可以在 select 标签里面写 delete 语句呢？*
+
+*答：可以，但不推荐，每个标签都要有自己的语义。*
 
 接受参数
 ----------------
