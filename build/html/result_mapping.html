@@ -56,7 +56,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">自定义结果集映射</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">简单查询</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">一对一查询。</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">一对一查询</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">一对多查询</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id7">多对多查询</a></li>
 </ul>
@@ -363,7 +363,7 @@
 </ul>
 </section>
 <section id="id5">
-<h3>一对一查询。<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h3>
+<h3>一对一查询<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h3>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;resultMap</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;ID&quot;</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Name&quot;</span><span class="nt">/&gt;</span>
@@ -398,7 +398,60 @@ property的属性置为Detail即可。</p>
 </section>
 <section id="id6">
 <h3>一对多查询<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h3>
-<p>TODO</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;resultMap</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;ID&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Name&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;collection</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Hobbies&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;hobby&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Hobby&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/collection&gt;</span>
+<span class="nt">&lt;/resultMap&gt;</span>
+
+<span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;QueryUserList&quot;</span><span class="w"> </span><span class="na">resultMap=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>a.id<span class="w"> </span>as<span class="w"> </span>id,<span class="w"> </span>a.name<span class="w"> </span>as<span class="w"> </span>name,<span class="w"> </span>b.hobby<span class="w"> </span>as<span class="w"> </span>hobby<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>a<span class="w"> </span>join<span class="w"> </span>user_hobby<span class="w"> </span>b<span class="w"> </span>where<span class="w"> </span>b.uid<span class="w"> </span>=<span class="w"> </span>a.id
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">Hobby</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Hobby</span><span class="w">   </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">      </span><span class="kt">int64</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w">    </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">Hobbies</span><span class="w"> </span><span class="p">[]</span><span class="nx">Hobby</span>
+<span class="p">}</span>
+
+<span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[[]</span><span class="nx">User</span><span class="p">](</span><span class="nx">manager</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;object id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>我们假设上面的sql的查询结果如下所示:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>----------------------------
+<span class="p">|</span><span class="w">  </span>id<span class="w">   </span><span class="p">|</span><span class="w">  </span>name<span class="w">  </span><span class="p">|</span><span class="w">  </span>hobby<span class="w">  </span><span class="p">|</span>
+<span class="p">|</span>---------------------------
+<span class="p">|</span><span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="p">|</span><span class="w">  </span>小明<span class="w">   </span><span class="p">|</span><span class="w">  </span>篮球<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span>---------------------------
+<span class="p">|</span><span class="w">   </span><span class="m">2</span><span class="w">   </span><span class="p">|</span><span class="w">  </span>小李<span class="w">   </span><span class="p">|</span><span class="w">  </span>唱歌<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span>---------------------------
+<span class="p">|</span><span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="p">|</span><span class="w">  </span>小明<span class="w">   </span><span class="p">|</span><span class="w">  </span>跳舞<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span>---------------------------
+</pre></div>
+</div>
+<p>如上所示, 我们可以很容易看出小明的hobby有两个，而小李只有一个，根据上面User结构体的定义，我们希望把第一条数据
+和第三条数据组合映射到User结构体中。</p>
+<p>如:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nx">ID</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;小明&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Hobbies</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">Hobby</span><span class="p">{{</span><span class="s">&quot;篮球&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;跳舞&quot;</span><span class="p">}}}</span>
+</pre></div>
+</div>
+<p>既然需要组合，那我们得让juice哪些数据需要组合。</p>
+<p>juice提供了一个id的标签来表示当前数据的身份id，它的用法跟result标签相同。</p>
+<p>当查询到相同id相同的数据时，juice会认为它们属于关联相同的数据。</p>
+<p>既然是一对多，那么”多”的数据肯定是一个集合，我们这里用切片来表示。如上所示，Hobbies字段表示的是一个Hobby结构体的切片。</p>
+<p>在xml中使用collection来表示集合的映射关系，它的用法跟association标签相同，只不过是collection的property指向的是
+一个切片的字段。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>当使用collection标签时，它的同级标签中必须存在一个id标签，不然juice找不到哪些数据时相关联的。</p>
+</div>
 </section>
 <section id="id7">
 <h3>多对多查询<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h3>

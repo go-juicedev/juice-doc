@@ -317,7 +317,7 @@ result标签的作用是用来指定sql字段和结构体字段的映射关系�
 *   column是sql字段。
 *   property是结构体映射字段名称（需要的是一个合法的可导出的字段的名称）。
 
-一对一查询。
+一对一查询
 """"""""""""""
 
 .. code-block:: xml
@@ -358,7 +358,73 @@ result标签在association中的使用方式跟在resultMap中一致。
 
 一对多查询
 """"""""""""""
-TODO
+
+.. code-block:: xml
+
+    <resultMap id="User">
+        <id column="id" property="ID"/>
+        <result column="name" property="Name"/>
+        <collection property="Hobbies">
+            <result column="hobby" property="Hobby"/>
+        </collection>
+    </resultMap>
+
+    <select id="QueryUserList" resultMap="User">
+        select a.id as id, a.name as name, b.hobby as hobby from user a join user_hobby b where b.uid = a.id 
+    </select>
+
+.. code-block:: go
+
+    type Hobby struct {
+        Hobby   string
+    }
+
+    type User struct {
+        ID      int64
+        Name    string
+        Hobbies []Hobby
+    }
+
+    result, _ := juice.NewGenericManager[[]User](manager).Object("object id").Query(nil)
+
+我们假设上面的sql的查询结果如下所示:
+
+.. code-block:: shell
+
+    ----------------------------
+    |  id   |  name  |  hobby  |
+    |---------------------------
+    |   1   |  小明   |  篮球   |
+    |---------------------------
+    |   2   |  小李   |  唱歌   |
+    |---------------------------
+    |   1   |  小明   |  跳舞   |
+    |---------------------------
+
+如上所示, 我们可以很容易看出小明的hobby有两个，而小李只有一个，根据上面User结构体的定义，我们希望把第一条数据
+和第三条数据组合映射到User结构体中。
+
+如:
+
+.. code-block:: go
+
+    {ID: 1, Name: "小明", Hobbies: []Hobby{{"篮球"}, {"跳舞"}}}
+
+既然需要组合，那我们得让juice哪些数据需要组合。
+
+juice提供了一个id的标签来表示当前数据的身份id，它的用法跟result标签相同。
+
+当查询到相同id相同的数据时，juice会认为它们属于关联相同的数据。
+
+既然是一对多，那么"多"的数据肯定是一个集合，我们这里用切片来表示。如上所示，Hobbies字段表示的是一个Hobby结构体的切片。
+
+在xml中使用collection来表示集合的映射关系，它的用法跟association标签相同，只不过是collection的property指向的是
+一个切片的字段。
+
+.. attention::
+
+    当使用collection标签时，它的同级标签中必须存在一个id标签，不然juice找不到哪些数据时相关联的。
+
 
 多对多查询
 """"""""""
