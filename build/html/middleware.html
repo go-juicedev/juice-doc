@@ -179,6 +179,10 @@
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">juice/middleware/TimeoutMiddleware</span></code>：用于控制sql执行超时。</p></li>
 </ul>
 <p>在对应action标签的属性上面加上timeout属性，即可启用这个功能，timeout的单位为毫秒，如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;xxx&quot;</span><span class="w"> </span><span class="na">timeout=</span><span class="s">&quot;1000&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/insert&gt;</span>
+</pre></div>
+</div>
 <div class="admonition attention">
 <p class="admonition-title">注意</p>
 <p>注意：TimeoutMiddleware是在go语言级别实现的超时，而不是数据库级别。</p>

@@ -152,7 +152,7 @@ juice中内置了一些中间件，比如：
 
 在对应action标签的属性上面加上timeout属性，即可启用这个功能，timeout的单位为毫秒，如：
 
-.. code::xml
+.. code-block:: xml
 
     <insert id="xxx" timeout="1000">
     </insert>
@@ -175,7 +175,7 @@ juice中内置了一些中间件，比如：
         if err != nil {
             panic(err)
         }
-		
+
         engine, err := juice.DefaultEngine(cfg)
         if err != nil {
             panic(err)
