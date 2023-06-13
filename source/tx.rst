@@ -21,17 +21,9 @@
 		panic(err)
 	}
 
-	{
-		engine.Object("your object").Query(nil)
-	}
+	engine.Object("your object").Query(nil)
 
-	{
-		juice.NewBinderManager(engine).Object("your object").Query(nil)
-	}
-
-	{
-		juice.NewGenericManager[User](engine).Object("your object").Query(nil)
-	}
+	juice.NewGenericManager[User](engine).Object("your object").Query(nil)
 
 
 在上面的代码中，我们可以看到，我们都是通过 ``engine`` 来进行操作的，``engine`` 会从数据库的连接池中获取一个连接，然后进行操作，操作完毕后，会将连接放回连接池中。
@@ -41,7 +33,7 @@
 Manager
 -------
 
-通过查看 ``NewBinderManager`` 和 ``NewGenericManager`` 的源码，我们可以看到，它们接受的参数都是一个名为 ``Manager`` 的接口。
+通过查看 ``NewGenericManager`` 的源码，我们可以看到，它接受的参数都是一个名为 ``Manager`` 的接口。
 
 Manager 接口的定义如下:
 
@@ -85,10 +77,6 @@ Manager 接口的定义如下:
 
 	{
 		tx.Object("your object").Query(nil)
-	}
-
-	{
-		juice.NewBinderManager(tx).Object("your object").Query(nil)
 	}
 
 	{
