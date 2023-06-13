@@ -107,7 +107,7 @@ juice中内置了一些中间件，比如：
 
 - :class:`juice/middleware/TimeoutMiddleware`：用于控制sql执行超时。
 
-.. code::xml
+.. code-block:: go
 
     // TimeoutMiddleware is a middleware that sets the timeout for the sql statement.
     type TimeoutMiddleware struct{}
