@@ -74,7 +74,7 @@ juice的缓存默认是不开启的，需要显式的告诉juice当前的事务�
     }
 
     
-    _ Cache = (nil)(*mycacheImpl)
+    _ Cache = (*mycacheImpl)(nil)
 
     engine.SetCacheFactory(func() cache.Cache() { return  mycacheImpl{}}) // note: 这里要返回一个新的cache实现。
 
