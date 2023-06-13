@@ -410,7 +410,7 @@ result标签在association中的使用方式跟在resultMap中一致。
 
     {ID: 1, Name: "小明", Hobbies: []Hobby{{"篮球"}, {"跳舞"}}}
 
-既然需要组合，那我们得让juice哪些数据需要组合。
+既然需要组合，那我们得让juice知道哪些数据需要组合。
 
 juice提供了一个id的标签来表示当前数据的身份id，它的用法跟result标签相同。
 
