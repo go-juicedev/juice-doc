@@ -1,4 +1,22 @@
 热更新
 ========
 
-好用，真的好用，后面教你们怎么用，具简单。
+juice 提供了一个能够在服务不重启的情况下更新sql的功能。
+
+.. code-block:: go
+
+    cfg, err := juice.NewXMLConfiguration("config.xml")
+	
+    if err != nil {
+        panic(err)
+    }
+
+    engine, err := juice.DefaultEngine(cfg)
+
+上面是我们创建一个engine的代码。当我们的engine创建完成之后，我们可以通过 `engine.SetConfiguration` 来对 engine 的配置进行更新。
+
+.. code-block:: go
+
+    func (e *Engine) SetConfiguration(cfg *Configuration)
+
+`SetConfiguration` 是一个线程安全的方法。

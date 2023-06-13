@@ -80,7 +80,21 @@
              
   <section id="id1">
 <h1>热更新<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
-<p>好用，真的好用，后面教你们怎么用，具简单。</p>
+<p>juice 提供了一个能够在服务不重启的情况下更新sql的功能。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上面是我们创建一个engine的代码。当我们的engine创建完成之后，我们可以通过 <cite>engine.SetConfiguration</cite> 来对 engine 的配置进行更新。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="o">*</span><span class="nx">Engine</span><span class="p">)</span><span class="w"> </span><span class="nx">SetConfiguration</span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="o">*</span><span class="nx">Configuration</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>SetConfiguration</cite> 是一个线程安全的方法。</p>
 </section>
 
 

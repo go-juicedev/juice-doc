@@ -50,7 +50,12 @@
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">代码生成</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">代码生成</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#juicecli">安装juicecli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">简单使用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#go-generate">go generate</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -79,7 +84,247 @@
              
   <section id="id1">
 <h1>代码生成<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
-<p>我跟你说，这个绝壁好用。简直神器，欧耶！</p>
+<p>juice提供了一个代码生成工具来方便开发者简化开发。</p>
+<p>下面我们了解一下它的用法。</p>
+<section id="juicecli">
+<h2>安装juicecli<a class="headerlink" href="#juicecli" title="此标题的永久链接"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>go<span class="w"> </span>install<span class="w"> </span>https://github.com/eatmoreapple/juice/juicectl
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>简单使用<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>准备一张user表，我这里演示的是mysql数据库</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="k">user</span><span class="o">`</span><span class="w"> </span><span class="p">(</span>
+<span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+<span class="o">`</span><span class="n">name</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>我们操作数据库的时候一般先定义一个接口</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span>
+<span class="w">    </span><span class="s">&quot;database/sql&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`param:&quot;name&quot; column:&quot;name&quot;`</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">CreateUser</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">*</span><span class="nx">User</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">DeleteUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">UpdateUserNameByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">GetUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">User</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>如上所示，我们定义user表的增删改查接口，接下来我们去写mapper</p>
+<p>新建一个config.xml</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database?charset=utf8mb4<span class="ni">&amp;amp;</span>parseTime=true<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;mappers&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main.UserRepository&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">            </span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;CreateUser&quot;</span><span class="nt">&gt;</span>
+<span class="w">                </span>insert<span class="w"> </span>into<span class="w"> </span>user<span class="w"> </span>(name)<span class="w"> </span>values<span class="w"> </span>(#{name})
+<span class="w">            </span><span class="nt">&lt;/insert&gt;</span>
+
+<span class="w">            </span><span class="nt">&lt;delete</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;DeleteUserByID&quot;</span><span class="nt">&gt;</span>
+<span class="w">                </span>delete<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>id<span class="w"> </span>=<span class="w"> </span>#{param}
+<span class="w">            </span><span class="nt">&lt;/delete&gt;</span>
+
+<span class="w">            </span><span class="nt">&lt;update</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;UpdateUserNameByID&quot;</span><span class="nt">&gt;</span>
+<span class="w">                </span>update<span class="w"> </span>user<span class="w"> </span>set<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}<span class="w"> </span>where<span class="w"> </span>id<span class="w"> </span>=<span class="w"> </span>#{id}
+<span class="w">            </span><span class="nt">&lt;/update&gt;</span>
+
+<span class="w">            </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;GetUserByID&quot;</span><span class="nt">&gt;</span>
+<span class="w">                </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>id<span class="w"> </span>=<span class="w"> </span>#{param}
+<span class="w">            </span><span class="nt">&lt;/select&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/mapper&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mappers&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>好，接下来就是见证奇迹的时刻。</p>
+<p>我们执行命令</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>juicecli<span class="w"> </span>impl<span class="w"> </span>--type<span class="o">=</span>UserRepository<span class="w"> </span>--config<span class="o">=</span>config.xml<span class="w"> </span>--namespace<span class="o">=</span>main.UserRepository<span class="w"> </span>--output<span class="o">=</span>user_repo.go
+</pre></div>
+</div>
+<p>执行完毕之后，你会发现当前的目录下面多了一个user_repo.go的文件，它的具体内容如下所示。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Code generated by &quot;juicecli impl --type=UserRepository --config=config.xml --namespace=main.UserRepository --output=user_repo.go&quot;; DO NOT EDIT.</span>
+
+<span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span>
+<span class="w">    </span><span class="s">&quot;database/sql&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">UserRepositoryImpl</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">u</span><span class="w"> </span><span class="nx">UserRepositoryImpl</span><span class="p">)</span><span class="w"> </span><span class="nx">CreateUser</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">*</span><span class="nx">User</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">result0</span><span class="w"> </span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="nx">result1</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">manager</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ManagerFromContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">iface</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">u</span>
+<span class="w">    </span><span class="nx">executor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">any</span><span class="p">](</span><span class="nx">manager</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">iface</span><span class="p">.</span><span class="nx">CreateUser</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">executor</span><span class="p">.</span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">u</span><span class="w"> </span><span class="nx">UserRepositoryImpl</span><span class="p">)</span><span class="w"> </span><span class="nx">DeleteUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">result0</span><span class="w"> </span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="nx">result1</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">manager</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ManagerFromContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">iface</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">u</span>
+<span class="w">    </span><span class="nx">executor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">any</span><span class="p">](</span><span class="nx">manager</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">iface</span><span class="p">.</span><span class="nx">DeleteUserByID</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">executor</span><span class="p">.</span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">u</span><span class="w"> </span><span class="nx">UserRepositoryImpl</span><span class="p">)</span><span class="w"> </span><span class="nx">UpdateUserNameByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">result0</span><span class="w"> </span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="nx">result1</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">manager</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ManagerFromContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">iface</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">u</span>
+<span class="w">    </span><span class="nx">executor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">any</span><span class="p">](</span><span class="nx">manager</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">iface</span><span class="p">.</span><span class="nx">UpdateUserNameByID</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">executor</span><span class="p">.</span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">name</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">u</span><span class="w"> </span><span class="nx">UserRepositoryImpl</span><span class="p">)</span><span class="w"> </span><span class="nx">GetUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">result0</span><span class="w"> </span><span class="o">*</span><span class="nx">User</span><span class="p">,</span><span class="w"> </span><span class="nx">result1</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">manager</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ManagerFromContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">iface</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">u</span>
+<span class="w">    </span><span class="nx">executor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">manager</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">iface</span><span class="p">.</span><span class="nx">GetUserByID</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">ret</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">executor</span><span class="p">.</span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">ret</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="c1">// NewUserRepository returns a new UserRepository.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewUserRepository</span><span class="p">()</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">UserRepositoryImpl</span><span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>它自动帮我们实现了一个刚刚的定义的接口的具体的实现。</p>
+<p>那怎么用呢？</p>
+<p>我们补全我们刚刚的代码</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span>
+<span class="w">    </span><span class="s">&quot;database/sql&quot;</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ID</span><span class="w">   </span><span class="kt">int64</span><span class="w">  </span><span class="s">`column:&quot;id&quot;`</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`param:&quot;name&quot; column:&quot;name&quot;`</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">CreateUser</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">*</span><span class="nx">User</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">DeleteUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">UpdateUserNameByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">GetUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">User</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ContextWithManager</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span><span class="w"> </span><span class="nx">engine</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nx">userRepo</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewUserRepository</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// create user</span>
+<span class="w">    </span><span class="nx">user</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">User</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">userRepo</span><span class="p">.</span><span class="nx">CreateUser</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">LastInsertId</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// get user</span>
+<span class="w">    </span><span class="nx">user</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">userRepo</span><span class="p">.</span><span class="nx">GetUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>运行代码</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="k">go</span><span class="w"> </span><span class="nx">run</span><span class="w"> </span><span class="p">.</span>
+</pre></div>
+</div>
+<p>这里注意不要 <code class="docutils literal notranslate"><span class="pre">go</span> <span class="pre">run</span> <span class="pre">main.go</span></code></p>
+<p>控制台输出</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>juice<span class="o">]</span><span class="w"> </span><span class="m">2023</span>/06/13<span class="w"> </span><span class="m">14</span>:41:05<span class="w"> </span><span class="o">[</span>main.UserRepository.CreateUser<span class="o">]</span><span class="w">  </span>insert<span class="w"> </span>into<span class="w"> </span>user<span class="w"> </span><span class="o">(</span>name<span class="o">)</span><span class="w"> </span>values<span class="w"> </span><span class="o">(</span>?<span class="o">)</span><span class="w">  </span><span class="o">[</span>eatmoreapple<span class="o">]</span><span class="w">  </span><span class="m">6</span>.745625ms
+<span class="o">[</span>juice<span class="o">]</span><span class="w"> </span><span class="m">2023</span>/06/13<span class="w"> </span><span class="m">14</span>:41:05<span class="w"> </span><span class="o">[</span>main.UserRepository.GetUserByID<span class="o">]</span><span class="w">  </span><span class="k">select</span><span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span><span class="nv">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>?<span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w">  </span><span class="m">483</span>.166µs
+<span class="p">&amp;</span><span class="o">{</span><span class="m">1</span><span class="w"> </span>eatmoreapple<span class="o">}</span>
+</pre></div>
+</div>
+<p>好了，现在来解释一下我们刚刚的命令是什么意思？</p>
+<ul>
+<li><p>impl: 表示我们需要生成接口的实现</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>type: 指定我们要生成哪个接口的实现，这里填接口的名字。</p></li>
+<li><p>config: 指定我们配置文件的路径名。</p></li>
+<li><p>namespace: 表示我们去配置文件的那里去找我们需要实现的action。</p></li>
+<li><p>output: 我们生成的文件的名字。</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>接口定义的名字必须和指定的namespace下的action的id一致。</p>
+</div>
+<p>其实这个命令我们可以简化一下。</p>
+<p>config 可以不写，它会自动从执行命令的路径的同级目录下去找有没有config.xml这个文件。</p>
+<p>namespace 也可以不写，它会自动去找go.mod这个文件和你接口定义的go文件中间的相对路径，将它作为namespace</p>
+<p>所以这个命令我们可以简化写成</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">juicecli</span><span class="w"> </span><span class="nx">impl</span><span class="w"> </span><span class="o">--</span><span class="kd">type</span><span class="p">=</span><span class="nx">UserRepository</span><span class="w"> </span><span class="o">--</span><span class="nx">output</span><span class="p">=</span><span class="nx">user_repo</span><span class="p">.</span><span class="k">go</span>
+</pre></div>
+</div>
+<p>其实output也可以不写，它会默认输出到控制台。</p>
+</section>
+<section id="go-generate">
+<h2>go generate<a class="headerlink" href="#go-generate" title="此标题的永久链接"></a></h2>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">//go:generate juicecli impl --type UserRepository --output user_repo.go</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">UserRepository</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">CreateUser</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">*</span><span class="nx">User</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">DeleteUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">UpdateUserNameByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">GetUserByID</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">User</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
