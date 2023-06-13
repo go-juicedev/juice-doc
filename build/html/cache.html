@@ -142,12 +142,16 @@
 <span class="p">}</span>
 
 
-<span class="nx">_</span><span class="w"> </span><span class="nx">Cache</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="kc">nil</span><span class="p">)(</span><span class="o">*</span><span class="nx">mycacheImpl</span><span class="p">)</span>
+<span class="nx">_</span><span class="w"> </span><span class="nx">Cache</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">mycacheImpl</span><span class="p">)(</span><span class="kc">nil</span><span class="p">)</span>
 
 <span class="nx">engine</span><span class="p">.</span><span class="nx">SetCacheFactory</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">Cache</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w">  </span><span class="nx">mycacheImpl</span><span class="p">{}})</span><span class="w"> </span><span class="c1">// note: 这里要返回一个新的cache实现。</span>
 </pre></div>
 </div>
 <p>juice 提供了一个redis的缓存，请到 <code class="docutils literal notranslate"><span class="pre">https://github.com/eatmoreapple/juice-cache</span></code> 查看请使用方式。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>注意： 缓存只有跟 <cite>NewGenericManager</cite> 搭配使用才有效</p>
+</div>
 </section>
 </section>
 
