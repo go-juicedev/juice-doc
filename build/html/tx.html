@@ -48,11 +48,13 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">事务</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#manager">Manager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id2">开启事务</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">隔离级别</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 </ul>
@@ -98,24 +100,16 @@
 <span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 <span class="p">}</span>
 
-<span class="p">{</span>
-<span class="w">        </span><span class="nx">engine</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="nx">engine</span><span class="p">.</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
 
-<span class="p">{</span>
-<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewBinderManager</span><span class="p">(</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="p">{</span>
-<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>在上面的代码中，我们可以看到，我们都是通过 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 来进行操作的，<code class="docutils literal notranslate"><span class="pre">engine</span></code> 会从数据库的连接池中获取一个连接，然后进行操作，操作完毕后，会将连接放回连接池中。</p>
 <p>那么，如果我们需要使用事务，我们该如何操作呢？</p>
 <section id="manager">
 <h2>Manager<a class="headerlink" href="#manager" title="此标题的永久链接"></a></h2>
-<p>通过查看 <code class="docutils literal notranslate"><span class="pre">NewBinderManager</span></code> 和 <code class="docutils literal notranslate"><span class="pre">NewGenericManager</span></code> 的源码，我们可以看到，它们接受的参数都是一个名为 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 的接口。</p>
+<p>通过查看 <code class="docutils literal notranslate"><span class="pre">NewGenericManager</span></code> 的源码，我们可以看到，它接受的参数都是一个名为 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 的接口。</p>
 <p>Manager 接口的定义如下:</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Manager is an interface for managing database operations.</span>
 <span class="kd">type</span><span class="w"> </span><span class="nx">Manager</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
@@ -152,10 +146,6 @@
 <span class="p">}</span>
 
 <span class="p">{</span>
-<span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewBinderManager</span><span class="p">(</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="p">{</span>
 <span class="w">        </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="nx">User</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;your object&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
 <span class="p">}</span>
 
@@ -165,6 +155,43 @@
 <p>在上面的示例中，我们可以看到，我们将 <code class="docutils literal notranslate"><span class="pre">Manager</span></code> 由 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 改成 <code class="docutils literal notranslate"><span class="pre">tx</span></code> 之后，上面的操作都会在一个事务中进行了，我们就通过 <code class="docutils literal notranslate"><span class="pre">tx</span></code> 来进行事务的操作，当我们需要提交事务的时候，我们调用 <code class="docutils literal notranslate"><span class="pre">tx.Commit()</span></code> 来提交事务，如果我们需要回滚事务，我们调用 <code class="docutils literal notranslate"><span class="pre">tx.Rollback()</span></code> 来回滚事务。</p>
 <p>注意，当我们调用 <code class="docutils literal notranslate"><span class="pre">tx.Commit()</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">tx.Rollback()</span></code> 之后，事务就已经结束了，我们不能再对事务进行操作了。</p>
 <p>如果你需要使用嵌套事务，多次调用 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 来开启事务，但是需要注意的是，你需要在每次调用 <code class="docutils literal notranslate"><span class="pre">engine.Tx()</span></code> 之后，都要调用 <code class="docutils literal notranslate"><span class="pre">tx.Rollback()</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">tx.Commit()</span></code> 来终止事务，否则你的事务会一直处于开启状态。</p>
+</section>
+<section id="id3">
+<h2>隔离级别<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p>在go官方的database/sql包里面提供了对事务隔离级别的控制</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// IsolationLevel is the transaction isolation level used in TxOptions.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">IsolationLevel</span><span class="w"> </span><span class="kt">int</span>
+
+<span class="c1">// Various isolation levels that drivers may support in BeginTx.</span>
+<span class="c1">// If a driver does not support a given isolation level an error may be returned.</span>
+<span class="c1">//</span>
+<span class="c1">// See https://en.wikipedia.org/wiki/Isolation_(database_systems)#Isolation_levels.</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="nx">LevelDefault</span><span class="w"> </span><span class="nx">IsolationLevel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">iota</span>
+<span class="w">        </span><span class="nx">LevelReadUncommitted</span>
+<span class="w">        </span><span class="nx">LevelReadCommitted</span>
+<span class="w">        </span><span class="nx">LevelWriteCommitted</span>
+<span class="w">        </span><span class="nx">LevelRepeatableRead</span>
+<span class="w">        </span><span class="nx">LevelSnapshot</span>
+<span class="w">        </span><span class="nx">LevelSerializable</span>
+<span class="w">        </span><span class="nx">LevelLinearizable</span>
+<span class="p">)</span>
+
+<span class="c1">// TxOptions holds the transaction options to be used in DB.BeginTx.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">TxOptions</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Isolation is the transaction isolation level.</span>
+<span class="w">        </span><span class="c1">// If zero, the driver or database&#39;s default level is used.</span>
+<span class="w">        </span><span class="nx">Isolation</span><span class="w"> </span><span class="nx">IsolationLevel</span>
+<span class="w">        </span><span class="nx">ReadOnly</span><span class="w">  </span><span class="kt">bool</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">db</span><span class="w"> </span><span class="o">*</span><span class="nx">DB</span><span class="p">)</span><span class="w"> </span><span class="nx">BeginTx</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">opts</span><span class="w"> </span><span class="o">*</span><span class="nx">TxOptions</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Tx</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>在juice中也提供了这样的功能</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="o">*</span><span class="nx">Engine</span><span class="p">)</span><span class="w"> </span><span class="nx">ContextTx</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">opt</span><span class="w"> </span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">TxOptions</span><span class="p">)</span><span class="w"> </span><span class="nx">TxManager</span>
+</pre></div>
+</div>
 </section>
 </section>
 

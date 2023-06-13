@@ -22,7 +22,7 @@
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="搜索" href="search.html" />
     <link rel="next" title="代码生成" href="code_generate.html" />
-    <link rel="prev" title="表达式" href="expr.html" /> 
+    <link rel="prev" title="热更新" href="hot_reload.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">中间件</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id2">什么是中间件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">自定义中间件</a></li>
@@ -178,10 +179,31 @@
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">juice/middleware/TimeoutMiddleware</span></code>：用于控制sql执行超时。</p></li>
 </ul>
 <p>在对应action标签的属性上面加上timeout属性，即可启用这个功能，timeout的单位为毫秒，如：</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>注意：TimeoutMiddleware是在go语言级别实现的超时，而不是数据库级别。</p>
+</div>
 </section>
 <section id="id3">
 <h2>自定义中间件<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
 <p>自定义中间只需要实现 <code class="docutils literal notranslate"><span class="pre">Middleware</span></code> 接口, 然后注册入对应的engine即可，如：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">mymiddleware</span><span class="w"> </span><span class="nx">Middleware</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">yourMiddlewareImpl</span><span class="p">{}</span>
+
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">engine</span><span class="p">.</span><span class="nx">Use</span><span class="p">(</span><span class="nx">mymiddleware</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -189,7 +211,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
-        <a href="expr.html" class="btn btn-neutral float-left" title="表达式" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="hot_reload.html" class="btn btn-neutral float-left" title="热更新" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
         <a href="code_generate.html" class="btn btn-neutral float-right" title="代码生成" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -157,13 +157,16 @@ juice中内置了一些中间件，比如：
     <insert id="xxx" timeout="1000">
     </insert>
 
+.. attention::
+
+	注意：TimeoutMiddleware是在go语言级别实现的超时，而不是数据库级别。
 
 自定义中间件
 -------------
 
 自定义中间只需要实现 ``Middleware`` 接口, 然后注册入对应的engine即可，如：
 
-.. code::xml
+.. code-block:: go
 
     func main() {
         var mymiddleware Middleware = yourMiddlewareImpl{}
@@ -172,6 +175,7 @@ juice中内置了一些中间件，比如：
         if err != nil {
             panic(err)
         }
+		
         engine, err := juice.DefaultEngine(cfg)
         if err != nil {
             panic(err)
