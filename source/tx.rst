@@ -92,4 +92,44 @@ Manager 接口的定义如下:
 如果你需要使用嵌套事务，多次调用 ``engine.Tx()`` 来开启事务，但是需要注意的是，你需要在每次调用 ``engine.Tx()`` 之后，都要调用 ``tx.Rollback()`` 或者 ``tx.Commit()`` 来终止事务，否则你的事务会一直处于开启状态。
 
 
+隔离级别
+----------
 
+在go官方的database/sql包里面提供了对事务隔离级别的控制
+
+.. code-block:: go
+
+	// IsolationLevel is the transaction isolation level used in TxOptions.
+	type IsolationLevel int
+
+	// Various isolation levels that drivers may support in BeginTx.
+	// If a driver does not support a given isolation level an error may be returned.
+	//
+	// See https://en.wikipedia.org/wiki/Isolation_(database_systems)#Isolation_levels.
+	const (
+		LevelDefault IsolationLevel = iota
+		LevelReadUncommitted
+		LevelReadCommitted
+		LevelWriteCommitted
+		LevelRepeatableRead
+		LevelSnapshot
+		LevelSerializable
+		LevelLinearizable
+	)
+
+	// TxOptions holds the transaction options to be used in DB.BeginTx.
+	type TxOptions struct {
+		// Isolation is the transaction isolation level.
+		// If zero, the driver or database's default level is used.
+		Isolation IsolationLevel
+		ReadOnly  bool
+	}
+
+	func (db *DB) BeginTx(ctx context.Context, opts *TxOptions) (*Tx, error) 
+
+
+在juice中也提供了这样的功能
+
+.. code-block:: go
+
+	func (e *Engine) ContextTx(ctx context.Context, opt *sql.TxOptions) TxManager
