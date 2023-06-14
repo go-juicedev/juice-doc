@@ -164,3 +164,5 @@ http://github.com/eatmoreapple/juice
    middleware
 
    code_generate
+
+   extension

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>扩展 &mdash; juice  文档</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="prev" title="代码生成" href="code_generate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> juice
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Juice 简介</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">配置详情</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">扩展</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">配置文件打包到可执行文件</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">juice</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">扩展</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/extension.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>扩展<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<section id="id2">
+<h2>配置文件打包到可执行文件<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这是我们最开始用来加载配置文件的方式。</p>
+<p>这种方式有一个问题，当我们的go程序编制之后，需要依赖这个配置文件来运行，它们不是一个整体。</p>
+<p>在go1.16标准库新增了embed这个库，它允许开发者将静态文件打包到go的可执行文件里面去。</p>
+<p>juice也提供了这样的支持。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;embed&quot;</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">//go:embed config.xml</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfigurationWithFS</span><span class="p">(</span><span class="nx">fs</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>注意：当你的mappers里面引用了别的mapper文件的时候，你的所有的被引用的mapper文件也需要被打包进来。</p>
+<p>如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mappers&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">resource=</span><span class="s">&quot;mappers.xml&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/mappers&gt;</span>
+</pre></div>
+</div>
+<p>这时候我们最好的做法是将这些配置文件放在一个文件夹下面。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>├──<span class="w"> </span>config
+<span class="w">  </span>├──<span class="w"> </span>config.xml
+<span class="w">  </span>└──<span class="w"> </span>mappers.xml
+</pre></div>
+</div>
+<p>如上所示，我们的文件布局是这样的。</p>
+<p>这时候我们只需要把代码改一下</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;embed&quot;</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">//go:embed config</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfigurationWithFS</span><span class="p">(</span><span class="nx">fs</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;config/config.xml&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这样就解决上面的问题了。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="code_generate.html" class="btn btn-neutral float-left" title="代码生成" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, eatmoreapple.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
