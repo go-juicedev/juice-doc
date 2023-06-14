@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">扩展</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id2">配置文件打包到可执行文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">读写分离</a></li>
 </ul>
 </li>
 </ul>
@@ -148,6 +149,49 @@
 </pre></div>
 </div>
 <p>这样就解决上面的问题了。</p>
+</section>
+<section id="id3">
+<h2>读写分离<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p>juice 没有提供这样的功能，可能以后支持。</p>
+<p>但是可以给想要有这样需求的老表提供思路。</p>
+<p>还是记得我们的提供的中间件的支持吗？</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Middleware is a wrapper of QueryHandler and ExecHandler.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Middleware</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// QueryContext wraps the QueryHandler.</span>
+<span class="w">    </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">QueryHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">QueryHandler</span>
+<span class="w">    </span><span class="c1">// ExecContext wraps the ExecHandler.</span>
+<span class="w">    </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">ExecHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">ExecHandler</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>下面写一个伪代码</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">ReadWriteMiddleware</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">slaves</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">DB</span>
+<span class="w">    </span><span class="nx">master</span><span class="w"> </span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">DB</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="nx">ReadWriteMiddleware</span><span class="p">)</span><span class="w"> </span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">juice</span><span class="p">.</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">QueryHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">QueryHandler</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Rows</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 随机选择一个</span>
+<span class="w">        </span><span class="nx">index</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">slaves</span><span class="p">))</span>
+<span class="w">        </span><span class="nx">db</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">slaves</span><span class="p">[</span><span class="nx">index</span><span class="p">]</span>
+<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">WithSession</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">db</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">...</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="nx">ReadWriteMiddleware</span><span class="p">)</span><span class="w"> </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">stmt</span><span class="w"> </span><span class="o">*</span><span class="nx">juice</span><span class="p">.</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ExecHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ExecHandler</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">WithSession</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">master</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">...</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>注意：上面的中间件的实现会覆盖所有的session，如果当前的session是一个事务，那么会导致事务的操作失效。</p>
+</div>
 </section>
 </section>
 
