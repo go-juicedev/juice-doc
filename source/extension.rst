@@ -103,7 +103,7 @@ juice 没有提供这样的功能，可能以后支持。
         ExecContext(stmt *Statement, next ExecHandler) ExecHandler
     }
 
-下面写一个伪代码
+下面是一个伪代码
 
 .. code-block:: go
 
@@ -122,7 +122,7 @@ juice 没有提供这样的功能，可能以后支持。
         }
     }
 
-    func (r ReadWriteMiddleware) ExecContext(stmt *juice.Statement, next juice.ExecHandler) juice.ExecHandler {
+    func (r ReadWriteMiddleware) ExecContext(_ *juice.Statement, next juice.ExecHandler) juice.ExecHandler {
         return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
             ctx = juice.WithSession(ctx, r.master)
             return next(ctx, query, args...)
@@ -132,3 +132,29 @@ juice 没有提供这样的功能，可能以后支持。
 .. attention::
 
     注意：上面的中间件的实现会覆盖所有的session，如果当前的session是一个事务，那么会导致事务的操作失效。
+
+
+链路追踪
+--------
+
+跟上面读写分离一个道理，想要对实现代码的无侵入式的增加新功能，我们可以利用中间件来链路追踪。
+
+下面是一个伪代码
+
+.. code-block:: go
+
+    type TraceMiddleware struct{}
+
+    func (r TraceMiddleware) QueryContext(_ *juice.Statement, next juice.QueryHandler) juice.QueryHandler {
+        return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+            trace.Log(ctx, "query", query) // your own trace
+            return next(ctx, query, args...)
+        }
+    }
+
+    func (r TraceMiddleware) ExecContext(stmt *juice.Statement, next juice.ExecHandler) juice.ExecHandler {
+        return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
+            trace.Log(ctx, "exec", query) // your own trace
+            return next(ctx, query, args...)
+        }
+    }
