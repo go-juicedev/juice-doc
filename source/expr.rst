@@ -83,14 +83,14 @@ juice 内置了一些函数，你可以在表达式里面使用。
 
 1. 必须是一个函数（emm，这个很好理解）。
 
-2. 必须有一个返回值，类型可以是任意类型。
+2. 必须有两个返回值，第一个返回值是任意类型，第二个必须为error类型。
 
 ok，当满足上述两个条件之后，我们就可以往juice里面注册自定义函数了。
 
 .. code:: go
 
-    func add(x, y int) int {
-        return x + y
+    func add(x, y int) (int, error) {
+        return x + y, nil
     }
 
     func main() {
