@@ -356,7 +356,7 @@ property的属性置为Detail即可。
 
 result标签在association中的使用方式跟在resultMap中一致。
 
-一对多查询
+一(多)对多查询
 """"""""""""""
 
 .. code-block:: xml
@@ -425,10 +425,6 @@ juice提供了一个id的标签来表示当前数据的身份id，它的用法�
 
     当使用collection标签时，它的同级标签中必须存在一个id标签，不然juice找不到哪些数据时相关联的。
 
-
-多对多查询
-""""""""""
-TODO
 
 自增主键映射
 ------------
