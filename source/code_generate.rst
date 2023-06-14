@@ -12,6 +12,8 @@ juice提供了一个代码生成工具来方便开发者简化开发。
 
     go install https://github.com/eatmoreapple/juice/juicectl
 
+执行完成之后，在终端输入 `juicectl` 来验证是否安装完成。
+
 简单使用
 --------------
 
@@ -262,6 +264,23 @@ namespace 也可以不写，它会自动去找go.mod这个文件和你接口定�
 
 其实output也可以不写，它会默认输出到控制台。
 
+接口约束
+----------
+需要注意的是，虽然juicecli能够去解析接口签名来自动生成接口实现，但它是有它自己的规则的。
+
+1、接口的定义每个函数的第一个参数都必须是 `context.Context`。
+
+2、每个函数都必须有一个error的返回值，且必须作为最后一个参数。
+
+3、当函数名对应的id的 `action` 是 `select`，也就是查询的时候，那么当前函数必须有一个映射结果的返回值。
+
+4、当函数名对应的id的 `action` 不是 `select`，那么当前的函数可以有只有一个error的函数值。
+如果有2个返回值，那么第一个必须为 `sql.Result` 类型。
+
+5、函数可以有多个参数，当参数超过2个（第一个为context）的时候，juice会将除context以外的参数用map来包装一层，map的key即为参数的名字。
+
+6、在调用的时候，context必须是一个带有manager实现的context。可以通过 `juice.ContextWithManager` 返回的context来传递。
+
 go generate
 -----------------
 
@@ -275,3 +294,4 @@ go generate
         GetUserByID(ctx context.Context, id int64) (*User, error)
     }
 
+在你的接口定义处写上这么一句，然后在控制台执行 `go generate` 即可生成对应的代码。
