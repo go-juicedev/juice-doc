@@ -117,14 +117,14 @@ juice 没有提供这样的功能，可能以后支持。
             // 随机选择一个
             index := rand.Intn(len(r.slaves))
             db := r.slaves[index]
-            ctx = juice.WithSession(ctx, db)
+            ctx = juice.SessionWithContext(ctx, db)
             return next(ctx, query, args...)
         }
     }
 
     func (r ReadWriteMiddleware) ExecContext(_ *juice.Statement, next juice.ExecHandler) juice.ExecHandler {
         return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
-            ctx = juice.WithSession(ctx, r.master)
+            ctx = juice.SessionWithContext(ctx, r.master)
             return next(ctx, query, args...)
         }
     }
