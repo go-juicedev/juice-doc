@@ -82,3 +82,53 @@ juice也提供了这样的支持。
     }
 
 这样就解决上面的问题了。
+
+
+读写分离
+--------
+
+juice 没有提供这样的功能，可能以后支持。
+
+但是可以给想要有这样需求的老表提供思路。
+
+还是记得我们的提供的中间件的支持吗？
+
+.. code-block:: go
+
+    // Middleware is a wrapper of QueryHandler and ExecHandler.
+    type Middleware interface {
+        // QueryContext wraps the QueryHandler.
+        QueryContext(stmt *Statement, next QueryHandler) QueryHandler
+        // ExecContext wraps the ExecHandler.
+        ExecContext(stmt *Statement, next ExecHandler) ExecHandler
+    }
+
+下面写一个伪代码
+
+.. code-block:: go
+
+    type ReadWriteMiddleware struct {
+        slaves []*sql.DB
+        master *sql.DB
+    }
+
+    func (r ReadWriteMiddleware) QueryContext(_ *juice.Statement, next juice.QueryHandler) juice.QueryHandler {
+        return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+            // 随机选择一个
+            index := rand.Intn(len(r.slaves))
+            db := r.slaves[index]
+            ctx = juice.WithSession(ctx, db)
+            return next(ctx, query, args...)
+        }
+    }
+
+    func (r ReadWriteMiddleware) ExecContext(stmt *juice.Statement, next juice.ExecHandler) juice.ExecHandler {
+        return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
+            ctx = juice.WithSession(ctx, r.master)
+            return next(ctx, query, args...)
+        }
+    }
+
+.. attention::
+
+    注意：上面的中间件的实现会覆盖所有的session，如果当前的session是一个事务，那么会导致事务的操作失效。
