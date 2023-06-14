@@ -57,21 +57,20 @@
 <li class="toctree-l2"><a class="reference internal" href="#id3">自定义结果集映射</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">简单查询</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">一对一查询</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">一对多查询</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">多对多查询</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">一(多)对多查询</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">自增主键映射</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">自增主键映射</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tx.html#id3">隔离级别</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
 </ul>
 
         </div>
@@ -398,7 +397,7 @@ property的属性置为Detail即可。</p>
 <p>result标签在association中的使用方式跟在resultMap中一致。</p>
 </section>
 <section id="id6">
-<h3>一对多查询<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h3>
+<h3>一(多)对多查询<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h3>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;resultMap</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;User&quot;</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;id</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;ID&quot;</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;result</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="na">property=</span><span class="s">&quot;Name&quot;</span><span class="nt">/&gt;</span>
@@ -454,13 +453,9 @@ property的属性置为Detail即可。</p>
 <p>当使用collection标签时，它的同级标签中必须存在一个id标签，不然juice找不到哪些数据时相关联的。</p>
 </div>
 </section>
+</section>
 <section id="id7">
-<h3>多对多查询<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h3>
-<p>TODO</p>
-</section>
-</section>
-<section id="id8">
-<h2>自增主键映射<a class="headerlink" href="#id8" title="此标题的永久链接"></a></h2>
+<h2>自增主键映射<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h2>
 <p>当我们往数据库中插入一条数据时，如果这条数据的主键是自增的，那么我们需要获取这条数据的主键值，将这个值赋值给我们的结构体。</p>
 <p>如果想要实现这个功能，我们需要需要满足以下条件:</p>
 <ol class="arabic simple">
