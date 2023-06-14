@@ -191,7 +191,7 @@
 </div>
 <div class="admonition attention">
 <p class="admonition-title">注意</p>
-<p>注意：上面的中间件的实现会覆盖所有的session，如果当前的session是一个事务，那么会导致事务的操作失效。</p>
+<p>注意：数据库读写分离虽然可以提高应用程序的性能，但同时也会带来事务处理的问题。如上面的中间件的实现会覆盖所有的session，如果当前的session是一个事务，那么会导致事务的操作失效，具体的业务逻辑需要开发者自己实现。</p>
 </div>
 </section>
 <section id="id4">
