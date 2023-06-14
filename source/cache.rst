@@ -87,6 +87,10 @@ juice 提供了一个redis的缓存，请到 ``https://github.com/eatmoreapple/j
     注意： 缓存只有跟 `NewGenericManager` 搭配使用才有效
 
 
+二级缓存
+----------
+
+Does not implement yet.
 
 
 
