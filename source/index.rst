@@ -166,3 +166,5 @@ http://github.com/eatmoreapple/juice
    code_generate
 
    extension
+
+   eatmoreapple

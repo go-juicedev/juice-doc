@@ -71,7 +71,7 @@ http://github.com/eatmoreapple/juice
    </configuration>
 
 ..  attention::
-   注意：`dataSource` 的格式为 `username:password@tcp(host:port)/database`，这里一定要配置数据库的用户名和密码，否则会报错。
+   注意：`dataSource` 的格式跟用 `sql.Open()` 函数的格式相同。
 
 
 2. 编写代码

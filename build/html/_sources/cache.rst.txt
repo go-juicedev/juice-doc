@@ -90,6 +90,7 @@ juice 提供了一个redis的缓存，请到 ``https://github.com/eatmoreapple/j
 二级缓存
 ----------
 
+Does not implement yet.
 
 
 
