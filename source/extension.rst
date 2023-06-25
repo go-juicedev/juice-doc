@@ -158,3 +158,29 @@ juice 没有提供这样的功能，可能以后支持。
             return next(ctx, query, args...)
         }
     }
+
+
+XML文档约束
+-----------
+
+XML 文档约束（XML Document Type Definition，DTD）是一种用于定义 XML 文档结构和规则的文档类型定义语言。通过使用 DTD，我们可以约束一个 XML 文档只能包括哪些元素、元素的属性、元素之间的关系和顺序等信息。
+
+在实际应用中，通常需要将 DTD 文件与 XML 文档关联起来，以便在解析 XML 文档时自动进行验证。在 XML 文档中，可以通过 <!DOCTYPE> 元素来指定 DTD 文件及其位置。
+
+举例来说，在 juice 的配置文件 config.xml 或者 mapper.xml 中，我们可以通过指定 <!DOCTYPE> 元素中的 PUBLIC 属性和 URI 来关联 DTD 文件。这样，当我们在编辑器或者其他工具中打开 XML 文件时，就可以根据 DTD 定义的规则检查 XML 文档是否符合规范，并且发现潜在的错误和问题。
+
+config xml
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE configuration PUBLIC "-//juice.org//DTD Config 1.0//EN"
+            "https://raw.githubusercontent.com/eatmoreapple/juice/main/config.dtd">
+
+mapper xml
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="utf-8" ?>
+    <!DOCTYPE mapper PUBLIC "-//juice.org//DTD Config 1.0//EN"
+            "https://raw.githubusercontent.com/eatmoreapple/juice/main/mapper.dtd">

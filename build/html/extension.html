@@ -21,6 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="吃包辣条" href="eatmoreapple.html" />
     <link rel="prev" title="代码生成" href="code_generate.html" /> 
 </head>
 
@@ -55,8 +56,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#id2">配置文件打包到可执行文件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">读写分离</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id4">链路追踪</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xml">XML文档约束</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -176,14 +179,14 @@
 <span class="w">        </span><span class="c1">// 随机选择一个</span>
 <span class="w">        </span><span class="nx">index</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">slaves</span><span class="p">))</span>
 <span class="w">        </span><span class="nx">db</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">slaves</span><span class="p">[</span><span class="nx">index</span><span class="p">]</span>
-<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">WithSession</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">db</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">SessionWithContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">db</span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">...</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="nx">ReadWriteMiddleware</span><span class="p">)</span><span class="w"> </span><span class="nx">ExecContext</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">juice</span><span class="p">.</span><span class="nx">Statement</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ExecHandler</span><span class="p">)</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">ExecHandler</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="o">...</span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">sql</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">WithSession</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">master</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">SessionWithContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">master</span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">...</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -216,6 +219,24 @@
 </pre></div>
 </div>
 </section>
+<section id="xml">
+<h2>XML文档约束<a class="headerlink" href="#xml" title="此标题的永久链接"></a></h2>
+<p>XML 文档约束（XML Document Type Definition，DTD）是一种用于定义 XML 文档结构和规则的文档类型定义语言。通过使用 DTD，我们可以约束一个 XML 文档只能包括哪些元素、元素的属性、元素之间的关系和顺序等信息。</p>
+<p>在实际应用中，通常需要将 DTD 文件与 XML 文档关联起来，以便在解析 XML 文档时自动进行验证。在 XML 文档中，可以通过 &lt;!DOCTYPE&gt; 元素来指定 DTD 文件及其位置。</p>
+<p>举例来说，在 juice 的配置文件 config.xml 或者 mapper.xml 中，我们可以通过指定 &lt;!DOCTYPE&gt; 元素中的 PUBLIC 属性和 URI 来关联 DTD 文件。这样，当我们在编辑器或者其他工具中打开 XML 文件时，就可以根据 DTD 定义的规则检查 XML 文档是否符合规范，并且发现潜在的错误和问题。</p>
+<p>config xml</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="cp">&lt;!DOCTYPE configuration PUBLIC &quot;-//juice.org//DTD Config 1.0//EN&quot;</span>
+<span class="cp">        &quot;https://raw.githubusercontent.com/eatmoreapple/juice/main/config.dtd&quot;&gt;</span>
+</pre></div>
+</div>
+<p>mapper xml</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;</span>
+<span class="cp">&lt;!DOCTYPE mapper PUBLIC &quot;-//juice.org//DTD Config 1.0//EN&quot;</span>
+<span class="cp">        &quot;https://raw.githubusercontent.com/eatmoreapple/juice/main/mapper.dtd&quot;&gt;</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -223,6 +244,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
         <a href="code_generate.html" class="btn btn-neutral float-left" title="代码生成" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="eatmoreapple.html" class="btn btn-neutral float-right" title="吃包辣条" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

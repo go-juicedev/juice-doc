@@ -177,7 +177,7 @@ provider
                 <driver>mysql</driver>
                 <maxIdleConnNum>10</maxIdleConnNum>
                 <maxOpenConnNum>10</maxOpenConnNum>
-                <maxConnLifetime>3600</maxLifetime>
+                <maxConnLifetime>3600</maxConnLifetime>
                 <maxIdleConnLifetime>3600</maxIdleConnLifetime>
             </environment>
 

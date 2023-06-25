@@ -21,14 +21,14 @@ http://github.com/eatmoreapple/juice
 ------------------------------
 
 - 轻量级，高性能，无第三方依赖
-- 简单易用，容易扩展
-- 动态 sql 语句
+- 动态 sql
 - 支持多数据源
 - 泛型结果集映射
 - 中间件
 - 自定义表达式
 - 自定义函数
 - 热更新
+- 代码生成
 
 
 安装
@@ -166,3 +166,5 @@ http://github.com/eatmoreapple/juice
    code_generate
 
    extension
+
+   eatmoreapple
