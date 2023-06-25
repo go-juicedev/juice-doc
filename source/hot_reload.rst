@@ -20,3 +20,5 @@ juice 提供了一个能够在服务不重启的情况下更新sql的功能。
     func (e *Engine) SetConfiguration(cfg *Configuration)
 
 `SetConfiguration` 是一个线程安全的方法。
+
+当你执行完这个方法之后，engine会自动的更新sql的配置。
