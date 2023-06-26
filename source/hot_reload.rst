@@ -21,4 +21,7 @@ juice 提供了一个能够在服务不重启的情况下更新sql的功能。
 
 `SetConfiguration` 是一个线程安全的方法。
 
-当你执行完这个方法之后，engine会自动的更新sql的配置。
+当你执行完这个方法之后，engine会自动的更新mapper的配置。
+
+.. attention::
+    SetConfiguration 执行完毕之后不会修改数据库连接相关配置。
