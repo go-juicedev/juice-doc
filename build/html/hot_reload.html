@@ -52,6 +52,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -95,6 +97,11 @@
 </pre></div>
 </div>
 <p><cite>SetConfiguration</cite> 是一个线程安全的方法。</p>
+<p>当你执行完这个方法之后，engine会自动的更新mapper的配置。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>SetConfiguration 执行完毕之后不会修改数据库连接相关配置。</p>
+</div>
 </section>
 
 

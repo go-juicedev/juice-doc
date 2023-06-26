@@ -21,6 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="扩展" href="extension.html" />
     <link rel="prev" title="中间件" href="middleware.html" /> 
 </head>
 
@@ -57,6 +58,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#go-generate">go generate</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -319,11 +322,11 @@
 <h2>接口约束<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
 <p>需要注意的是，虽然juicecli能够去解析接口签名来自动生成接口实现，但它是有它自己的规则的。</p>
 <p>1、接口的定义每个函数的第一个参数都必须是 <cite>context.Context</cite>。</p>
-<p>2、每个函数都必须有一个error的返回值，且必须作为最后一个参数。</p>
-<p>3、当函数名对应的id的 <cite>action</cite> 是 <cite>select</cite>，也就是查询的时候，那么当前函数必须有一个映射结果的返回值。</p>
+<p>2、每个函数都必须有一个error的返回值，且必须作为最后一个参数。(go style)</p>
+<p>3、当函数名对应的id的 <cite>action</cite> 是 <cite>select</cite>，也就是查询的时候，那么当前函数必须有一个映射结果的返回值。(没有返回值你查什么呢？)</p>
 <p>4、当函数名对应的id的 <cite>action</cite> 不是 <cite>select</cite>，那么当前的函数可以有只有一个error的函数值。
 如果有2个返回值，那么第一个必须为 <cite>sql.Result</cite> 类型。</p>
-<p>5、函数可以有多个参数，当参数超过2个（第一个为context）的时候，juice会将除context以外的参数用map来包装一层，map的key即为参数的名字。</p>
+<p>5、函数可以有多个参数，当参数超过2个（第一个为context）的时候，juice会将除context以外的参数用map来包装一层，map的key即为函数定义时行参的名字。</p>
 <p>6、在调用的时候，context必须是一个带有manager实现的context。可以通过 <cite>juice.ContextWithManager</cite> 返回的context来传递。</p>
 </section>
 <section id="go-generate">
@@ -346,6 +349,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
         <a href="middleware.html" class="btn btn-neutral float-left" title="中间件" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="extension.html" class="btn btn-neutral float-right" title="扩展" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

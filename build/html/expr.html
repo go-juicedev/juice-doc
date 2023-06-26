@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -87,9 +88,8 @@
 <h1>表达式<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
 <p>从上面的动态sql里面我们可以看出 juice 支持在 <code class="docutils literal notranslate"><span class="pre">if</span></code> 和 <code class="docutils literal notranslate"><span class="pre">when</span></code> 标签中使用表达式，这些表达式的语法和 go 语言中的语法基本一致。</p>
 <p>你可以在表达式里面书写大部分的 go 语言表达式，但是有一些特殊的地方需要注意：</p>
-<p>1、 juice 采用的是值传递，当你传递的是一个指针的时候，juice会将指针所指向的值传递给模板，而不是指针本身。所以无法比较一个元素是否为 <cite>nil</cite>。</p>
-<p>2、 juice 只支持单行表达式，不支持多行表达式。</p>
-<p>3、当在表达式里面写一个字符串的时候，需要将test属性的的值用单引号包裹起来，例如：</p>
+<p>1、 juice 只支持单行表达式，不支持多行表达式。</p>
+<p>2、当在表达式里面写一个字符串的时候，需要将test属性的的值用单引号包裹起来，例如：</p>
 <blockquote>
 <div><div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
 
@@ -97,9 +97,11 @@
 </pre></div>
 </div>
 </div></blockquote>
-<ol class="arabic simple" start="4">
-<li><p>尽量写简单一点的表达式。</p></li>
-</ol>
+<p>3、 尽量写简单一点的表达式。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>true、false、nil 为关键词，不能用作变量名。</p>
+</div>
 <section id="id2">
 <h2>函数<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
 <p>为了丰富表达式的功能，juice 支持在表达式里面调用函数。</p>
@@ -165,11 +167,9 @@
 </section>
 <section id="id3">
 <h2>自定义函数<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
-<p>当我觉得内置的函数不够用的时候，我可以自定义函数，自定义函数需要满足以下条件：</p>
-<ol class="arabic simple">
-<li><p>必须是一个函数（emm，这个很好理解）。</p></li>
-<li><p>必须有两个返回值，第一个返回值是任意类型，第二个必须为error类型。</p></li>
-</ol>
+<p>当我觉得内置的函数不够用的时候，我们注册自定义函数，自定义函数需要满足以下条件：</p>
+<p>1、 必须是一个函数（emm，这个很好理解）。</p>
+<p>2、必须有两个返回值，第一个返回值是任意类型，第二个必须为error类型。</p>
 <p>ok，当满足上述两个条件之后，我们就可以往juice里面注册自定义函数了。</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">add</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="w"> </span><span class="nx">y</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">y</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
