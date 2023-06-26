@@ -68,6 +68,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -312,6 +314,10 @@
 <section id="h">
 <h4>H<a class="headerlink" href="#h" title="此标题的永久链接"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">juice.H</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">map[string]interface{}</span></code> 的别名。用来方便开发者传递参数。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>请确保你传递的参数是可被序列化的，否则会导致部分功能异常，如缓存。</p>
+</div>
 </section>
 </section>
 </section>
