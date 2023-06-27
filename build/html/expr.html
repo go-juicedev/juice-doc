@@ -49,8 +49,17 @@
 <li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">表达式</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id2">函数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">自定义函数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">表达式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">比较运算符</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">逻辑运算符</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">算术运算符</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">保留关键字</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">函数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">自定义全局函数注册</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">传入函数调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">自定义类型方法调用</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
@@ -98,12 +107,52 @@
 </div>
 </div></blockquote>
 <p>3、 尽量写简单一点的表达式。</p>
-<div class="admonition attention">
-<p class="admonition-title">注意</p>
-<p>true、false、nil 为关键词，不能用作变量名。</p>
-</div>
 <section id="id2">
-<h2>函数<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<h2>表达式<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<section id="id3">
+<h3>比较运算符<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h3>
+<p>juice 支持以下比较运算符：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">==</span></code>: 判断两个值是否相等。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">!=</span></code>: 判断两个值是否不相等。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&gt;</span></code>: 判断左边的值是否大于右边的值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>: 判断左边的值是否大于等于右边的值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;</span></code>: 判断左边的值是否小于右边的值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>: 判断左边的值是否小于等于右边的值。</p></li>
+</ol>
+</section>
+<section id="id4">
+<h3>逻辑运算符<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h3>
+<p>juice 支持以下逻辑运算符：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code>: 逻辑与。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">||</span></code>: 逻辑或。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">!</span></code>: 逻辑非。</p></li>
+</ol>
+</section>
+<section id="id5">
+<h3>算术运算符<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h3>
+<p>juice 支持以下算术运算符：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">+</span></code>: 加法运算。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-</span></code>: 减法运算。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code>: 乘法运算。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/</span></code>: 除法运算。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">%</span></code>: 取余运算。</p></li>
+</ol>
+</section>
+<section id="id6">
+<h3>保留关键字<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h3>
+<p>保留关键字是指 juice 里面已经定义好的关键字，不能用作变量名。</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code>: 布尔类型的真。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code>: 布尔类型的假。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nil</span></code>: 空值。</p></li>
+</ol>
+</section>
+</section>
+<section id="id7">
+<h2>函数<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h2>
 <p>为了丰富表达式的功能，juice 支持在表达式里面调用函数。</p>
 <p>juice 内置了一些函数，你可以在表达式里面使用。</p>
 <ol class="arabic">
@@ -165,8 +214,8 @@
 </li>
 </ol>
 </section>
-<section id="id3">
-<h2>自定义函数<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<section id="id8">
+<h2>自定义全局函数注册<a class="headerlink" href="#id8" title="此标题的永久链接"></a></h2>
 <p>当我觉得内置的函数不够用的时候，我们注册自定义函数，自定义函数需要满足以下条件：</p>
 <p>1、 必须是一个函数（emm，这个很好理解）。</p>
 <p>2、必须有两个返回值，第一个返回值是任意类型，第二个必须为error类型。</p>
@@ -188,6 +237,103 @@
 
 <span class="nt">&lt;/if&gt;</span>
 </pre></div>
+</div>
+</section>
+<section id="id9">
+<h2>传入函数调用<a class="headerlink" href="#id9" title="此标题的永久链接"></a></h2>
+<p>juice 支持在参数传递时，传入函数调用，例如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;MyFunc() == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;MyFunc&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>带有参数的函数</p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;MyFunc(&quot;eatmoreapple&quot;) == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">(</span><span class="nx">str</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">str</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;MyFunc&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>传递函数的参数的参数（怎么有点拗口？）</p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;MyFunc(eatmoreapple) == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">(</span><span class="nx">str</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">str</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;MyFunc&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>多个参数</p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;MyFunc(eatmoreapple, 1, 2) == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">(</span><span class="nx">str</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">x</span><span class="p">,</span><span class="w"> </span><span class="nx">y</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">str</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;MyFunc&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h2>自定义类型方法调用<a class="headerlink" href="#id10" title="此标题的永久链接"></a></h2>
+<p>juice 支持在参数传递时，传入自定义类型的方法调用，例如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a.MyFunc() == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">A</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="o">*</span><span class="nx">A</span><span class="p">)</span><span class="w"> </span><span class="nx">MyFunc</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;a&quot;</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">A</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>传入函数调用时，函数的返回值必须是两个，第一个返回值是任意类型，第二个返回值必须是error类型。</p>
 </div>
 </section>
 </section>

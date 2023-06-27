@@ -38,7 +38,7 @@ http://github.com/eatmoreapple/juice
 
 **版本要求**
 
-- go 1.18+
+- go 1.20+
 
 .. code-block:: bash
 
