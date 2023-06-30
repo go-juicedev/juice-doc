@@ -62,6 +62,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id10">自定义类型方法调用</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id11">属性调用</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#map">map索引取值</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">数组索引取值</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
@@ -358,7 +359,7 @@
 </section>
 <section id="map">
 <h2>map索引取值<a class="headerlink" href="#map" title="此标题的永久链接"></a></h2>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a.Name == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a[&quot;Name&quot;] == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
 
 <span class="nt">&lt;/if&gt;</span>
 </pre></div>
@@ -370,7 +371,15 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>数组索引取值</p>
+<p>上面的xml可以写成下面的这种形式：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a.Name == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h2>数组索引取值<a class="headerlink" href="#id12" title="此标题的永久链接"></a></h2>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a[0] == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
 
 <span class="nt">&lt;/if&gt;</span>
