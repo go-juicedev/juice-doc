@@ -258,13 +258,13 @@ values语句用来将参数值作为列值插入到表中。values只会在inser
 .. code-block:: xml
 
     <insert id="Insert">
-            insert into user
-            <values>
-                <value column="uid" value="#{uid}"/>
-                <value column="create_at" value="NOW()"/>
-                <value column="name"/>
-            </values>
-        </insert>
+        insert into user
+        <values>
+            <value column="uid" value="#{uid}"/>
+            <value column="create_at" value="NOW()"/>
+            <value column="name"/>
+        </values>
+     </insert>
 
 其中，column属性用来指定列名，value属性用来指定参数值。
 
