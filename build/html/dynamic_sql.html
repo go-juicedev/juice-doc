@@ -62,6 +62,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -288,13 +290,13 @@
 </div>
 <p>光有values语句是不够的，还需要使用value语句来指定参数值。value语句的语法如下：</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;Insert&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span>insert<span class="w"> </span>into<span class="w"> </span>user
-<span class="w">        </span><span class="nt">&lt;values&gt;</span>
-<span class="w">            </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;uid&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;#{uid}&quot;</span><span class="nt">/&gt;</span>
-<span class="w">            </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;create_at&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;NOW()&quot;</span><span class="nt">/&gt;</span>
-<span class="w">            </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;/values&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/insert&gt;</span>
+<span class="w">    </span>insert<span class="w"> </span>into<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;values&gt;</span>
+<span class="w">        </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;uid&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;#{uid}&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;create_at&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;NOW()&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/values&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/insert&gt;</span>
 </pre></div>
 </div>
 <p>其中，column属性用来指定列名，value属性用来指定参数值。</p>
