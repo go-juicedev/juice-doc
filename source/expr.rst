@@ -296,11 +296,11 @@ juice 支持在参数传递时，传入自定义类型的属性调用，例如�
     }
 
 map索引取值
----------
+------------
 
 .. code-block:: xml
 
-    <if test='a.Name == "eatmoreapple"'>
+    <if test='a["Name"] == "eatmoreapple"'>
 
     </if>
 
@@ -312,7 +312,16 @@ map索引取值
         },
     }
 
+上面的xml可以写成下面的这种形式：
+
+.. code-block:: xml
+
+     <if test='a.Name == "eatmoreapple"'>
+
+     </if>
+
 数组索引取值
+-------------
 
 .. code-block:: xml
 
