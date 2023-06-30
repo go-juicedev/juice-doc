@@ -60,6 +60,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#id8">自定义全局函数注册</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id9">传入函数调用</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id10">自定义类型方法调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">属性调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#map">map索引取值</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
@@ -334,6 +336,56 @@
 <div class="admonition attention">
 <p class="admonition-title">注意</p>
 <p>传入函数调用时，函数的返回值必须是两个，第一个返回值是任意类型，第二个返回值必须是error类型。</p>
+</div>
+</section>
+<section id="id11">
+<h2>属性调用<a class="headerlink" href="#id11" title="此标题的永久链接"></a></h2>
+<p>juice 支持在参数传递时，传入自定义类型的属性调用，例如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a.Name == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span><span class="w"> </span><span class="nx">A</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;a&quot;</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">A</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="map">
+<h2>map索引取值<a class="headerlink" href="#map" title="此标题的永久链接"></a></h2>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a.Name == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;a&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>数组索引取值</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a[0] == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>上面的xml可以写成下面的这种形式：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a.0 == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
+</pre></div>
 </div>
 </section>
 </section>

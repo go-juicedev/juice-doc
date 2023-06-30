@@ -274,3 +274,63 @@ juice 支持在参数传递时，传入自定义类型的方法调用，例如�
 .. attention::
     传入函数调用时，函数的返回值必须是两个，第一个返回值是任意类型，第二个返回值必须是error类型。
 
+属性调用
+--------
+
+juice 支持在参数传递时，传入自定义类型的属性调用，例如：
+
+.. code-block:: xml
+
+    <if test='a.Name == "eatmoreapple"'>
+
+    </if>
+
+.. code-block:: go
+
+    type A struct {
+        Name string
+    }
+
+    param := juice.H{
+        "a": &A{Name: "eatmoreapple"},
+    }
+
+map索引取值
+---------
+
+.. code-block:: xml
+
+    <if test='a.Name == "eatmoreapple"'>
+
+    </if>
+
+.. code-block:: go
+
+    param := juice.H{
+        "a": juice.H{
+            "Name": "eatmoreapple",
+        },
+    }
+
+数组索引取值
+
+.. code-block:: xml
+
+    <if test='a[0] == "eatmoreapple"'>
+
+    </if>
+
+.. code-block:: go
+
+    param := juice.H{
+        "a": []string{"eatmoreapple"},
+    }
+
+
+上面的xml可以写成下面的这种形式：
+
+.. code-block:: xml
+
+    <if test='a.0 == "eatmoreapple"'>
+
+    </if>
