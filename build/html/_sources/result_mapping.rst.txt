@@ -437,7 +437,7 @@ juice提供了一个id的标签来表示当前数据的身份id，它的用法�
 2. 传入的参数必须是一个指向结构体的指针。
 3. 在xml中执行的sql语句必须是 ``insert`` 语句。
 4. 在xml中执行的insert语句的中必须指定 ``useGeneratedKeys`` 属性为 ``true`` 。
-5. 在xml中执行的insert语句的中指定 ``keyProperty`` 属性为我们传入结构体主键字段名。当这个字段为空时，juice会自动从当前传入的结构体字段中寻找tag为 `` autoincr:"true" `` 的字段，如果找到了，那么就将这个字段作为主键字段。
+5. 在xml中执行的insert语句的中指定 ``keyProperty`` 属性为我们传入结构体主键字段名。当这个字段为空时，juice会自动从当前传入的结构体字段中寻找tag为 `autoincr:"true"` 的字段，如果找到了，那么就将这个字段作为主键字段。
 
 下面是一个例子:
 
@@ -461,7 +461,7 @@ juice提供了一个id的标签来表示当前数据的身份id，它的用法�
         Name: "张三",
         Age:  18,
     }
-    _, err := juice.NewExecutor(engine).Object("main.InsertUser").Exec(&user)
+    _, err := engine.Object("main.InsertUser").Exec(&user)
     if err != nil {
         panic(err)
     }
