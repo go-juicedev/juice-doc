@@ -334,12 +334,3 @@ map索引取值
     param := juice.H{
         "a": []string{"eatmoreapple"},
     }
-
-
-上面的xml可以写成下面的这种形式：
-
-.. code-block:: xml
-
-    <if test='a.0 == "eatmoreapple"'>
-
-    </if>
