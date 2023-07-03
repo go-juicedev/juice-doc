@@ -298,12 +298,6 @@ juice 支持在参数传递时，传入自定义类型的属性调用，例如�
 map索引取值
 ------------
 
-.. code-block:: xml
-
-    <if test='a["Name"] == "eatmoreapple"'>
-
-    </if>
-
 .. code-block:: go
 
     param := juice.H{
@@ -312,6 +306,12 @@ map索引取值
         },
     }
 
+.. code-block:: xml
+
+    <if test='a["Name"] == "eatmoreapple"'>
+
+    </if>
+
 上面的xml可以写成下面的这种形式：
 
 .. code-block:: xml
@@ -319,6 +319,13 @@ map索引取值
      <if test='a.Name == "eatmoreapple"'>
 
      </if>
+
+这两种写法有啥区别呢？
+
+索引取值，当对应的key不存在时，会返回map值的默认值。
+
+但是 ``a.Name`` 这种形式，当 ``Name`` 不存在时，会抛出异常。
+
 
 数组索引取值
 -------------

@@ -359,16 +359,16 @@
 </section>
 <section id="map">
 <h2>map索引取值<a class="headerlink" href="#map" title="此标题的永久链接"></a></h2>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a[&quot;Name&quot;] == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
-
-<span class="nt">&lt;/if&gt;</span>
-</pre></div>
-</div>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">param</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
 <span class="w">    </span><span class="s">&quot;a&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
 <span class="w">        </span><span class="s">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;eatmoreapple&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;a[&quot;Name&quot;] == &quot;eatmoreapple&quot;&#39;</span><span class="nt">&gt;</span>
+
+<span class="nt">&lt;/if&gt;</span>
 </pre></div>
 </div>
 <p>上面的xml可以写成下面的这种形式：</p>
@@ -377,6 +377,9 @@
 <span class="nt">&lt;/if&gt;</span>
 </pre></div>
 </div>
+<p>这两种写法有啥区别呢？</p>
+<p>索引取值，当对应的key不存在时，会返回map值的默认值。</p>
+<p>但是 <code class="docutils literal notranslate"><span class="pre">a.Name</span></code> 这种形式，当 <code class="docutils literal notranslate"><span class="pre">Name</span></code> 不存在时，会抛出异常。</p>
 </section>
 <section id="id12">
 <h2>数组索引取值<a class="headerlink" href="#id12" title="此标题的永久链接"></a></h2>
