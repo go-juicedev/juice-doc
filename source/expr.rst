@@ -326,6 +326,32 @@ map索引取值
 
 但是 ``a.Name`` 这种形式，当 ``Name`` 不存在时，会抛出异常。
 
+以 ``a.Name`` 这种形式写，可以支持方法调用，例如：
+
+.. code-block:: go
+
+    type A map[string]string
+
+    func (a *A) MyFunc() (string, error) {
+        return "eatmoreapple", nil
+    }
+
+    param := juice.H{
+        "a": A{"hello": "world"},
+    }
+
+.. code-block:: xml
+
+    <if test='a.MyFunc() == "eatmoreapple"'>
+
+    </if>
+
+    <if test="a.hello == 'world'">
+
+    </if>
+
+
+
 
 数组索引取值
 -------------
