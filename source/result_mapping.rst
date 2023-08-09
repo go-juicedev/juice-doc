@@ -102,9 +102,7 @@ Executor
 
     // Executor is an executor of SQL.
     type Executor interface {
-        Query(param interface{}) (*sql.Rows, error)
         QueryContext(ctx context.Context, param interface{}) (*sql.Rows, error)
-        Exec(param interface{}) (sql.Result, error)
         ExecContext(ctx context.Context, param interface{}) (sql.Result, error)
         Statement() *Statement
     }
@@ -151,9 +149,7 @@ GenericExecutor
 
     // GenericExecutor is a generic executor.
     type GenericExecutor[result any] interface {
-        Query(param any) (result, error)
         QueryContext(ctx context.Context, param any) (result, error)
-        Exec(param any) (sql.Result, error)
         ExecContext(ctx context.Context, param any) (sql.Result, error)
     }
 
