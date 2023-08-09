@@ -89,7 +89,7 @@ juice中内置了一些中间件，比如：
 
 当你启用了这个中间件，juice会将每次执行的sql语句和参数写入到log包的默认的writer里面（默认是console），并且记录耗时。
 
-当不想使用这个中间件的时候，可以在setting里面讲debug设置为false, 这样就会全局关闭这个中间件。
+当不想使用这个中间件的时候，可以在setting里面将debug设置为false, 这样就会全局关闭这个中间件。
 
 .. code:: xml
 
