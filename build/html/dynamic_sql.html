@@ -54,6 +54,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#foreach">foreach</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#trim">trim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#choosewhenotherwise">choose、when和otherwise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sqlinclude">sql、include</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#valuesvalue">values、value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aliasfield">alias、field</a></li>
 </ul>
@@ -277,6 +278,36 @@
 </pre></div>
 </div>
 <p>当choose语句中的所有when语句的条件表达式都不成立时，执行otherwise语句。</p>
+</section>
+<section id="sqlinclude">
+<h2>sql、include<a class="headerlink" href="#sqlinclude" title="此标题的永久链接"></a></h2>
+<p>sql语句用来定义sql片段，include语句用来引用sql片段。</p>
+<p>sql语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;com.example.mapper.UserMapper&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;sql</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;columns&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>id,<span class="w"> </span>name,<span class="w"> </span>age
+<span class="w">    </span><span class="nt">&lt;/sql&gt;</span>
+</pre></div>
+</div>
+<p>sql标签必须写在mapper标签中，id属性用来指定sql片段的id，sql片段的id属性在其所在的mapper中必须唯一。</p>
+<p>include语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectAll&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select
+<span class="w">    </span><span class="nt">&lt;include</span><span class="w"> </span><span class="na">refid=</span><span class="s">&quot;columns&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span>from<span class="w"> </span>user
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>include标签必须写在action标签中，refid属性用来指定要引用的sql片段的id。</p>
+<p>如果include和sql标签都在同一个mapper中，则可以直接使用sql片段的id。</p>
+<p>如果include和sql标签不在同一个mapper中，则需要使用namespace属性来指定sql片段所在的mapper的namespace，例如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectAll&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select
+<span class="w">    </span><span class="nt">&lt;include</span><span class="w"> </span><span class="na">refid=</span><span class="s">&quot;com.example.mapper.UserMapper.columns&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span>from<span class="w"> </span>user
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
 </section>
 <section id="valuesvalue">
 <h2>values、value<a class="headerlink" href="#valuesvalue" title="此标题的永久链接"></a></h2>

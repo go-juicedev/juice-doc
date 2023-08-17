@@ -122,27 +122,6 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
 但是，``${}`` 的语法不会被替换成占位符，这样就会导致sql注入的问题。所以，我们在使用 ``${}`` 的时候，必须要保证参数的值是安全的。
 
 
-参数查找
-~~~~~~~~~~~~~~~~
-无论是 ``#{}`` 还是 ``${}`` ，都会在执行sql语句的时候，从参数中查找对应的值。参数的查找规则如下：
-
-- ``#{}`` 语法只会在参数中查找对应的值，如果找不到，那么就会抛出异常。
-- ``${}`` 语法会在参数中查找对应的值，如果找不到，那么它会从当前的action标签中查找对应的值，如果还是找不到，那么它会从当前的mapper标签中查找对应的值，如果还是找不到，那么就会抛出异常。
-
-.. code-block:: xml
-
-   <mapper namespace="main" table2=user>
-        <select id="CountUserByName" table="user">
-            select count(*) from ${table} where name = ${name}
-        </select>
-
-        <select id="CountUserByName">
-            select count(*) from ${table2} where name = ${name}
-        </select>
-    </mapper>
-
-如上实例，这两个select是等价的。
-
 参数传递
 ~~~~~~~~~~~~~~~~
 

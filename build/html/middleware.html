@@ -56,6 +56,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -164,7 +166,7 @@
 </pre></div>
 </div>
 <p>当你启用了这个中间件，juice会将每次执行的sql语句和参数写入到log包的默认的writer里面（默认是console），并且记录耗时。</p>
-<p>当不想使用这个中间件的时候，可以在setting里面讲debug设置为false, 这样就会全局关闭这个中间件。</p>
+<p>当不想使用这个中间件的时候，可以在setting里面将debug设置为false, 这样就会全局关闭这个中间件。</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;settings&gt;</span>
 <span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;debug&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/settings&gt;</span>

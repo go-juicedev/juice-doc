@@ -59,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
 </ul>
 
         </div>
@@ -92,11 +93,11 @@
 <h2>开启缓存<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
 <p>juice的缓存默认是不开启的，需要显式的告诉juice当前的事务开启缓存查询。</p>
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">tx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">Tx</span><span class="p">()</span>
-<span class="k">defer</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">Rollbakc</span><span class="p">()</span>
+<span class="k">defer</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">Rollback</span><span class="p">()</span>
 
-<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
 
-<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
 
 <span class="nx">tx</span><span class="p">.</span><span class="nx">Commit</span><span class="p">()</span>
 </pre></div>
@@ -105,9 +106,9 @@
 <div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">tx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">CacheTx</span><span class="p">()</span>
 <span class="k">defer</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">Rollbakc</span><span class="p">()</span>
 
-<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
 
-<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">Query</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">int</span><span class="p">](</span><span class="nx">tx</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="s">&quot;obj id&quot;</span><span class="p">).</span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
 
 <span class="nx">tx</span><span class="p">.</span><span class="nx">Commit</span><span class="p">()</span>
 </pre></div>

@@ -11,11 +11,11 @@ juice的缓存默认是不开启的，需要显式的告诉juice当前的事务�
 .. code-block:: go
 
     tx := engine.Tx()
-    defer tx.Rollbakc()
+    defer tx.Rollback()
 
-    juice.NewGenericManager[int](tx).Object("obj id").Query(nil)
+    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
 
-    juice.NewGenericManager[int](tx).Object("obj id").Query(nil)
+    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
 
     tx.Commit()
 
@@ -26,9 +26,9 @@ juice的缓存默认是不开启的，需要显式的告诉juice当前的事务�
     tx := engine.CacheTx()
     defer tx.Rollbakc()
 
-    juice.NewGenericManager[int](tx).Object("obj id").Query(nil)
+    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
 
-    juice.NewGenericManager[int](tx).Object("obj id").Query(nil)
+    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
 
     tx.Commit()
 

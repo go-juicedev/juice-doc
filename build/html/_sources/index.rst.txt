@@ -82,6 +82,7 @@ http://github.com/eatmoreapple/juice
    package main
 
    import (
+      "context"
       "fmt"
       "github.com/eatmoreapple/juice"
       _ "github.com/go-sql-driver/mysql"
@@ -101,7 +102,8 @@ http://github.com/eatmoreapple/juice
          fmt.Println(err)
          return
       }
-      message, err := juice.NewGenericManager[string](engine).Object(HelloWorld).Query(nil)
+
+      message, err := juice.NewGenericManager[string](engine).Object(HelloWorld).QueryContext(context.Background(), nil)
       if err != nil {
          fmt.Println(err)
          return

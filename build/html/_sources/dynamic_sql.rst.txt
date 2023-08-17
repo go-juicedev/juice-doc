@@ -240,6 +240,47 @@ otherwise语句用来实现else语句的效果，otherwise语句的语法如下�
 
 当choose语句中的所有when语句的条件表达式都不成立时，执行otherwise语句。
 
+sql、include
+---------------
+
+sql语句用来定义sql片段，include语句用来引用sql片段。
+
+sql语句的语法如下：
+
+.. code-block:: xml
+
+    <mapper namespace="com.example.mapper.UserMapper">
+        <sql id="columns">
+            id, name, age
+        </sql>
+
+sql标签必须写在mapper标签中，id属性用来指定sql片段的id，sql片段的id属性在其所在的mapper中必须唯一。
+
+include语句的语法如下：
+
+.. code-block:: xml
+
+    <select id="SelectAll">
+        select
+        <include refid="columns"/>
+        from user
+    </select>
+
+include标签必须写在action标签中，refid属性用来指定要引用的sql片段的id。
+
+如果include和sql标签都在同一个mapper中，则可以直接使用sql片段的id。
+
+如果include和sql标签不在同一个mapper中，则需要使用namespace属性来指定sql片段所在的mapper的namespace，例如：
+
+.. code-block:: xml
+
+    <select id="SelectAll">
+        select
+        <include refid="com.example.mapper.UserMapper.columns"/>
+        from user
+    </select>
+
+
 values、value
 --------
 
@@ -290,5 +331,7 @@ alias语句用来设置表的别名，field语句用来设置列的别名。alia
 其中，column属性用来指定列名，alias属性用来指定列的别名。当alias属性不设置时，使用column属性的值作为列的别名。
 
 如上面的例子中，生成的sql语句为 ``select uid as id, name from user``。
+
+
 
 
