@@ -120,16 +120,18 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">!=</span></code>: 判断两个值是否不相等。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&gt;</span></code>: 判断左边的值是否大于右边的值。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>: 判断左边的值是否大于等于右边的值。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;</span></code>: 判断左边的值是否小于右边的值。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>: 判断左边的值是否小于等于右边的值。</p></li>
 </ol>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code> 不支持，因为它们会跟xml的语法冲突。那么怎么办呢？我们可以使用 <code class="docutils literal notranslate"><span class="pre">&amp;lt;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&amp;lt;=</span></code> 来代替 <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>。</p>
+</div>
 </section>
 <section id="id4">
 <h3>逻辑运算符<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h3>
 <p>juice 支持以下逻辑运算符：</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code>: 逻辑与。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">||</span></code>: 逻辑或。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">and</span></code>: 逻辑与。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">or</span></code>: 逻辑或。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">!</span></code>: 逻辑非。</p></li>
 </ol>
 </section>
