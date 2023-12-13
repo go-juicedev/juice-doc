@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>动态sql &mdash; juice  文档</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="表达式" href="expr.html" />
+    <link rel="prev" title="缓存" href="cache.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> juice
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Juice 简介</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">配置详情</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">动态sql</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#if">if</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where">where</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set">set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#foreach">foreach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trim">trim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choosewhenotherwise">choose、when和otherwise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sqlinclude">sql、include</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#valuesvalue">values、value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aliasfield">alias、field</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">juice</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">动态sql</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dynamic_sql.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sql">
+<h1>动态sql<a class="headerlink" href="#sql" title="此标题的永久链接"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>动态SQL是指在运行时（而不是编译时）根据不同条件动态地生成SQL语句的技术。通常，这些条件包括用户输入、程序逻辑或查询参数等。动态SQL可以帮助开发人员更加灵活地构建数据库查询，从而实现更好的性能和可维护性。在动态SQL中，应用程序会使用字符串拼接或参数化查询等技术来构建SQL查询语句。这些查询语句可能包含一个或多个查询参数，在运行时由应用程序提供。通过将查询参数与SQL查询语句结合使用，可以生成具有不同条件的不同查询语句。这些查询语句可以执行查询、插入、更新或删除等操作。动态SQL的优点是可以根据不同条件动态地生成查询语句，从而使查询更加灵活和可定制。然而，使用动态SQL也存在一些风险，例如SQL注入攻击等安全问题，因此需要谨慎使用。</p>
+</div>
+<p>juice 提供了动态sql的支持，可以通过动态sql来实现动态的sql语句。</p>
+<p>动态sql的语法和xml语法类似，但是动态sql的语法更加简单，更加灵活。</p>
+<p>动态sql的语法主要包括 <code class="docutils literal notranslate"><span class="pre">if、where、set、foreach、trim、choose、when、otherwise</span></code> 等。下面我们来看看这些语法的使用方法。</p>
+<section id="if">
+<h2>if<a class="headerlink" href="#if" title="此标题的永久链接"></a></h2>
+<p>if语句用来判断条件，如果条件成立，则执行if语句中的sql语句，否则不执行。if语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式 // 如: 1 + 1 &gt; 0&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/if&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>其中，条件表达式可以是任意的表达式，表达式运行结果值必须是boolean类型。如果条件表达式结果为true，则执行if语句中的sql语句，否则不执行。</p>
+</div>
+<p>下面我们来看一个例子：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectByCondition&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name != &quot;&quot;&#39;</span><span class="nt">&gt;</span>
+<span class="w">        </span>where<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
+<span class="w">    </span><span class="nt">&lt;/if&gt;</span>
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>上面的例子中，如果name的值不为空，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">where</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span></code>，否则不添加。如果name的值为空，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span></code>。</p>
+</section>
+<section id="where">
+<h2>where<a class="headerlink" href="#where" title="此标题的永久链接"></a></h2>
+<p>where语句用来判断条件，如果条件成立，则执行where语句中的sql语句，否则不执行。where语句的语法如下</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;where&gt;</span>
+<span class="w">    </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span>...
+<span class="nt">&lt;/where&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>where语句中可以包含多个if语句，如果where语句中的所有if语句的条件表达式的值都为false，则不执行where语句中的sql语句。</p>
+</div>
+<p>如果where语句中的所有if语句的条件表达式的值都为true，则执行where语句中的sql语句。如果where语句中的if语句的条件表达式的值不全为true或false，则执行where语句中的sql语句，并且去除多余的and 和 or。下面我们来看一个例子：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectByCondition&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;where&gt;</span>
+<span class="w">        </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name != &quot;&quot;&#39;</span><span class="nt">&gt;</span>
+<span class="w">            </span>and<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
+<span class="w">        </span><span class="nt">&lt;/if&gt;</span>
+<span class="w">        </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;age != 0&#39;</span><span class="nt">&gt;</span>
+<span class="w">            </span>and<span class="w"> </span>age<span class="w"> </span>=<span class="w"> </span>#{age}
+<span class="w">        </span><span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/where&gt;</span>
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>上面的例子中，如果name的值不为空，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">where</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span></code>，否则不添加。</p>
+<p>如果age的值不为0，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">where</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>，否则不添加。</p>
+<p>如果name的值为空，age的值为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span></code>。</p>
+<p>如果name的值不为空，age的值不为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span> <span class="pre">where</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span> <span class="pre">and</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>。</p>
+</section>
+<section id="set">
+<h2>set<a class="headerlink" href="#set" title="此标题的永久链接"></a></h2>
+<p>set语法用于更新语句中，用来设置更新的字段，它会在set语句中去除多余的逗号。set语法的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;set&gt;</span>
+<span class="w">    </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span>...
+<span class="nt">&lt;/set&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>set语句中可以包含多个if语句，如果set语句中的所有if语句的条件表达式的值都为false，则不执行set语句中的sql语句。如果set语句中的所有if语句的条件表达式的值都为true，则执行set语句中的sql语句。如果set语句中的if语句的条件表达式的值不全为true或false，则执行set语句中的sql语句，并且去除多余的逗号。</p>
+</div>
+<p>下面我们来看一个例子：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;update</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;UpdateByCondition&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>update<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;set&gt;</span>
+<span class="w">        </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name != &quot;&quot;&#39;</span><span class="nt">&gt;</span>
+<span class="w">            </span>name<span class="w"> </span>=<span class="w"> </span>#{name},
+<span class="w">        </span><span class="nt">&lt;/if&gt;</span>
+<span class="w">        </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;age != 0&#39;</span><span class="nt">&gt;</span>
+<span class="w">            </span>age<span class="w"> </span>=<span class="w"> </span>#{age},
+<span class="w">        </span><span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/set&gt;</span>
+<span class="w">    </span>where<span class="w"> </span>id<span class="w"> </span>=<span class="w"> </span>#{id}
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<p>上面的例子中，如果name的值不为空，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span></code>，否则不添加。sql 语句为 <code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">user</span> <span class="pre">SET</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span> <span class="pre">where</span> <span class="pre">id</span> <span class="pre">=</span> <span class="pre">#{id}</span></code>。</p>
+<p>如果age的值不为0，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>，否则不添加。sql 语句为 <code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">user</span> <span class="pre">SET</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span> <span class="pre">where</span> <span class="pre">id</span> <span class="pre">=</span> <span class="pre">#{id}</span></code>。</p>
+<p>如果name的值为空，age的值为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">user</span> <span class="pre">where</span> <span class="pre">id</span> <span class="pre">=</span> <span class="pre">#{id}</span></code>。错误的sql语句。</p>
+<p>如果name的值不为空，age的值不为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">user</span> <span class="pre">SET</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name},</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span> <span class="pre">where</span> <span class="pre">id</span> <span class="pre">=</span> <span class="pre">#{id}</span></code>。</p>
+</section>
+<section id="foreach">
+<h2>foreach<a class="headerlink" href="#foreach" title="此标题的永久链接"></a></h2>
+<p>foreach语句用来遍历集合，将集合中的元素作为参数传递给sql语句。foreach语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;foreach</span><span class="w"> </span><span class="na">collection=</span><span class="s">&quot;集合&quot;</span><span class="w"> </span><span class="na">item=</span><span class="s">&quot;元素&quot;</span><span class="w"> </span><span class="na">index=</span><span class="s">&quot;索引&quot;</span><span class="w"> </span><span class="na">open=</span><span class="s">&quot;开始符&quot;</span><span class="w"> </span><span class="na">close=</span><span class="s">&quot;结束符&quot;</span><span class="w"> </span><span class="na">separator=</span><span class="s">&quot;分隔符&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>sql语句
+<span class="nt">&lt;/foreach&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>其中，collection属性用来指定集合，item属性用来指定集合中的元素，index属性用来指定集合中的索引，open属性用来指定开始符，close属性用来指定结束符，separator属性用来指定分隔符。</p>
+</div>
+<p>当传递的 collection 是一个切片或者数组时，index 属性为元素在切片或者数组中的索引，item 属性为元素的值。当传递的 collection 是一个 map 时，index 属性为 map 中的 key，item 属性为 map 中的 value。</p>
+<p>下面我们来看一个例子：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectByIds&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user<span class="w"> </span>where<span class="w"> </span>id<span class="w"> </span>in
+<span class="w">    </span><span class="nt">&lt;foreach</span><span class="w"> </span><span class="na">collection=</span><span class="s">&quot;ids&quot;</span><span class="w"> </span><span class="na">item=</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="na">open=</span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="na">close=</span><span class="s">&quot;)&quot;</span><span class="w"> </span><span class="na">separator=</span><span class="s">&quot;,&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>#{id}
+<span class="w">    </span><span class="nt">&lt;/foreach&gt;</span>
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>上面的例子中，将ids集合中的元素作为参数传递给sql语句，生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span> <span class="pre">where</span> <span class="pre">id</span> <span class="pre">in</span> <span class="pre">(?,</span> <span class="pre">?,</span> <span class="pre">?)</span></code>。 <code class="docutils literal notranslate"><span class="pre">?</span></code> 为占位符（不同的驱动占位符不同），实际的值为 <code class="docutils literal notranslate"><span class="pre">ids</span></code> 集合中的元素。</p>
+</section>
+<section id="trim">
+<h2>trim<a class="headerlink" href="#trim" title="此标题的永久链接"></a></h2>
+<p>trim语句用来去除sql语句中开头和结尾的多余的关键字，例如and和or。trim语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;trim</span><span class="w"> </span><span class="na">prefix=</span><span class="s">&quot;前缀&quot;</span><span class="w"> </span><span class="na">prefixOverrides=</span><span class="s">&quot;前缀覆盖&quot;</span><span class="w"> </span><span class="na">suffix=</span><span class="s">&quot;后缀&quot;</span><span class="w"> </span><span class="na">suffixOverrides=</span><span class="s">&quot;后缀覆盖&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>sql语句
+<span class="nt">&lt;/trim&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>其中，prefix属性用来设置要添加到sql语句开头的关键字，suffix属性用来设置要添加到sql语句结尾的关键字，prefixOverrides属性用来设置要去除的前缀关键字列表，suffixOverrides属性用来设置要去除的后缀关键字列表。如果prefix属性和suffix属性都不设置，则不添加前缀和后缀关键字；如果prefixOverrides属性和suffixOverrides属性都不设置，则不去除前缀和后缀关键字。</p>
+</div>
+<p>下面我们来看一个例子：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectByCondition&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;trim</span><span class="w"> </span><span class="na">prefix=</span><span class="s">&quot;where&quot;</span><span class="w"> </span><span class="na">prefixOverrides=</span><span class="s">&quot;and | or&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name != &quot;&quot;&#39;</span><span class="nt">&gt;</span>
+<span class="w">            </span>and<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
+<span class="w">        </span><span class="nt">&lt;/if&gt;</span>
+<span class="w">        </span><span class="nt">&lt;if</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;age != 0&#39;</span><span class="nt">&gt;</span>
+<span class="w">            </span>and<span class="w"> </span>age<span class="w"> </span>=<span class="w"> </span>#{age}
+<span class="w">        </span><span class="nt">&lt;/if&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/trim&gt;</span>
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>上面的例子中，如果name的值不为空，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">where</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span></code>，否则不添加。如果age的值不为0，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">where</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span></code>。如果name的值不为空，age的值不为0，则生成的sql语句为``select * from user where name = #{name} and age = #{age}``。</p>
+</section>
+<section id="choosewhenotherwise">
+<h2>choose、when和otherwise<a class="headerlink" href="#choosewhenotherwise" title="此标题的永久链接"></a></h2>
+<p>choose、when、otherwise语句用来实现类似于switch语句的功能。choose语句相当于switch语句，when语句相当于case语句，otherwise语句相当于default语句。choose、when、otherwise语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;choose&gt;</span>
+<span class="w">    </span><span class="nt">&lt;when</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/when&gt;</span>
+<span class="w">    </span><span class="nt">&lt;when</span><span class="w"> </span><span class="na">test=</span><span class="s">&quot;条件表达式&quot;</span><span class="nt">&gt;</span>sql语句<span class="nt">&lt;/when&gt;</span>
+<span class="w">    </span>...
+<span class="w">    </span><span class="nt">&lt;otherwise&gt;</span>sql语句<span class="nt">&lt;/otherwise&gt;</span>
+<span class="nt">&lt;/choose&gt;</span>
+</pre></div>
+</div>
+<p>其中，when语句用来实现if语句的效果，otherwise语句用来实现else语句的效果。下面我们来看一个例子：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectByCondition&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select<span class="w"> </span>*<span class="w"> </span>from<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;where&gt;</span>
+<span class="w">        </span><span class="nt">&lt;choose&gt;</span>
+<span class="w">            </span><span class="nt">&lt;when</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;name != &quot;&quot;&#39;</span><span class="nt">&gt;</span>
+<span class="w">                </span>and<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}
+<span class="w">            </span><span class="nt">&lt;/when&gt;</span>
+<span class="w">            </span><span class="nt">&lt;when</span><span class="w"> </span><span class="na">test=</span><span class="s">&#39;age != 0&#39;</span><span class="nt">&gt;</span>
+<span class="w">                </span>and<span class="w"> </span>age<span class="w"> </span>=<span class="w"> </span>#{age}
+<span class="w">            </span><span class="nt">&lt;/when&gt;</span>
+<span class="w">            </span><span class="nt">&lt;otherwise&gt;</span>
+<span class="w">                </span>and<span class="w"> </span>name<span class="w"> </span>=<span class="w"> </span>#{name}<span class="w"> </span>and<span class="w"> </span>age<span class="w"> </span>=<span class="w"> </span>#{age}
+<span class="w">            </span><span class="nt">&lt;/otherwise&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/choose&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/where&gt;</span>
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>上面的例子中，如果name的值不为空，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">and</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span></code>，否则不添加。如果age的值不为0，则在sql语句中添加 <code class="docutils literal notranslate"><span class="pre">and</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>，否则不添加。如果name的值为空，age的值为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span> <span class="pre">where</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span> <span class="pre">and</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>。如果name的值不为空，age的值不为0，则生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">user</span> <span class="pre">where</span> <span class="pre">and</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">#{name}</span> <span class="pre">and</span> <span class="pre">age</span> <span class="pre">=</span> <span class="pre">#{age}</span></code>。</p>
+<p>otherwise语句用来实现else语句的效果，otherwise语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;otherwise&gt;</span>
+<span class="w">    </span>sql语句
+<span class="nt">&lt;/otherwise&gt;</span>
+</pre></div>
+</div>
+<p>当choose语句中的所有when语句的条件表达式都不成立时，执行otherwise语句。</p>
+</section>
+<section id="sqlinclude">
+<h2>sql、include<a class="headerlink" href="#sqlinclude" title="此标题的永久链接"></a></h2>
+<p>sql语句用来定义sql片段，include语句用来引用sql片段。</p>
+<p>sql语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;com.example.mapper.UserMapper&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;sql</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;columns&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>id,<span class="w"> </span>name,<span class="w"> </span>age
+<span class="w">    </span><span class="nt">&lt;/sql&gt;</span>
+</pre></div>
+</div>
+<p>sql标签必须写在mapper标签中，id属性用来指定sql片段的id，sql片段的id属性在其所在的mapper中必须唯一。</p>
+<p>include语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectAll&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select
+<span class="w">    </span><span class="nt">&lt;include</span><span class="w"> </span><span class="na">refid=</span><span class="s">&quot;columns&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span>from<span class="w"> </span>user
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>include标签必须写在action标签中，refid属性用来指定要引用的sql片段的id。</p>
+<p>如果include和sql标签都在同一个mapper中，则可以直接使用sql片段的id。</p>
+<p>如果include和sql标签不在同一个mapper中，则需要使用namespace属性来指定sql片段所在的mapper的namespace，例如：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;SelectAll&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select
+<span class="w">    </span><span class="nt">&lt;include</span><span class="w"> </span><span class="na">refid=</span><span class="s">&quot;com.example.mapper.UserMapper.columns&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span>from<span class="w"> </span>user
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="valuesvalue">
+<h2>values、value<a class="headerlink" href="#valuesvalue" title="此标题的永久链接"></a></h2>
+<p>values语句用来将参数值作为列值插入到表中。values只会在insert action中使用，values语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;Insert&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>insert<span class="w"> </span>into<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;values&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/values&gt;</span>
+<span class="nt">&lt;/insert&gt;</span>
+</pre></div>
+</div>
+<p>光有values语句是不够的，还需要使用value语句来指定参数值。value语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;Insert&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>insert<span class="w"> </span>into<span class="w"> </span>user
+<span class="w">    </span><span class="nt">&lt;values&gt;</span>
+<span class="w">        </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;uid&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;#{uid}&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;create_at&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;NOW()&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;value</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/values&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/insert&gt;</span>
+</pre></div>
+</div>
+<p>其中，column属性用来指定列名，value属性用来指定参数值。</p>
+<p>注意：如果value属性不设置，则默认使用参数名作为占位符拼接到sql语句中，例如上面的例子中的name列，生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">insert</span> <span class="pre">into</span> <span class="pre">user</span> <span class="pre">(uid,</span> <span class="pre">create_at,</span> <span class="pre">name)</span> <span class="pre">values</span> <span class="pre">(#{uid},</span> <span class="pre">NOW(),</span> <span class="pre">#{name})</span></code>。</p>
+<p>同时，如果value属性的值为一个字符串字面值，则会直接将字符串字面值拼接到sql语句中，例如上面的例子中的create_at列，生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">insert</span> <span class="pre">into</span> <span class="pre">user</span> <span class="pre">(uid,</span> <span class="pre">create_at,</span> <span class="pre">name)</span> <span class="pre">values</span> <span class="pre">(#{uid},</span> <span class="pre">NOW(),</span> <span class="pre">name)</span></code>。</p>
+</section>
+<section id="aliasfield">
+<h2>alias、field<a class="headerlink" href="#aliasfield" title="此标题的永久链接"></a></h2>
+<p>alias语句用来设置表的别名，field语句用来设置列的别名。alias 只在select action中使用，filed 是alias的子元素。alias和field语句的语法如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;Select&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>select
+<span class="w">    </span><span class="nt">&lt;alias&gt;</span>
+<span class="w">        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;uid&quot;</span><span class="w"> </span><span class="na">alias=</span><span class="s">&quot;id&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/alias&gt;</span>
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<p>其中，column属性用来指定列名，alias属性用来指定列的别名。当alias属性不设置时，使用column属性的值作为列的别名。</p>
+<p>如上面的例子中，生成的sql语句为 <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">uid</span> <span class="pre">as</span> <span class="pre">id,</span> <span class="pre">name</span> <span class="pre">from</span> <span class="pre">user</span></code>。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="cache.html" class="btn btn-neutral float-left" title="缓存" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="expr.html" class="btn btn-neutral float-right" title="表达式" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, eatmoreapple.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

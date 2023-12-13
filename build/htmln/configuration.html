@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>配置详情 &mdash; juice  文档</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="SQL mappers" href="mappers.html" />
+    <link rel="prev" title="Juice 简介" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> juice
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Juice 简介</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">配置详情</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuring">configuring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environments">environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#provider">provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">连接池配置</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#settings">settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">juice</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">配置详情</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>配置详情<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<p>juice默认配置文件为 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 格式，我们可以在项目的目录下创建一个 <code class="docutils literal notranslate"><span class="pre">xml</span></code> 的文件，然后在其中配置juice的相关信息。</p>
+<section id="configuring">
+<h2>configuring<a class="headerlink" href="#configuring" title="此标题的永久链接"></a></h2>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">juice</span></code> 的配置信息都写在 <code class="docutils literal notranslate"><span class="pre">configuration</span></code> 标签中，如数据库连接信息。</p>
+</section>
+<section id="environments">
+<h2>environments<a class="headerlink" href="#environments" title="此标题的永久链接"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">environments</span></code> 标签用于配置不同的环境，如开发环境，测试环境，生产环境等。</p>
+<p>开发者可以根据自己的需要配置不同的环境， <code class="docutils literal notranslate"><span class="pre">juice</span></code> 会根据 <code class="docutils literal notranslate"><span class="pre">environments</span></code> 的 <code class="docutils literal notranslate"><span class="pre">default</span></code> 标签来加载特定的配置信息。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;dev&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>./foo.db<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>sqlite3<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>在上面的配置中，我们配置了两个环境，分别是 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dev</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 是 <code class="docutils literal notranslate"><span class="pre">environments</span></code> 指定的默认的环境， juice会根据这个配置来加载数据库连接信息。</p>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>注意：environments 标签中的 default 属性是必须的，如果没有配置这个属性，juice 不知道去加载哪个环境的配置信息。</p>
+<p>每个环境的配置信息都是在 environment 标签中，其中 id 属性是必须且唯一，用于标识不同的环境，dataSource 标签用于配置数据库连接信息，driver 标签用于配置数据库驱动。</p>
+</div>
+<p>配置好环境信息后，我们就可以在代码中使用 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 的数据库连接了。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 解析配置文件</span>
+<span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// config.xml 即为我们刚刚编写的配置文件。</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 根据配置文件构建engine</span>
+<span class="w">    </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">DB</span><span class="p">().</span><span class="nx">Ping</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot; connected to database&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>在默认情况下，juice只会去连接 <code class="docutils literal notranslate"><span class="pre">environments</span></code> 中 <code class="docutils literal notranslate"><span class="pre">default</span></code> 属性指定的 <code class="docutils literal notranslate"><span class="pre">environment</span></code>。</p>
+</div>
+</section>
+<section id="provider">
+<h2>provider<a class="headerlink" href="#provider" title="此标题的永久链接"></a></h2>
+<p>有时候我们不想在配置文件里面把数据库连接信息写死，而是想通过一些别的途径来动态加载数据库连接信息，这时候我们就可以使用 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 标签来配置数据库连接信息。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="w"> </span><span class="na">provider=</span><span class="s">&quot;env&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>${DATA_SOURCE}<span class="nt">&lt;/provider&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>如上所示，我们在 <code class="docutils literal notranslate"><span class="pre">prod</span></code> 环境中配置了一个 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 标签，它的值为 <code class="docutils literal notranslate"><span class="pre">env</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">env</span></code> 是 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的一个默认的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>，它会从环境变量中获取数据库连接信息。</p>
+<p>如果你想自定义 <code class="docutils literal notranslate"><span class="pre">provider</span></code>，可以参考 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 的实现，实现自己的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// EnvValueProvider defines a environment value provider.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">EnvValueProvider</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Get</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<span class="c1">// RegisterEnvValueProvider registers an environment value provider.</span>
+<span class="c1">// The key is a name of the provider.</span>
+<span class="c1">// The value is a provider.</span>
+<span class="c1">// It allows to override the default provider.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">RegisterEnvValueProvider</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">provider</span><span class="w"> </span><span class="nx">EnvValueProvider</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如上所示，只要实现了 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code> 接口，就可以通过 <code class="docutils literal notranslate"><span class="pre">juice</span></code> 提供的 <code class="docutils literal notranslate"><span class="pre">RegisterEnvValueProvider</span></code> 方法，我们可以注册自己的 <code class="docutils literal notranslate"><span class="pre">provider</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">RegisterEnvValueProvider</span></code> 函数的 name 参数即为在xml中指定的provider的值。</p>
+<p>当我们自己实现了 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code>, juice 会将 <code class="docutils literal notranslate"><span class="pre">environment</span></code> 中读到的配置信息的内容原封不动的传递给 <code class="docutils literal notranslate"><span class="pre">EnvValueProvider</span></code>。</p>
+<p>如上所示，当指定 <code class="docutils literal notranslate"><span class="pre">provider</span></code> 的值为 <code class="docutils literal notranslate"><span class="pre">env</span></code> 的时候，它会根据提前定义好的规则去解析，以下是具体实现。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">formatRegexp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">regexp</span><span class="p">.</span><span class="nx">MustCompile</span><span class="p">(</span><span class="s">`\$\{ *?([a-zA-Z0-9_\.]+) *?\}`</span><span class="p">)</span>
+
+<span class="c1">// OsEnvValueProvider is a environment value provider that uses os.Getenv.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">OsEnvValueProvider</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+
+<span class="c1">// Get returns a value of the environment variable.</span>
+<span class="c1">// It uses os.Getenv.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="nx">OsEnvValueProvider</span><span class="p">)</span><span class="w"> </span><span class="nx">Get</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span>
+<span class="w">    </span><span class="nx">key</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">formatRegexp</span><span class="p">.</span><span class="nx">ReplaceAllStringFunc</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">find</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">value</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="nx">formatRegexp</span><span class="p">.</span><span class="nx">FindStringSubmatch</span><span class="p">(</span><span class="nx">find</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;environment variable %s not found&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">find</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">value</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过查看代码，我们可以知道，当解析 <code class="docutils literal notranslate"><span class="pre">${}</span></code> 语法格式时，会将尝试将里面的内容通过环境变量来查找，否则直接返回原始内容。</p>
+</section>
+<section id="id2">
+<h2>连接池配置<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">            </span><span class="nt">&lt;maxIdleConnNum&gt;</span>10<span class="nt">&lt;/maxIdleConnNum&gt;</span>
+<span class="w">            </span><span class="nt">&lt;maxOpenConnNum&gt;</span>10<span class="nt">&lt;/maxOpenConnNum&gt;</span>
+<span class="w">            </span><span class="nt">&lt;maxConnLifetime&gt;</span>3600<span class="nt">&lt;/maxConnLifetime&gt;</span>
+<span class="w">            </span><span class="nt">&lt;maxIdleConnLifetime&gt;</span>3600<span class="nt">&lt;/maxIdleConnLifetime&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p><strong>在上面的配置中，我们配置了连接池的相关信息</strong></p>
+<ul>
+<li><dl class="py class">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">maxIdleConnNum</span> <span class="pre">标签用于配置最大空闲连接数。</span></span></dt>
+<dd></dd></dl>
+
+</li>
+<li><dl class="py class">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">maxOpenConnNum</span> <span class="pre">标签用于配置最大打开连接数。</span></span></dt>
+<dd></dd></dl>
+
+</li>
+<li><dl class="py class">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">maxConnLifetime</span> <span class="pre">标签用于配置连接的最大生命周期,</span> <span class="pre">单位为秒。</span></span></dt>
+<dd></dd></dl>
+
+</li>
+<li><dl class="py class">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">maxIdleConnLifetime</span> <span class="pre">标签用于配置空闲连接的最大生命周期,</span> <span class="pre">单位为秒。</span></span></dt>
+<dd></dd></dl>
+
+</li>
+</ul>
+<p>开发者可以根据自己的需要配置连接池的相关信息， <cite>juice</cite> 会根据配置信息来初始化连接池。</p>
+</section>
+<section id="settings">
+<h2>settings<a class="headerlink" href="#settings" title="此标题的永久链接"></a></h2>
+<p><cite>settings</cite> 标签用于往 <cite>juice</cite> 中注入自定义的配置信息。</p>
+<p><cite>settings</cite> 标签是 <cite>settings</cite> 标签的父标签， <cite>settings</cite> 标签中可以有多个 <cite>setting</cite> 标签， <cite>setting</cite> 标签中的 <cite>name</cite> 属性是必须的，用于标识配置信息的名称， <cite>value</cite> 属性是可选的，用于配置配置信息的值。</p>
+<p><cite>settings</cite> 标签是可选的，可以不配置。</p>
+<p>具体的用途得看开发者自己的需求了。</p>
+<p>如在 <cite>juice</cite> 提供的 <cite>DebugMiddleware</cite> 中间件中，它会根据配置信息来决定是否开启调试模式。默认是开启的，可以在配置文件中关闭。</p>
+<p>关闭调试模式的配置如下：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="w">    </span><span class="nt">&lt;configuration&gt;</span>
+<span class="w">        </span><span class="nt">&lt;settings&gt;</span>
+<span class="w">            </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;debug&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/settings&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="index.html" class="btn btn-neutral float-left" title="Juice 简介" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="mappers.html" class="btn btn-neutral float-right" title="SQL mappers" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, eatmoreapple.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

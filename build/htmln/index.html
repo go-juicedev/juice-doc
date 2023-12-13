@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juice 简介 &mdash; juice  文档</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="配置详情" href="configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> juice
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Juice 简介</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">配置详情</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">juice</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Juice 简介</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="juice">
+<h1>Juice 简介<a class="headerlink" href="#juice" title="此标题的永久链接"></a></h1>
+<p>juice 是一个基于 golang 的 sql mapper 框架，它的目标是提供一个简单易用的 sql mapper 框架，让开发者可以更专注于业务逻辑的开发。</p>
+<p>如果你是一个 golang 开发者，或者你正在寻找一个简单易用的 sql mapper 框架，那么 juice 可能是你的不二之选。</p>
+<section id="id1">
+<h2>项目主页<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h2>
+<p><a class="reference external" href="http://github.com/eatmoreapple/juice">http://github.com/eatmoreapple/juice</a></p>
+</section>
+<section id="id2">
+<h2>特性<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<ul class="simple">
+<li><p>轻量级，高性能，无第三方依赖</p></li>
+<li><p>动态 sql</p></li>
+<li><p>支持多数据源</p></li>
+<li><p>泛型结果集映射</p></li>
+<li><p>中间件</p></li>
+<li><p>自定义表达式</p></li>
+<li><p>自定义函数</p></li>
+<li><p>热更新</p></li>
+<li><p>代码生成</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>安装<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p><strong>版本要求</strong></p>
+<ul class="simple">
+<li><p>go 1.20+</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>go<span class="w"> </span>get<span class="w"> </span>-u<span class="w"> </span>github.com/eatmoreapple/juice
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>快速开始<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h2>
+<ol class="arabic simple">
+<li><p>编写sql mapper配置文件</p></li>
+</ol>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;prod&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;dataSource&gt;</span>root:qwe123@tcp(localhost:3306)/database<span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">            </span><span class="nt">&lt;driver&gt;</span>mysql<span class="nt">&lt;/driver&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/environment&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/environments&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;mappers&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;select</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;HelloWorld&quot;</span><span class="nt">&gt;</span>
+<span class="w">                </span>select<span class="w"> </span>&quot;hello<span class="w"> </span>world&quot;<span class="w"> </span>as<span class="w"> </span>message
+<span class="w">            </span><span class="nt">&lt;/select&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/mapper&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mappers&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>注意：<cite>dataSource</cite> 的格式跟用 <cite>sql.Open()</cite> 函数的格式相同。</p>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>编写代码</p></li>
+</ol>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">   </span><span class="s">&quot;context&quot;</span>
+<span class="w">   </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">   </span><span class="s">&quot;github.com/eatmoreapple/juice&quot;</span>
+<span class="w">   </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/go-sql-driver/mysql&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">HelloWorld</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewXMLConfiguration</span><span class="p">(</span><span class="s">&quot;config.xml&quot;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">   </span><span class="p">}</span>
+
+<span class="w">   </span><span class="nx">engine</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">DefaultEngine</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">   </span><span class="p">}</span>
+
+<span class="w">   </span><span class="nx">message</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">juice</span><span class="p">.</span><span class="nx">NewGenericManager</span><span class="p">[</span><span class="kt">string</span><span class="p">](</span><span class="nx">engine</span><span class="p">).</span><span class="nx">Object</span><span class="p">(</span><span class="nx">HelloWorld</span><span class="p">).</span><span class="nx">QueryContext</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">注意</p>
+<p>注意：虽然 <cite>juice</cite> 不依赖第三方库，但是它需要依赖数据库驱动，所以在使用 juice 之前，你需要先安装数据库驱动，比如要使用mysql，
+那么你需要先安装 <cite>github.com/go-sql-driver/mysql</cite></p>
+<p>如果运行报错，那么可能是因为你的数据库没有启动，或者你的数据库配置有误，检查一下数据库配置是否正确。</p>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>运行代码</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>go<span class="w"> </span>run<span class="w"> </span>main.go
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>输出结果</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>juice<span class="o">]</span><span class="w"> </span><span class="m">2022</span>/11/05<span class="w"> </span><span class="m">19</span>:56:49<span class="w"> </span><span class="o">[</span>main.HelloWorld<span class="o">]</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span>as<span class="w"> </span>message<span class="w">  </span><span class="o">[]</span><span class="w">  </span><span class="m">5</span>.3138ms
+hello<span class="w"> </span>world
+</pre></div>
+</div>
+<p>如果你看到了上面的输出结果，那么恭喜你，你已经成功运行了 juice。</p>
+</section>
+<section id="id5">
+<h2>详细文档<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Juice 简介</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">配置详情</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuring">configuring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#environments">environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#provider">provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#id2">连接池配置</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings">settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mappers.html">SQL mappers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mappers.html#mappers">mappers标签</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappers.html#mapper">mapper标签</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappers.html#select-insert-update-delete">select，insert，update，delete标签</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappers.html#id1">接受参数</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="result_mapping.html">结果集映射</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="result_mapping.html#sql-rows">sql.Rows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result_mapping.html#id2">泛型结果集映射</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result_mapping.html#id3">自定义结果集映射</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result_mapping.html#id7">自增主键映射</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tx.html">事务</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tx.html#manager">Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tx.html#id2">开启事务</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tx.html#id3">隔离级别</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">缓存</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#id2">开启缓存</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#id3">缓存失效</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#id4">自定义缓存</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#id5">二级缓存</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic_sql.html">动态sql</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#if">if</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#where">where</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#set">set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#foreach">foreach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#trim">trim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#choosewhenotherwise">choose、when和otherwise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#sqlinclude">sql、include</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#valuesvalue">values、value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_sql.html#aliasfield">alias、field</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="expr.html">表达式</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id2">表达式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id7">函数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id8">自定义全局函数注册</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id9">传入函数调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id10">自定义类型方法调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id11">属性调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#map">map索引取值</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expr.html#id12">数组索引取值</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hot_reload.html">热更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">中间件</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="middleware.html#id2">什么是中间件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="middleware.html#id3">自定义中间件</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_generate.html">代码生成</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code_generate.html#juicecli">安装juicecli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generate.html#id2">简单使用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generate.html#id3">接口约束</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generate.html#go-generate">go generate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extension.html">扩展</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extension.html#id2">配置文件打包到可执行文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extension.html#id3">读写分离</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extension.html#id4">链路追踪</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extension.html#xml">XML文档约束</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="eatmoreapple.html">吃包辣条</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="configuration.html" class="btn btn-neutral float-right" title="配置详情" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, eatmoreapple.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
