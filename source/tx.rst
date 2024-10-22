@@ -49,9 +49,27 @@ Manager 接口的定义如下:
 开启事务
 --------
 
-我们可以通过 ``engine.Tx()`` 来开启一个事务，它会返回一个 ``Manager`` 接口的实现，我们可以通过这个实现来进行事务的操作。
+我们可以通过 ``engine.Tx()`` 来开启一个事务，它会返回一个 ``TxManager`` 接口的实现，我们可以通过这个实现来进行事务的操作。
 
-注意，当调用 ``engine.Tx()`` 事务就已经开启了。
+TxManager 接口的定义如下:
+
+.. code-block:: go
+
+    // TxManager is an interface for managing database operations in a transaction.
+    type TxManager interface {
+        Manager
+        Begin() error
+        Commit() error
+        Rollback() error
+    }
+
+``TxManager`` 比 ``Manager`` 多了三个方法，分别是 ``Begin()`` , ``Commit()`` 和 ``Rollback()`` ，我们可以通过这三个方法来进行事务的操作。
+
+``Begin()`` 用来开启事务
+
+``Commit()`` 用来提交事务
+
+``Rollback`` 用来回滚事务
 
 我们可以通过 ``engine.Tx()`` 返回的事务对象来进行事务的操作。
 
@@ -72,6 +90,10 @@ Manager 接口的定义如下:
 	}
 
 	tx := engine.Tx()
+
+	if err := tx.Begin(); err != nil {
+        panic(err)
+    }
 
 	defer tx.Rollback()
 
