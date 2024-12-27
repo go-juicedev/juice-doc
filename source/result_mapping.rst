@@ -470,3 +470,47 @@ juice提供了一个id的标签来表示当前数据的身份id，它的用法�
         panic(err)
     }
     fmt.Println(user.Id)
+
+
+批量插入
+------------
+
+juice 提供了高效的批量插入功能，通过 ``batchSize`` 属性来控制每批次插入的数据量。
+
+基本用法
+~~~~~~~~~
+
+
+.. code-block:: xml
+
+    <mapper namespace="main">
+        <insert id="InsertUser" useGeneratedKeys="true" keyProperty="Id" batchSize="100">
+            insert into user(name, age) values(#{name}, #{age})
+        </insert>
+    </mapper>
+
+参数说明：
+
+- ``batchSize``：控制每批次插入的数据量
+
+  - 如果不指定，则一次性插入所有数据
+  - 建议根据数据量大小设置合适的批次大小，避免单次插入数据过多
+  - 推荐值范围：50-1000，具体根据实际情况调整
+
+实现原理
+~~~~~~~~~
+
+juice 的批量插入采用了高效的实现机制：
+
+1. **预编译优化**：
+
+   - 对相同数量参数的 SQL 进行预编译
+   - 最多只会产生两个预编译语句：
+     - 完整批次的语句（batchSize 条数据）
+     - 剩余数据的语句（小于 batchSize 的数据）
+
+2. **语句复用**：
+
+   - 预编译的语句在批次间复用
+   - 显著减少数据库预编译开销
+   - 有效降低数据库连接压力
