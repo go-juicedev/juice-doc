@@ -23,7 +23,7 @@ juice也提供了这样的支持。
     import (
         "embed"
         "fmt"
-        "github.com/eatmoreapple/juice"
+        "github.com/go-juicedev/juice"
     )
 
     //go:embed config.xml
@@ -67,7 +67,7 @@ juice也提供了这样的支持。
     import (
         "embed"
         "fmt"
-        "github.com/eatmoreapple/juice"
+        "github.com/go-juicedev/juice"
     )
 
     //go:embed config

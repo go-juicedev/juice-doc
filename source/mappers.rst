@@ -131,7 +131,7 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
 
     import (
         "fmt"
-        "github.com/eatmoreapple/juice"
+        "github.com/go-juicedev/juice"
         _ "github.com/go-sql-driver/mysql"
     )
 

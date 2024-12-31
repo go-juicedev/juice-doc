@@ -14,7 +14,7 @@ juice 是一个基于 golang 的 sql mapper 框架，它的目标是提供一个
 项目主页
 ------------------------------
 
-http://github.com/eatmoreapple/juice
+http://github.com/go-juicedev/juice
 
 
 特性
@@ -42,7 +42,7 @@ http://github.com/eatmoreapple/juice
 
 .. code-block:: bash
 
-   go get -u github.com/eatmoreapple/juice
+   go get -u github.com/go-juicedev/juice
 
 快速开始
 ------------------------------
@@ -84,7 +84,7 @@ http://github.com/eatmoreapple/juice
    import (
       "context"
       "fmt"
-      "github.com/eatmoreapple/juice"
+      "github.com/go-juicedev/juice"
       _ "github.com/go-sql-driver/mysql"
    )
 

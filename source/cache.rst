@@ -78,10 +78,6 @@ juice的缓存默认是不开启的，需要显式的告诉juice当前的事务�
 
     engine.SetCacheFactory(func() cache.Cache() { return  mycacheImpl{}}) // note: 这里要返回一个新的cache实现。
 
-
-juice 提供了一个redis的缓存，请到 ``https://github.com/eatmoreapple/juice-cache`` 查看请使用方式。
-
-
 .. attention::
 
     注意： 缓存只有跟 `NewGenericManager` 搭配使用才有效

@@ -10,7 +10,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
 
 .. code-block:: shell
 
-    go install github.com/eatmoreapple/juice/juicecli@latest
+    go install github.com/go-juicedev/juice/juicecli@latest
 
 执行完成之后，在终端输入 `juicecli` 来验证是否安装完成。
 
@@ -37,7 +37,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
     import (
         "context"   
         "database/sql"
-        "github.com/eatmoreapple/juice"
+        "github.com/go-juicedev/juice"
         _ "github.com/go-sql-driver/mysql"
     )
 
@@ -111,7 +111,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
     import (
         "context"
         "database/sql"
-        "github.com/eatmoreapple/juice"
+        "github.com/go-juicedev/juice"
     )
 
     type UserRepositoryImpl struct{}
@@ -165,7 +165,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
         "context"
         "database/sql"
         "fmt"
-        "github.com/eatmoreapple/juice"
+        "github.com/go-juicedev/juice"
         _ "github.com/go-sql-driver/mysql"
     )
 
