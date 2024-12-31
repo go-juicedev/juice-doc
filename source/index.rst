@@ -38,7 +38,7 @@ http://github.com/go-juicedev/juice
 
 **版本要求**
 
-- go 1.20+
+- go 1.23+
 
 .. code-block:: bash
 
