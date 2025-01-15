@@ -71,7 +71,7 @@ environments
         }
 
         // 根据配置文件构建engine
-        engine, err := juice.DefaultEngine(cfg)
+        engine, err := juice.Default(cfg)
         if err != nil {
             fmt.Println(err)
             return
@@ -87,6 +87,50 @@ environments
 
 .. attention::
     在默认情况下，juice只会去连接 ``environments`` 中 ``default`` 属性指定的 ``environment``。
+
+
+数据源切换
+----------------
+
+在默认情况下，juice只会去连接 ``environments`` 中 ``default`` 属性指定的 ``environment``。
+
+当配置多个数据源的时候，就需要开发者手动去切换了。
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+        <configuration>
+            <environments default="master">
+
+                <environment id="master">
+                    <dataSource>root:qwe123@tcp(localhost:3306)/database</provider>
+                    <driver>mysql</driver>
+                </environment>
+
+                <environment id="slave1">
+                    <dataSource>root:qwe123@tcp(localhost:3307)/database</provider>
+                    <driver>mysql</driver>
+                </environment>
+
+                <environment id="slave2">
+                    <dataSource>root:qwe123@tcp(localhost:3308)/database</provider>
+                    <driver>mysql</driver>
+                </environment>
+
+            </environments>
+        </configuration>
+
+
+如上所示，我们配置了三个环境，其中 ``master`` 为默认的环境。
+
+当我们想切换到 ``slave1`` 环境时
+
+.. code-block:: go
+
+    engine, _ := juice.New(cfg)
+
+    slave1Engine, err := engine.With("slave1")
+
 
 provider
 ----------------
