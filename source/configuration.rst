@@ -1,56 +1,91 @@
 配置详情
 ==============================
 
-juice默认配置文件为 ``xml`` 格式，我们可以在项目的目录下创建一个 ``xml`` 的文件，然后在其中配置juice的相关信息。
-
-configuring
+配置文件格式
 ----------------
+
+Juice 使用 ``XML`` 作为默认配置格式，提供了清晰和结构化的配置方式。
+
+基础结构
+----------------
+
+所有的 Juice 配置都需要包含在根元素 ``configuration`` 中：
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-   <configuration>
+    <configuration>
+        <!-- 在这里添加 Juice 的配置信息 -->
+    </configuration>
 
-   </configuration>
-
-``juice`` 的配置信息都写在 ``configuration`` 标签中，如数据库连接信息。
+.. note::
+    XML 配置提供了良好的可读性和维护性，使配置结构清晰可见。建议使用规范的 XML 格式化工具来保持配置文件的整洁。
 
 
 environments
 ----------------
 
-``environments`` 标签用于配置不同的环境，如开发环境，测试环境，生产环境等。
+环境配置
+~~~~~~~~~~~~~~
 
-开发者可以根据自己的需要配置不同的环境， ``juice`` 会根据 ``environments`` 的 ``default`` 标签来加载特定的配置信息。
+``environments`` 标签是 Juice 的核心配置元素，用于管理不同运行环境（如开发、测试、生产等）的数据库连接配置。通过这个机制，开发者可以轻松地在不同环境间切换，而无需修改代码。
+
+Juice 将根据 ``environments`` 的 ``default`` 属性来确定默认加载的环境配置。
+
+配置示例
+~~~~~~~~~~~~~~
+
+以下示例展示了一个典型的多环境配置：
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>
         <environments default="prod">
-
+            <!-- 生产环境配置 -->
             <environment id="prod">
                 <dataSource>root:qwe123@tcp(localhost:3306)/database</dataSource>
                 <driver>mysql</driver>
+                <maxIdleConns>10</maxIdleConns>
+                <maxOpenConns>100</maxOpenConns>
+                <connMaxLifetime>3600</connMaxLifetime>
             </environment>
 
+            <!-- 开发环境配置 -->
             <environment id="dev">
                 <dataSource>./foo.db</dataSource>
                 <driver>sqlite3</driver>
             </environment>
-
         </environments>
     </configuration>
 
-在上面的配置中，我们配置了两个环境，分别是 ``prod`` 和 ``dev``，其中 ``prod`` 是 ``environments`` 指定的默认的环境， juice会根据这个配置来加载数据库连接信息。
+配置说明
+~~~~~~~~~~~~~~
+
+每个环境配置都包含以下必要元素：
+
+- ``id``: 环境的唯一标识符
+- ``dataSource``: 数据库连接字符串
+- ``driver``: 数据库驱动名称
+
+可选配置项包括：
+
+- ``maxIdleConns``: 最大空闲连接数
+- ``maxOpenConns``: 最大打开连接数
+- ``connMaxLifetime``: 连接最大生命周期（秒）
+- ``connMaxIdleTime``: 空闲连接最大生命周期（秒）
 
 .. attention::
-    注意：environments 标签中的 default 属性是必须的，如果没有配置这个属性，juice 不知道去加载哪个环境的配置信息。
+    **重要提示：**
 
-    每个环境的配置信息都是在 environment 标签中，其中 id 属性是必须且唯一，用于标识不同的环境，dataSource 标签用于配置数据库连接信息，driver 标签用于配置数据库驱动。
+    1. ``environments`` 的 ``default`` 属性是必须的，它指定了默认加载的环境配置
+    2. 每个 ``environment`` 的 ``id`` 属性必须唯一
+    3. 在默认情况下，Juice 只会连接 ``default`` 属性指定的环境
 
-配置好环境信息后，我们就可以在代码中使用 ``juice`` 的数据库连接了。
+代码实现
+~~~~~~~~~~~~~~
 
+以下示例展示了如何在代码中使用环境配置：
 
 .. code-block:: go
 
@@ -63,133 +98,142 @@ environments
     )
 
     func main() {
-        // 解析配置文件
-        cfg, err := juice.NewXMLConfiguration("config.xml") // config.xml 即为我们刚刚编写的配置文件。
+        // 加载配置文件
+        cfg, err := juice.NewXMLConfiguration("config.xml")
         if err != nil {
-            fmt.Println(err)
+            fmt.Printf("配置加载失败: %v\n", err)
             return
         }
 
-        // 根据配置文件构建engine
+        // 初始化引擎
         engine, err := juice.Default(cfg)
         if err != nil {
-            fmt.Println(err)
+            fmt.Printf("引擎初始化失败: %v\n", err)
             return
         }
+        defer engine.Close() // 确保资源正确释放
 
+        // 验证数据库连接
         if err = engine.DB().Ping(); err != nil {
-            fmt.Println(err)
+            fmt.Printf("数据库连接失败: %v\n", err)
             return
         }
 
-        fmt.Println(" connected to database")
+        fmt.Println("数据库连接成功")
     }
 
-.. attention::
-    在默认情况下，juice只会去连接 ``environments`` 中 ``default`` 属性指定的 ``environment``。
 
 
 数据源切换
 ----------------
 
-在默认情况下，juice只会去连接 ``environments`` 中 ``default`` 属性指定的 ``environment``。
+动态切换机制
+~~~~~~~~~~
 
-当配置多个数据源的时候，就需要开发者手动去切换了。
+默认情况下，Juice 只会连接 ``environments`` 中 ``default`` 属性指定的数据源。但在多数据源场景下，Juice 提供了灵活的数据源切换机制。
+
+配置示例
+~~~~~~~~~
+
+以下示例展示了一个包含主从数据源的配置：
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-        <configuration>
-            <environments default="master">
+    <configuration>
+        <environments default="master">
+            <!-- 主库配置 -->
+            <environment id="master">
+                <dataSource>root:qwe123@tcp(localhost:3306)/database</provider>
+                <driver>mysql</driver>
+            </environment>
 
-                <environment id="master">
-                    <dataSource>root:qwe123@tcp(localhost:3306)/database</provider>
-                    <driver>mysql</driver>
-                </environment>
+            <!-- 从库1配置 -->
+            <environment id="slave1">
+                <dataSource>root:qwe123@tcp(localhost:3307)/database</provider>
+                <driver>mysql</driver>
+            </environment>
 
-                <environment id="slave1">
-                    <dataSource>root:qwe123@tcp(localhost:3307)/database</provider>
-                    <driver>mysql</driver>
-                </environment>
+            <!-- 从库2配置 -->
+            <environment id="slave2">
+                <dataSource>root:qwe123@tcp(localhost:3308)/database</provider>
+                <driver>mysql</driver>
+            </environment>
+        </environments>
+    </configuration>
 
-                <environment id="slave2">
-                    <dataSource>root:qwe123@tcp(localhost:3308)/database</provider>
-                    <driver>mysql</driver>
-                </environment>
+在这个配置中，我们定义了一个主库（master）和两个从库（slave1, slave2），并将 ``master`` 设置为默认数据源。
 
-            </environments>
-        </configuration>
+手动切换数据源
+~~~~~~~~~~~~
 
-
-如上所示，我们配置了三个环境，其中 ``master`` 为默认的环境。
-
-当我们想切换到 ``slave1`` 环境时
+Juice 提供了 ``With`` 方法用于在运行时切换数据源：
 
 .. code-block:: go
 
+    // 初始化引擎
     engine, _ := juice.New(cfg)
 
+    // 切换到 slave1 数据源
     slave1Engine, err := engine.With("slave1")
 
+.. note::
+    ``With`` 方法会返回一个新的 Engine 实例，原有的 Engine 实例不会受到影响。这种设计确保了数据源切换的安全性和隔离性。
 
-provider
+
+配置值提供器（Provider）
 ----------------
 
-有时候我们不想在配置文件里面把数据库连接信息写死，而是想通过一些别的途径来动态加载数据库连接信息，这时候我们就可以使用 ``provider`` 标签来配置数据库连接信息。
+动态配置机制
+~~~~~~~~~~
+
+Juice 提供了灵活的配置值提供器机制，使开发者能够动态加载数据库连接信息，而不是将其硬编码在配置文件中。这对于管理敏感信息和支持不同部署环境特别有用。
+
+环境变量提供器
+~~~~~~~~~~~~
+
+Juice 默认提供了环境变量提供器（env），用于从系统环境变量中获取配置值：
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>
         <environments default="prod">
-
             <environment id="prod" provider="env">
-                <dataSource>${DATA_SOURCE}</provider>
+                <dataSource>${DATA_SOURCE}</dataSource>
                 <driver>mysql</driver>
             </environment>
-
         </environments>
     </configuration>
 
-如上所示，我们在 ``prod`` 环境中配置了一个 ``provider`` 标签，它的值为 ``env``。
+自定义提供器（EnvValueProvider）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``env`` 是 ``juice`` 提供的一个默认的 ``provider``，它会从环境变量中获取数据库连接信息。
-
-如果你想自定义 ``provider``，可以参考 ``juice`` 提供的 ``provider`` 的实现，实现自己的 ``provider``。
+开发者可以实现自己的配置值提供器，只需实现 ``EnvValueProvider`` 接口：
 
 .. code-block:: go
 
-    // EnvValueProvider defines a environment value provider.
+    // EnvValueProvider 定义了配置值提供器接口
     type EnvValueProvider interface {
         Get(key string) (string, error)
     }
 
-
-    // RegisterEnvValueProvider registers an environment value provider.
-    // The key is a name of the provider.
-    // The value is a provider.
-    // It allows to override the default provider.
+    // RegisterEnvValueProvider 注册自定义的配置值提供器
+    // name: 提供器名称，对应 XML 中的 provider 属性
+    // provider: 提供器实现
     func RegisterEnvValueProvider(name string, provider EnvValueProvider)
 
+默认环境变量提供器实现
+~~~~~~~~~~~~~~~~~~
 
-如上所示，只要实现了 ``EnvValueProvider`` 接口，就可以通过 ``juice`` 提供的 ``RegisterEnvValueProvider`` 方法，我们可以注册自己的 ``provider``。
-
-
-``RegisterEnvValueProvider`` 函数的 name 参数即为在xml中指定的provider的值。
-
-当我们自己实现了 ``EnvValueProvider``, juice 会将 ``environment`` 中读到的配置信息的内容原封不动的传递给 ``EnvValueProvider``。
-
-如上所示，当指定 ``provider`` 的值为 ``env`` 的时候，它会根据提前定义好的规则去解析，以下是具体实现。
+以下是 Juice 默认环境变量提供器的实现：
 
 .. code-block:: go
 
     var formatRegexp = regexp.MustCompile(`\$\{ *?([a-zA-Z0-9_\.]+) *?\}`)
 
-    // OsEnvValueProvider is a environment value provider that uses os.Getenv.
     type OsEnvValueProvider struct{}
 
-    // Get returns a value of the environment variable.
-    // It uses os.Getenv.
     func (p OsEnvValueProvider) Get(key string) (string, error) {
         var err error
         key = formatRegexp.ReplaceAllStringFunc(key, func(find string) string {
@@ -202,20 +246,19 @@ provider
         return key, err
     }
 
-
-通过查看代码，我们可以知道，当解析 ``${}`` 语法格式时，会将尝试将里面的内容通过环境变量来查找，否则直接返回原始内容。
-
+它可以在配置文件中使用 ``${}`` 语法来获取环境变量值。
 
 
 连接池配置
 ----------------
+
+Juice 提供了全面的连接池配置选项，用于优化数据库连接管理：
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>
         <environments default="prod">
-
             <environment id="prod">
                 <dataSource>root:qwe123@tcp(localhost:3306)/database</dataSource>
                 <driver>mysql</driver>
@@ -224,42 +267,38 @@ provider
                 <maxConnLifetime>3600</maxConnLifetime>
                 <maxIdleConnLifetime>3600</maxIdleConnLifetime>
             </environment>
-
         </environments>
     </configuration>
 
-**在上面的配置中，我们配置了连接池的相关信息**
+连接池参数说明：
 
-- .. class:: maxIdleConnNum 标签用于配置最大空闲连接数。
-- .. class:: maxOpenConnNum 标签用于配置最大打开连接数。
-- .. class:: maxConnLifetime 标签用于配置连接的最大生命周期, 单位为秒。
-- .. class:: maxIdleConnLifetime 标签用于配置空闲连接的最大生命周期, 单位为秒。
+- ``maxIdleConnNum``: 最大空闲连接数
+- ``maxOpenConnNum``: 最大打开连接数
+- ``maxConnLifetime``: 连接最大生命周期（秒）
+- ``maxIdleConnLifetime``: 空闲连接最大生命周期（秒）
 
-开发者可以根据自己的需要配置连接池的相关信息， `juice` 会根据配置信息来初始化连接池。
+全局设置（Settings）
+--------------------
 
-
-settings
-----------------
-
-`settings` 标签用于往 `juice` 中注入自定义的配置信息。
-
-`settings` 标签是 `settings` 标签的父标签， `settings` 标签中可以有多个 `setting` 标签， `setting` 标签中的 `name` 属性是必须的，用于标识配置信息的名称， `value` 属性是可选的，用于配置配置信息的值。
-
-`settings` 标签是可选的，可以不配置。
-
-具体的用途得看开发者自己的需求了。
-
-如在 `juice` 提供的 `DebugMiddleware` 中间件中，它会根据配置信息来决定是否开启调试模式。默认是开启的，可以在配置文件中关闭。
-
-关闭调试模式的配置如下：
+``settings`` 标签用于配置 Juice 的全局行为：
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-        <configuration>
-            <settings>
-                <setting name="debug" value="false"/>
-            </settings>
-        </configuration>
+    <configuration>
+        <settings>
+            <setting name="debug" value="false"/>
+        </settings>
+    </configuration>
+
+``settings`` 特性：
+
+- 可选配置，可以完全不设置
+- 支持多个 ``setting`` 子标签
+- 每个 ``setting`` 必须包含 ``name`` 属性
+- ``value`` 属性可选
+- 配置值可被中间件或其他组件使用
+
+例如，``debug`` 设置被 ``DebugMiddleware`` 用于控制调试模式的开启与关闭。
 
 
