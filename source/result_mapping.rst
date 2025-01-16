@@ -1,31 +1,11 @@
 结果集映射
 ==============================
+结果集映射是 Juice 框架中一个核心功能，它负责将数据库查询结果转换为 Go 语言中的结构化数据。Juice 提供了多种灵活的映射方式，从简单的单行映射到复杂的嵌套对象映射都能优雅处理。
 
-将查询结果映射到对象的过程称为结果集映射。结果集映射的目的是将查询结果映射到对象，以便于后续的处理。
-
-我们先定义好需要查询的mapper和实体：
-
-.. code-block:: xml
-
-    <mapper namespace="main">
-        <select id="SelectUser">
-            select id, name, age from user
-        </select>
-    </mapper>
-
-.. code-block:: go
-
-    type User struct {
-        Id   int64
-        Name string
-        Age  int
-    }
-
-
-sql.Rows
+原生SQL.Rows支持
 ----------------
 
-``sql.Rows`` 是database/sql包中的一个结构体，它可以被定义为下面的 ``Rows`` 接口：
+Juice 完全兼容 ``database/sql`` 包的 ``Rows`` 接口：
 
 .. code-block:: go
 
@@ -36,104 +16,52 @@ sql.Rows
         Scan(dest ...interface{}) error
     }
 
-
-如果你熟悉database/sql包，那么你应该知道，``sql.Rows`` 是一个迭代器，它的 ``Next`` 方法用于遍历查询结果，``Scan`` 方法用于将查询结果映射到对象。
-
-我们使用 ``engine`` 来查询
+基本用法示例：
 
 .. code-block:: go
 
-    rows, err := engine.Object("main.SelectUser").Query(nil)
+    rows, err := engine.Object("main.SelectUser").QueryContext(context.TODO(), nil)
     if err != nil {
         panic(err)
     }
-    defer rows.Close()
+    defer rows.Close()  // 确保资源释放
 
     for rows.Next() {
         var user User
-        err := rows.Scan(&user.Id, &user.Name, &user.Age)
-        if err != nil {
+        if err := rows.Scan(&user.Id, &user.Name, &user.Age); err != nil {
             panic(err)
         }
         fmt.Println(user)
     }
 
-    err = rows.Err()
-    if err != nil {
+    if err = rows.Err(); err != nil {
         panic(err)
     }
 
-Object
-""""""
+Object方法说明
+"""""""""""""
 
-``Object`` 用来指定我们要执行的mapper, 它接受一个interface{}类型的参数, 它可以是以下几种类型
+``Object`` 方法支持多种参数类型：
 
-* ``StatementIDGetter`` 类型，它有一个 ``StatementID`` 方法，返回一个字符串，该字符串就是对应的id
+1. **字符串类型**：
 
-  .. code-block:: go
+   .. code-block:: go
 
-      // StatementIDGetter is an interface for getting statement id.
-      type StatementIDGetter interface {
-          // StatementID returns a statement id.
-          StatementID() string
-      }
+       engine.Object("main.SelectUser")
 
+2. **函数类型**：
+   使用函数在代码中的位置作为ID
 
-* ``string`` 类型，表示对于 ``action`` 的完整id。
-
-  .. code-block:: go
-
-     engine.Object("main.SelectUser")
-
-* 函数类型, juice 内部会去获取这个函数在代码里面的位置作为对应的id，例如在传入的是 ``main`` 包下的 ``SelectUser`` 函数，那么id就是 ``main.SelectUser``
-
-  如果这个函数是某个自定义类型的方法，那么id就是这个自定义类型的 ``pkgpath.(interface|struct).methodname`` （包名.类型名.方法名, 注意区分 ``interface`` 和 ``struct``）
-
-
-.. attention::
-    这里介绍的 ``Object`` 是 ``engine`` 的 ``Object`` ，下面几种方式的 ``Object`` 的作用其实是一样的，就不一一介绍了。
-
-Executor
-""""""
-
-调用完 ``Object`` 方法后，它会返回一个 ``Executor`` 对象。``Executor`` 的定义如下：
-
-.. code-block:: go
-
-    // GenericExecutor is a generic executor.
-    type GenericExecutor[T any] interface {
-    	// QueryContext executes the query and returns the direct result.
-    	// The args are for any placeholder parameters in the query.
-    	QueryContext(ctx context.Context, param Param) (T, error)
-
-    	// ExecContext executes a query without returning any rows.
-    	// The args are for any placeholder parameters in the query.
-    	ExecContext(ctx context.Context, param Param) (sql.Result, error)
-
-    	// Statement returns the xmlSQLStatement of the current executor.
-    	Statement() Statement
-
-    	// Session returns the session of the current executor.
-    	Session() Session
-
-    	// Driver returns the driver of the current executor.
-    	Driver() driver.Driver
-    }
-
-    // Executor defines the interface of the executor.
-    type Executor GenericExecutor[*sql.Rows]
-
-
-因为我们这里是查询操作，所以我们使用 ``QueryContext`` 方法，并且我们的sql语句没有参数，所以我们传入 ``nil``
-
-得到 ``sql.Rows`` 后，我们可以使用 ``sql.Rows`` 的方法来遍历查询结果，最后关闭 ``sql.Rows``。
-
-这种方式跟database/sql包的使用方式是一样的，所以如果你熟悉database/sql包，那么你应该很容易上手。
+.. note::
+    Object方法的ID生成规则：
+    - 包名.函数名（普通函数）
+    - 包名.类型名.方法名（结构体方法）
+    - 注意区分interface和struct
 
 泛型结果集映射
----------------
+-------------
 
-GenericManager是一个接口类型，它的定义如下
+Juice提供了强大的泛型支持，使结果集映射更加类型安全：
 
 .. code-block:: go
 
@@ -141,376 +69,216 @@ GenericManager是一个接口类型，它的定义如下
         Object(v any) GenericExecutor[T]
     }
 
-它只有一个 ``Object`` 方法，它接受一个参数，返回一个 ``GenericExecutor`` 对象。
+映射场景示例
+"""""""""""
 
-其中 ``Object`` 方法的作用跟上面的是一样的，用来指定查询的mapper，这里就不再介绍了。
+1. **单字段单行**：
 
-这里的 ``GenericManager`` 需要接受一个泛型参数，这个参数用来指定 ``GenericExecutor`` 的返回值类型，也就是我们的查询结果类型。
+   .. code-block:: go
 
-GenericExecutor
-"""""""""""""""
+       // 查询单个计数
+       count, err := juice.NewGenericManager[int](engine).
+           Object("CountUsers").QueryContext(context.TODO(), nil)
 
-``GenericExecutor`` 是一个接口类型，它的定义如下
+2. **多字段单行**：
 
-.. code-block:: go
+   .. code-block:: go
 
-    // GenericExecutor is a generic executor.
-    type GenericExecutor[result any] interface {
-        QueryContext(ctx context.Context, param any) (result, error)
-        ExecContext(ctx context.Context, param any) (sql.Result, error)
-    }
+       type User struct {
+           ID   int64  `column:"id"`
+           Name string `column:"name"`
+       }
 
+       // 查询单个用户
+       user, err := juice.NewGenericManager[User](engine).
+           Object("GetUser").QueryContext(context.TODO(), nil)
 
-它的 ``Query`` 方法返回我们指定的查询结果类型和一个 ``error``。
+3. **单字段多行**：
 
-需要注意，这里会直接将查询的结构直接映射到指定的结果集的泛型参数上面。
+   .. code-block:: go
 
-结果集的映射可以分为以下几种情况：
+       // 查询多个ID
+       ids, err := juice.NewGenericManager[[]int64](engine).
+           Object("GetUserIDs").QueryContext(context.TODO(), nil)
 
-1、单个字段，单条结果。
+4. **多字段多行**：
 
-.. code-block:: go
+   .. code-block:: go
 
-    // select count(*) from table
-
-    result, err := juice.NewGenericManager[int](engine).Object("your object id").Query(nil)
-
-    // result => int
-
-
-
-    // select count(*) from table
-
-    result, err := juice.NewGenericManager[[]int](engine).Object("your object id").Query(nil)
-
-    // result => []int 有且只有一个元素
-
-
-
-    // select c_time from table limit 1
-
-    result, err := juice.NewGenericManager[time.Time](engine).Object("your object id").Query(nil)
-
-    // result => time.Time
-
-2、多个字段，单条结果。
-
-.. code-block:: go
-
-    type User struct {
-        ID   int64  `column:"id"`
-        Name string `column:"name"`
-    }
-
-    // select id, name from table limit 1
-
-    result, err := juice.NewGenericManager[User](engine).Object("your object id").Query(nil)
-
-    // result => User
-
-
-
-    // select id, name from table limit 1
-
-    result, err := juice.NewGenericManager[*User](engine).Object("your object id").Query(nil)
-
-    // result => *User
-
-
-
-    // select id, name from table limit 1
-
-    result, err := juice.NewGenericManager[[]User](engine).Object("your object id").Query(nil)
-
-    // result => []User 有且只有一个元素
-
-
-    // select id, name from table limit 1
-
-    result, err := juice.NewGenericManager[[]*User](engine).Object("your object id").Query(nil)
-
-    // result => []*User 有且只有一个元素
-
-*需要注意的是，当返回的字段有多条的时候，需要用结构体来接收，并且结构体字段中需要标注`column`来制定对应的字段*
-
-*问: 可以用map来代替结构体吗？*
-
-*答: 不可以，因为我个人不喜欢用map（开玩笑），map呈现给用户的往往是一个黑盒，开发者不知道这个map中有哪些信息，而结构体相比map而言，显的更清晰一点*
-
-如下，当返回的字段在结构体中找不到映射怎么办？
-
-.. code-block:: go
-
-    type User struct {
-        ID   int64  `column:"id"`
-        Name string `column:"name"`
-    }   
-
-    // SELECT id, name, age from table
-
-这种情况下，juice会将找不到字段映射的值给丢弃掉，如上面的age。
-
-3. 单个字段，多条结果。
-
-.. code-block:: go
-
-    // select id from table limit 10
-
-    result, err := juice.NewGenericManager[[]int64](engine).Object("your object id").Query(nil)
-
-    // result => []int64
-
-注意的是，当查询返回的行数有多条时，必须指定结果集为一个切片，否则会返回错误。
-
-4. 多个字段，多条结果。
-
-.. code-block:: go
-
-    type User struct {
-        ID   int64  `column:"id"`
-        Name string `column:"name"`
-    }   
-
-    // select id, name from table limit 10
-
-    result, err := juice.NewGenericManager[[]User](engine).Object("your object id").Query(nil)
-
-    // result => []User
-
-跟上面一样，多条查询结果需要用切片接受，多个字段需要用结构体接受。
-
-
-自定义结果集映射
----------
-
-有时候我们的映射关系比较复杂，我们需要自己去定义这种映射关系。
-
-resultMap
-``resultMap`` 是juice提供的一个自定义结果集映射规则的标签，下面我们通过几个例子来了解它的用法。
-
-简单查询
-""""""""""""""
-
-.. code-block:: xml
-
-    <resultMap id="User">
-        <result column="id" property="ID"/>
-        <result column="name" property="Name"/>
-    </resultMap>
-
-    <select id="QueryUserList" resultMap="User">
-        select id, name from classes
-    </select>
-
-.. code-block:: go
-
-    type User struct {
-        ID   int64  
-        Name string 
-    }
-
-    result, err := juice.NewGenericManager[[]User](engine).Object("object id").Query(nil)
-
-当我们在 ``select`` 标签里面指定我们的resultMap的时候, juice就会采用resultMap指定的规则去进行映射。
-
-resultMap生效的作用域在mapper标签下面。它需要一个id属性作为它的唯一身份标识符。
-
-result标签的作用是用来指定sql字段和结构体字段的映射关系。
-
-*   column是sql字段。
-*   property是结构体映射字段名称（需要的是一个合法的可导出的字段的名称）。
-
-一对一查询
-""""""""""""""
-
-.. code-block:: xml
-
-    <resultMap id="User">
-        <result column="id" property="ID"/>
-        <result column="name" property="Name"/>
-        <association property="Detail">
-            <result column="id_card" property="IDCard"/>
-        </association>
-    </resultMap>
-
-    <select id="QueryUser" resultMap="User">
-        select a.id as id, a.name as name, b.id_card as id_card from user a join user_detail b where b.uid = a.id limit 1
-    </select>
-
-.. code-block:: go
-
-    type UserDetail struct {
-        UID    int64
-        IDCard string
-    }
-
-    type User struct {
-        ID         int64  
-        Name       string 
-        Detail     UserDetail
-    }
-
-    result, err := juice.NewGenericManager[User](manager).Object("QueryUser").Query(nil)
-
-在resultMap中可以使用 association 来对结构体进行嵌套映射。
-
-association需要一个property属性来制定嵌套结构体的字段名称。如上，嵌套结构体 UserDetail 在 User 中的字段名称为Detail，我们只需要在xml中将
-property的属性置为Detail即可。
-
-result标签在association中的使用方式跟在resultMap中一致。
-
-一(多)对多查询
-""""""""""""""
-
-.. code-block:: xml
-
-    <resultMap id="User">
-        <id column="id" property="ID"/>
-        <result column="name" property="Name"/>
-        <collection property="Hobbies">
-            <result column="hobby" property="Hobby"/>
-        </collection>
-    </resultMap>
-
-    <select id="QueryUserList" resultMap="User">
-        select a.id as id, a.name as name, b.hobby as hobby from user a join user_hobby b where b.uid = a.id 
-    </select>
-
-.. code-block:: go
-
-    type Hobby struct {
-        Hobby   string
-    }
-
-    type User struct {
-        ID      int64
-        Name    string
-        Hobbies []Hobby
-    }
-
-    result, _ := juice.NewGenericManager[[]User](manager).Object("object id").Query(nil)
-
-我们假设上面的sql的查询结果如下所示:
-
-.. code-block:: shell
-
-    ----------------------------
-    |  id   |  name  |  hobby  |
-    |---------------------------
-    |   1   |  小明   |  篮球   |
-    |---------------------------
-    |   2   |  小李   |  唱歌   |
-    |---------------------------
-    |   1   |  小明   |  跳舞   |
-    |---------------------------
-
-如上所示, 我们可以很容易看出小明的hobby有两个，而小李只有一个，根据上面User结构体的定义，我们希望把第一条数据
-和第三条数据组合映射到User结构体中。
-
-如:
-
-.. code-block:: go
-
-    {ID: 1, Name: "小明", Hobbies: []Hobby{{"篮球"}, {"跳舞"}}}
-
-既然需要组合，那我们得让juice知道哪些数据需要组合。
-
-juice提供了一个id的标签来表示当前数据的身份id，它的用法跟result标签相同。
-
-当查询到相同id相同的数据时，juice会认为它们属于关联相同的数据。
-
-既然是一对多，那么"多"的数据肯定是一个集合，我们这里用切片来表示。如上所示，Hobbies字段表示的是一个Hobby结构体的切片。
-
-在xml中使用collection来表示集合的映射关系，它的用法跟association标签相同，只不过是collection的property指向的是
-一个切片的字段。
+       // 查询用户列表
+       users, err := juice.NewGenericManager[[]User](engine).
+           Object("GetUsers").QueryContext(context.TODO(), nil)
 
 .. attention::
+    - 结构体必须使用 ``column`` 标签指定数据库字段映射
+    - 多行结果必须使用切片类型接收
+    - 不支持使用map接收结果（设计选择）
 
-    当使用collection标签时，它的同级标签中必须存在一个id标签，不然juice找不到哪些数据时相关联的。
+自定义结果集映射
+--------------
+
+Juice 提供了三个核心的结果集映射函数：``Bind``、``List`` 和 ``List2``，它们各自适用于不同的场景。
+
+Bind 函数
+"""""""""""
+
+``Bind`` 是最灵活的映射函数，可以处理任意类型的结果集映射：
+
+.. code-block:: go
+
+    func Bind[T any](rows *sql.Rows) (result T, err error)
+
+特点：
+- 支持任意类型的映射（结构体、切片、基本类型等）
+- 灵活性最高
+- 可以处理单行或多行数据
+
+使用示例：
+
+.. code-block:: go
+
+    type User struct {
+        ID   int    `column:"id"`
+        Name string `column:"name"`
+    }
+
+    rows, _ := db.Query("SELECT id, name FROM users")
+    defer rows.Close()
+
+    // 映射到切片
+    users, err := Bind[[]User](rows)
+
+    // 映射到单个结构体
+    user, err := Bind[User](rows)
+
+List 函数
+"""""""""""
+
+``List`` 专门用于将结果集映射为切片类型：
+
+.. code-block:: go
+
+    func List[T any](rows *sql.Rows) (result []T, err error)
+
+特点：
+- 始终返回切片类型 ``[]T``
+- 性能优于 ``Bind`` （针对切片场景）
+- 空结果返回空切片而不是 nil
+- 对非指针类型做了特殊优化
+
+使用示例：
+
+.. code-block:: go
+
+    rows, _ := db.Query("SELECT id, name FROM users")
+    defer rows.Close()
+
+    users, err := List[User](rows)
+
+List2 函数
+"""""""""""
+
+``List2`` 是 ``List`` 的变体，专门返回指针切片：
+
+.. code-block:: go
+
+    func List2[T any](rows *sql.Rows) ([]*T, error)
+
+List2 主要是为了做一些指针类型的泛型结果集的返回。
+
+特点：
+- 返回指针切片 ``[]*T``
+- 适合需要修改切片元素的场景
+- 适合处理大型结构体
+- 避免了值拷贝开销
+
+使用示例：
+
+.. code-block:: go
+
+    rows, _ := db.Query("SELECT id, name FROM users")
+    defer rows.Close()
+
+    users, err := List2[User](rows)
+    // users 类型为 []*User
+
+选择指南
+"""""""""""
+
+1. 使用 ``Bind`` 当：
+   - 需要最大的灵活性
+   - 不确定返回类型
+   - 需要处理单行数据
+
+2. 使用 ``List`` 当：
+   - 确定返回切片类型
+   - 追求更好的性能
+   - 处理值类型切片
+
+3. 使用 ``List2`` 当：
+   - 需要修改切片元素
+   - 处理大型结构体
+   - 想避免值拷贝
+
+.. note::
+    性能提示：
+
+    - ``List`` 对非指针类型做了特殊优化
+    - ``List2`` 虽然多一次转换，但可能在某些场景下性能更好
+    - ``Bind`` 最灵活但可能不是最快的选择
 
 
 自增主键映射
-------------
+-----------
 
-当我们往数据库中插入一条数据时，如果这条数据的主键是自动生成的，那么我们需要获取这条数据的主键值，将这个值赋值给我们的结构体。
-
-如果想要实现这个功能，我们需要需要满足以下条件:
-
-1. 对应的sql.Driver需要支持 ``LastInsertId`` 方法。
-2. 传入的参数必须是一个指向结构体的指针。
-3. 在xml中执行的sql语句必须是 ``insert`` 语句。
-4. 在xml中执行的insert语句的中必须指定 ``useGeneratedKeys`` 属性为 ``true`` 。
-5. 在xml中执行的insert语句的中指定 ``keyProperty`` 属性为我们传入结构体主键字段名。当这个字段为空时，juice会自动从当前传入的结构体字段中寻找tag为 `autoincr:"true"` 的字段，如果找到了，那么就将这个字段作为主键字段。
-6. 结构体主键字段的类型必须是可被 SetInt 的类型，如int64, int32, int等。
-
-下面是一个例子:
+支持自动获取自增主键值：
 
 .. code-block:: xml
 
-    <mapper namespace="main">
-        <insert id="InsertUser" useGeneratedKeys="true" keyProperty="Id">
-            insert into user(name, age) values(#{name}, #{age})
-        </insert>
-    </mapper>
+    <insert id="CreateUser" useGeneratedKeys="true" keyProperty="ID">
+        INSERT INTO users(name, age) VALUES(#{name}, #{age})
+    </insert>
 
-.. code-block:: go
+使用条件：
 
-    type User struct {
-        Id   int64  `column:"id" autoincr:"true"`
-        Name string `column:"name"`
-        Age  int    `column:"age"`
-    }
+1. 数据库驱动支持 ``LastInsertId``
+2. 参数必须是结构体指针
+3. ``useGeneratedKeys="true"``
+4. 指定 ``keyProperty`` 或使用 ``autoincr:"true"`` 标签
+5. 主键字段类型必须支持整数赋值
 
-    user := User{
-        Name: "张三",
-        Age:  18,
-    }
-    _, err := engine.Object("main.InsertUser").Exec(&user)
-    if err != nil {
-        panic(err)
-    }
-    fmt.Println(user.Id)
+批量插入优化
+-----------
 
-
-批量插入
-------------
-
-juice 提供了高效的批量插入功能，通过 ``batchSize`` 属性来控制每批次插入的数据量。
-
-基本用法
-~~~~~~~~~
-
+高效的批量数据插入支持：
 
 .. code-block:: xml
 
-    <mapper namespace="main">
-        <insert id="InsertUser" useGeneratedKeys="true" keyProperty="Id" batchSize="100">
-            insert into user(name, age) values(#{name}, #{age})
-        </insert>
-    </mapper>
+    <insert id="BatchInsertUsers" batchSize="100">
+        INSERT INTO users(name, age) VALUES(#{name}, #{age})
+    </insert>
 
-参数说明：
+优化特性：
 
-- ``batchSize``：控制每批次插入的数据量
+1. **智能批次处理**：
+   - 自动分批处理大量数据
+   - 可配置批次大小（batchSize）
+   - 默认单次执行
 
-  - 如果不指定，则一次性插入所有数据
-  - 建议根据数据量大小设置合适的批次大小，避免单次插入数据过多
-  - 推荐值范围：50-1000，具体根据实际情况调整
+2. **预编译优化**：
+   - 预编译语句复用
+   - 最多生成两个预编译语句
+   - 有效减少数据库压力
 
-实现原理
-~~~~~~~~~
+3. **性能建议**：
+   - 建议批次大小：50-1000
+   - 根据数据量和数据库性能调整
+   - 避免过大批次造成数据库压力
 
-juice 的批量插入采用了高效的实现机制：
+.. tip::
+    批量插入最佳实践：
 
-1. **预编译优化**：
-
-   - 对相同数量参数的 SQL 进行预编译
-   - 最多只会产生两个预编译语句：
-     - 完整批次的语句（batchSize 条数据）
-     - 剩余数据的语句（小于 batchSize 的数据）
-
-2. **语句复用**：
-
-   - 预编译的语句在批次间复用
-   - 显著减少数据库预编译开销
-   - 有效降低数据库连接压力
+    1. 合理设置批次大小
+    2. 注意监控数据库性能
+    3. 考虑事务管理
+    4. 做好错误处理
