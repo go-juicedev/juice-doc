@@ -1,61 +1,24 @@
-事务
+事务管理
 ========
 
-我们在操作数据库的时候，经常会遇到事务的问题，比如说，我们在操作数据库的时候，需要对多个表进行操作，这时候，我们就需要使用事务来保证数据的一致性。
+概述
+----
 
-那么在 ``juice`` 中，我们是如何使用事务的呢？
+事务是数据库操作的基本单位，用于保证数据的一致性和完整性。Juice 提供了完整的事务支持，包括基本事务操作、嵌套事务和隔离级别控制。
 
-首先我们回顾一下我们之前的用法:
-
-.. code-block:: go
-
-	cfg, err := juice.NewXMLConfiguration("config.xml")
-
-	if err != nil {
-		panic(err)
-	}
-
-	engine, err := juice.Default(cfg)
-
-	if err != nil {
-		panic(err)
-	}
-
-	engine.Object("your object").Query(nil)
-
-	juice.NewGenericManager[User](engine).Object("your object").QueryContext(context.TODO(), nil)
-
-
-在上面的代码中，我们可以看到，我们都是通过 ``engine`` 来进行操作的，``engine`` 会从数据库的连接池中获取一个连接，然后进行操作，操作完毕后，会将连接放回连接池中。
-
-那么，如果我们需要使用事务，我们该如何操作呢？
-
-Manager
+事务接口
 -------
 
-通过查看 ``NewGenericManager`` 的源码，我们可以看到，它接受的参数都是一个名为 ``Manager`` 的接口。
-
-Manager 接口的定义如下:
+Juice 定义了两个核心接口来处理事务：
 
 .. code-block:: go
 
-	// Manager is an interface for managing database operations.
-	type Manager interface {
-		Object(v any) Executor
-	}
+    // Manager 接口定义了基本的数据库操作
+    type Manager interface {
+        Object(v any) Executor
+    }
 
-我们上面使用的 ``engine`` 就是一个实现了 ``Manager`` 接口的结构体。
-
-开启事务
---------
-
-我们可以通过 ``engine.Tx()`` 来开启一个事务，它会返回一个 ``TxManager`` 接口的实现，我们可以通过这个实现来进行事务的操作。
-
-TxManager 接口的定义如下:
-
-.. code-block:: go
-
-    // TxManager is an interface for managing database operations in a transaction.
+    // TxManager 接口扩展了 Manager，添加了事务控制方法
     type TxManager interface {
         Manager
         Begin() error
@@ -63,95 +26,153 @@ TxManager 接口的定义如下:
         Rollback() error
     }
 
-``TxManager`` 比 ``Manager`` 多了三个方法，分别是 ``Begin()`` , ``Commit()`` 和 ``Rollback()`` ，我们可以通过这三个方法来进行事务的操作。
+基本事务操作
+----------
 
-``Begin()`` 用来开启事务
-
-``Commit()`` 用来提交事务
-
-``Rollback`` 用来回滚事务
-
-我们可以通过 ``engine.Tx()`` 返回的事务对象来进行事务的操作。
-
-如上面的示例我们可以这样写:
+示例代码展示了如何使用事务：
 
 .. code-block:: go
 
-	cfg, err := juice.NewXMLConfiguration("config.xml")
-
-	if err != nil {
-		panic(err)
-	}
-
-	engine, err := juice.Default(cfg)
-
-	if err != nil {
-		panic(err)
-	}
-
-	tx := engine.Tx()
-
-	if err := tx.Begin(); err != nil {
+    engine, err := juice.Default(cfg)
+    if err != nil {
         panic(err)
     }
 
-	defer tx.Rollback()
+    // 开启事务
+    tx := engine.Tx()
+    if err := tx.Begin(); err != nil {
+        panic(err)
+    }
 
-	{
-		tx.Object("your object").QueryContext(context.TODO(), nil)
-	}
+    // 确保事务最终会被回滚或提交
+    defer tx.Rollback()
 
-	{
-		juice.NewGenericManager[User](tx).Object("your object").QueryContext(context.TODO(), nil)
-	}
+    // 事务内的操作
+    {
+        // 查询操作
+        result1, err := tx.Object("QueryUser").
+            QueryContext(context.TODO(), nil)
+        if err != nil {
+            return err
+        }
 
-	tx.Commit()
+        // 使用泛型管理器
+        result2, err := juice.NewGenericManager[User](tx).
+            Object("CreateUser").
+            QueryContext(context.TODO(), param)
+        if err != nil {
+            return err
+        }
+    }
 
-在上面的示例中，我们可以看到，我们将 ``Manager`` 由 ``engine`` 改成 ``tx`` 之后，上面的操作都会在一个事务中进行了，我们就通过 ``tx`` 来进行事务的操作，当我们需要提交事务的时候，我们调用 ``tx.Commit()`` 来提交事务，如果我们需要回滚事务，我们调用 ``tx.Rollback()`` 来回滚事务。
+    // 提交事务
+    return tx.Commit()
 
-注意，当我们调用 ``tx.Commit()`` 或者 ``tx.Rollback()`` 之后，事务就已经结束了，我们不能再对事务进行操作了。
+.. note::
+    事务使用建议：
 
-如果你需要使用嵌套事务，多次调用 ``engine.Tx()`` 来开启事务，但是需要注意的是，你需要在每次调用 ``engine.Tx()`` 之后，都要调用 ``tx.Rollback()`` 或者 ``tx.Commit()`` 来终止事务，否则你的事务会一直处于开启状态。
+    1. 总是使用 defer tx.Rollback()
+    2. 在提交前检查所有错误
+    3. 事务完成后不要再使用事务对象
 
+嵌套事务
+-------
 
-隔离级别
+Juice 支持嵌套事务，但需要注意正确管理：
+
+.. code-block:: go
+
+    tx1 := engine.Tx()
+    if err := tx1.Begin(); err != nil {
+        return err
+    }
+    defer tx1.Rollback()
+
+    // 嵌套事务
+    tx2 := engine.Tx()
+    if err := tx2.Begin(); err != nil {
+        return err
+    }
+    defer tx2.Rollback()
+
+    // 内层事务操作
+    if err := tx2.Commit(); err != nil {
+        return err
+    }
+
+    // 外层事务操作
+    return tx1.Commit()
+
+.. attention::
+    嵌套事务注意事项：
+
+    1. 每个事务对象都需要正确关闭
+    2. 遵循先开启后关闭的原则
+    3. 注意事务之间的依赖关系
+
+隔离级别控制
 ----------
 
-在go官方的database/sql包里面提供了对事务隔离级别的控制
+Juice 支持完整的事务隔离级别控制，与 ``database/sql`` 包保持一致：
 
 .. code-block:: go
 
-	// IsolationLevel is the transaction isolation level used in TxOptions.
-	type IsolationLevel int
+    // 支持的隔离级别
+    const (
+        LevelDefault         sql.IsolationLevel = iota
+        LevelReadUncommitted
+        LevelReadCommitted
+        LevelWriteCommitted
+        LevelRepeatableRead
+        LevelSnapshot
+        LevelSerializable
+        LevelLinearizable
+    )
 
-	// Various isolation levels that drivers may support in BeginTx.
-	// If a driver does not support a given isolation level an error may be returned.
-	//
-	// See https://en.wikipedia.org/wiki/Isolation_(database_systems)#Isolation_levels.
-	const (
-		LevelDefault IsolationLevel = iota
-		LevelReadUncommitted
-		LevelReadCommitted
-		LevelWriteCommitted
-		LevelRepeatableRead
-		LevelSnapshot
-		LevelSerializable
-		LevelLinearizable
-	)
-
-	// TxOptions holds the transaction options to be used in DB.BeginTx.
-	type TxOptions struct {
-		// Isolation is the transaction isolation level.
-		// If zero, the driver or database's default level is used.
-		Isolation IsolationLevel
-		ReadOnly  bool
-	}
-
-	func (db *DB) BeginTx(ctx context.Context, opts *TxOptions) (*Tx, error) 
-
-
-在juice中也提供了这样的功能
+使用示例：
 
 .. code-block:: go
 
-	func (e *Engine) ContextTx(ctx context.Context, opt *sql.TxOptions) TxManager
+    // 使用特定隔离级别开启事务
+    tx := engine.ContextTx(ctx, &sql.TxOptions{
+        Isolation: sql.LevelSerializable,
+        ReadOnly:  false,
+    })
+    if err := tx.Begin(); err != nil {
+        return err
+    }
+    defer tx.Rollback()
+
+    // 事务操作...
+
+    return tx.Commit()
+
+隔离级别说明：
+
+1. **LevelReadUncommitted**：
+   - 最低隔离级别
+   - 允许脏读
+   - 性能最好
+
+2. **LevelReadCommitted**：
+   - 防止脏读
+   - 允许不可重复读
+   - 常用默认级别
+
+3. **LevelRepeatableRead**：
+   - 防止脏读和不可重复读
+   - 允许幻读
+   - 提供较好的一致性
+
+4. **LevelSerializable**：
+   - 最高隔离级别
+   - 完全串行化
+   - 性能最差但最安全
+
+.. tip::
+    选择隔离级别建议：
+
+    1. 默认使用数据库的默认隔离级别
+    2. 根据业务需求选择合适的级别
+    3. 在性能和一致性之间找到平衡
+    4. 注意不同数据库对隔离级别的具体实现可能不同
