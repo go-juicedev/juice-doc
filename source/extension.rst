@@ -87,51 +87,120 @@ juice也提供了这样的支持。
 读写分离
 --------
 
-juice 没有提供这样的功能，可能以后支持。
+Juice 提供了一个强大的读写分离实现，用于优化数据库性能和可扩展性。
 
-但是可以给想要有这样需求的老表提供思路。
+配置多数据源
+~~~~~~~~~~
 
-还是记得我们的提供的中间件的支持吗？
+首先，在配置文件中配置多个数据源：
+
+.. code-block:: xml
+
+    <environments default="master">
+        <environment id="master">
+            <dataSource>root:qwe123@tcp(localhost:3306)/database</dataSource>
+            <driver>mysql</driver>
+        </environment>
+
+        <environment id="slave1">
+            <dataSource>root:qwe123@tcp(localhost:3307)/database</dataSource>
+            <driver>mysql</driver>
+        </environment>
+
+        <environment id="slave2">
+            <dataSource>root:qwe123@tcp(localhost:3308)/database</dataSource>
+            <driver>mysql</driver>
+        </environment>
+    </environments>
+
+默认情况下，Juice 只会连接 ``environments`` 中 ``default`` 属性指定的数据源。
+建议将 ``master`` 设置为默认数据源以处理写操作。
+
+启用读写分离
+~~~~~~~~~~
+
+要启用读写分离功能，需要使用 ``TxSensitiveDataSourceSwitchMiddleware`` 中间件：
 
 .. code-block:: go
 
-    // Middleware is a wrapper of QueryHandler and ExecHandler.
-    type Middleware interface {
-        // QueryContext wraps the QueryHandler.
-        QueryContext(stmt *Statement, next QueryHandler) QueryHandler
-        // ExecContext wraps the ExecHandler.
-        ExecContext(stmt *Statement, next ExecHandler) ExecHandler
-    }
+    var engine *juice.Engine
+    ... // 初始化
+    engine.Use(&juice.TxSensitiveDataSourceSwitchMiddleware{})
 
-下面是一个伪代码
+路由策略
+~~~~~~~
 
-.. code-block:: go
+Juice 支持多种读操作路由策略，可以在语句级别或全局级别配置：
 
-    type ReadWriteMiddleware struct {
-        slaves []*sql.DB
-        master *sql.DB
-    }
+全局配置
+^^^^^^^
 
-    func (r ReadWriteMiddleware) QueryContext(_ *juice.Statement, next juice.QueryHandler) juice.QueryHandler {
-        return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
-            // 随机选择一个
-            index := rand.Intn(len(r.slaves))
-            db := r.slaves[index]
-            ctx = juice.SessionWithContext(ctx, db)
-            return next(ctx, query, args...)
-        }
-    }
+在项目的 ``settings`` 中配置默认的路由策略：
 
-    func (r ReadWriteMiddleware) ExecContext(_ *juice.Statement, next juice.ExecHandler) juice.ExecHandler {
-        return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
-            ctx = juice.SessionWithContext(ctx, r.master)
-            return next(ctx, query, args...)
-        }
-    }
+.. code-block:: xml
 
-.. attention::
+    <settings>
+        <setting name="selectDataSource" value="?"/>
+    </settings>
 
-    注意：数据库读写分离虽然可以提高应用程序的性能，但同时也会带来事务处理的问题。如上面的中间件的实现会覆盖所有的session，如果当前的session是一个事务，那么会导致事务的操作失效，具体的业务逻辑需要开发者自己实现。
+语句级别配置
+^^^^^^^^^^
+
+1. **指定数据源**
+
+   明确指定从库进行读取：
+
+   .. code-block:: xml
+
+        <select id="GetUserByID" dataSource="slave1">
+            select * from user where id = #{id}
+        </select>
+
+2. **随机路由**
+
+   使用 ``?`` 从所有可用数据源中随机选择（包括主库）：
+
+   .. code-block:: xml
+
+        <select id="GetUserByID" dataSource="?">
+            select * from user where id = #{id}
+        </select>
+
+3. **仅从库随机路由**
+
+   使用 ``?!`` 从从库中随机选择（排除主库）：
+
+   .. code-block:: xml
+
+        <select id="GetUserByID" dataSource="?!">
+            select * from user where id = #{id}
+        </select>
+
+注意：语句级别的配置优先级高于全局配置。如果语句没有配置 ``dataSource`` 属性，则使用全局配置中的 ``selectDataSource`` 值。
+
+
+事务安全
+~~~~~~~
+
+中间件具有事务感知能力，当检测到当前操作在事务中时，将不会进行数据源切换，直接使用当前事务的数据源，以保证事务的完整性和数据一致性。
+
+最佳实践
+~~~~~~~
+
+1. 所有写操作使用主库
+2. 读密集型操作使用 ``?!`` 在从库间分散负载
+3. 当需要特定从库特性时，使用显式路由（如 ``slave1``、 ``slave2`` ）
+4. 当读一致性要求不高时，可以使用 ``?`` 让主库也参与负载均衡
+
+使用场景
+~~~~~~~
+
+读写分离特别适用于：
+
+- 读操作密集的场景
+- 需要扩展读取能力
+- 需要减轻主库负载
+- 提升整体应用性能
 
 
 链路追踪
