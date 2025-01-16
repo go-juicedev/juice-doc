@@ -1,92 +1,124 @@
-缓存
+缓存机制
 =========
 
-juice提供了一个事务级别的查询缓存机制。开启缓存，在同一个事务中对同一个action采用相同的参数进行查询，第二次则不会去查询数据库。
+事务级缓存
+---------
+
+Juice 提供了事务级别的查询缓存机制，可以显著提升同一事务中重复查询的性能。当开启缓存后，相同参数的查询在同一事务中只会实际执行一次。
 
 开启缓存
 --------
 
-juice的缓存默认是不开启的，需要显式的告诉juice当前的事务开启缓存查询。
+缓存功能默认是关闭的，需要通过 ``CacheTx`` 显式开启：
 
 .. code-block:: go
 
+    // 不使用缓存的事务
     tx := engine.Tx()
     defer tx.Rollback()
 
-    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
+    // 使用缓存的事务
+    cacheTx := engine.CacheTx()
+    defer cacheTx.Rollback()
 
-    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
-
-    tx.Commit()
-
-以上是不开启缓存的写法, 开启缓存，我们只需要改一行代码。
+使用示例：
 
 .. code-block:: go
 
     tx := engine.CacheTx()
-    defer tx.Rollbakc()
+    defer tx.Rollback()
 
-    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
+    // 第一次查询，会访问数据库
+    result1, _ := juice.NewGenericManager[int](tx).
+        Object("QueryCount").
+        QueryContext(context.Background(), nil)
 
-    juice.NewGenericManager[int](tx).Object("obj id").QueryContext(context.Background(), nil)
+    // 第二次查询，直接使用缓存
+    result2, _ := juice.NewGenericManager[int](tx).
+        Object("QueryCount").
+        QueryContext(context.Background(), nil)
 
     tx.Commit()
 
-使用CacheTx来声明开启缓存性事务。补全上述伪代码，如果你使用了 `DebugMiddleware`，你会发现上面的查询语句只查询了一次。
+.. note::
+    使用 ``DebugMiddleware`` 可以观察到实际的SQL执行次数
 
+缓存失效机制
+-----------
 
-缓存失效
---------
-默认情况下，当在同一个事务中对数据库进行了一次修改的操作的时候，juice会将当前事务的缓存清空，后面在去查的话，前面的缓存结果就会失效。
+缓存自动失效的场景：
 
-那么juice是如何知道数据库进行了修改操作呢？
+1. **写操作触发**：
+   - 执行非 ``select`` 操作时自动失效
+   - 可通过 ``flushCache="false"`` 阻止失效
 
-当juice去调用非 `select` 的action时，juice会认为这是一次修改操作，所以要正确的使用action标签。
+2. **事务结束**：
+   - 事务提交（Commit）时失效
+   - 事务回滚（Rollback）时失效
 
-当然，我们也可以告诉juice当前的修改不要去清空当前事务的缓存，我们只需要在当前的action标签上面加上一个属性 `flushCache=false` 即可。
+配置示例：
 
 .. code-block:: xml
 
-    <update id="id" flushCache="false"></update>  
+    <!-- 不触发缓存失效的更新操作 -->
+    <update id="UpdateStatus" flushCache="false">
+        UPDATE users SET status = #{status}
+    </update>
 
-当事务提交或者回滚的时候，当前事务的缓存会被强制清空。
+自定义缓存实现
+------------
 
-自定义缓存
-----------
-
-默认情况下，juice的缓存是存在当前进程的所持有的内存里面。如果你自定义存储，请实现juice定义的cache接口。
+Juice 支持自定义缓存存储实现：
 
 .. code-block:: go
 
-    // ErrCacheNotFound is the error that cache not found.
-    var ErrCacheNotFound = errors.New("juice: cache not found")
-
+    // Cache 接口定义
     type Cache interface {
-        // Set sets the value for the key.
+        // Set 设置缓存
         Set(ctx context.Context, key string, value any) error
 
-        // Get gets the value for the key.
-        // If the value does not exist, it returns ErrCacheNotFound.
+        // Get 获取缓存，不存在返回 ErrCacheNotFound
         Get(ctx context.Context, key string, dst any) error
 
-        // Flush flushes all the cache.
+        // Flush 清空所有缓存
         Flush(ctx context.Context) error
     }
 
-    
-    _ Cache = (*mycacheImpl)(nil)
+自定义缓存示例：
 
-    engine.SetCacheFactory(func() cache.Cache() { return  mycacheImpl{}}) // note: 这里要返回一个新的cache实现。
+.. code-block:: go
+
+    type MyCache struct {
+        // 自定义字段
+    }
+
+    // 实现 Cache 接口
+    func (c *MyCache) Set(ctx context.Context, key string, value any) error {
+        // 实现存储逻辑
+    }
+
+    func (c *MyCache) Get(ctx context.Context, key string, dst any) error {
+        // 实现获取逻辑
+    }
+
+    func (c *MyCache) Flush(ctx context.Context) error {
+        // 实现清空逻辑
+    }
+
+    // 注册自定义缓存
+    engine.SetCacheFactory(func() cache.Cache {
+        return &MyCache{}  // 返回新的缓存实例
+    })
 
 .. attention::
+    重要说明：
 
-    注意： 缓存只有跟 `NewGenericManager` 搭配使用才有效
-
+    1. 缓存功能仅在使用 ``NewGenericManager`` 时有效
+    2. 自定义缓存实现必须是线程安全的
+    3. 缓存工厂函数必须返回新的缓存实例
 
 二级缓存
-----------
+-------
 
-Does not implement yet.
-
-
-
+.. note::
+    二级缓存功能尚未实现，敬请期待。
