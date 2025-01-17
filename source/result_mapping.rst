@@ -149,7 +149,7 @@ Bind 函数
     users, err := Bind[[]User](rows)
 
     // 映射到单个结构体
-    user, err := Bind[User](rows)
+    user, err := juice.Bind[User](rows)
 
 List 函数
 """""""""""
@@ -173,7 +173,7 @@ List 函数
     rows, _ := db.Query("SELECT id, name FROM users")
     defer rows.Close()
 
-    users, err := List[User](rows)
+    users, err := juice.List[User](rows)
 
 List2 函数
 """""""""""
@@ -199,8 +199,31 @@ List2 主要是为了做一些指针类型的泛型结果集的返回。
     rows, _ := db.Query("SELECT id, name FROM users")
     defer rows.Close()
 
-    users, err := List2[User](rows)
+    users, err := juice.List2[User](rows)
     // users 类型为 []*User
+
+Iter 函数
+"""""""""""
+
+``Iter`` 专门用于将结果集转换为迭代器返回，避免一次性加载所有数据到内存中。
+
+.. code-block:: go
+
+    rows, _ := db.Query("SELECT id, name FROM users")
+    defer rows.Close()
+
+    iterator, err := juice.Iter[User](rows)
+    if err != nil {
+        panic(err)
+    }
+
+    for user, err := range iterator {
+        if err != nil {
+            panic(err)
+        }
+        fmt.Println(user)
+    }
+
 
 选择指南
 """""""""""
@@ -219,6 +242,10 @@ List2 主要是为了做一些指针类型的泛型结果集的返回。
    - 需要修改切片元素
    - 处理大型结构体
    - 想避免值拷贝
+
+4. 使用 ``Iter`` 当:
+   - 需要迭代大量数据
+   - 需要处理逐个单行数据
 
 .. note::
     性能提示：
