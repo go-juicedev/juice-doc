@@ -283,8 +283,15 @@ Iter 函数
 .. code-block:: xml
 
     <insert id="BatchInsertUsers" batchSize="100">
-        INSERT INTO users(name, age) VALUES(#{name}, #{age})
+        INSERT INTO users(name, age) VALUES
+        <foreach collection="users" item="user" open="(" separator="," close=")">
+            (#{user.name}, #{user.age})
+        </foreach>
     </insert>
+
+
+注意：批量插入的参数类型必须是切片、数组或者是有且仅有一个 key 的 map，并且 map 的 value 类型必须是切片或者数组
+
 
 优化特性：
 
