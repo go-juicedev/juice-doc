@@ -232,6 +232,9 @@ Juice 支持多种读操作路由策略，可以在语句级别或全局级别�
 XML文档约束
 -----------
 
+DTD
+~~~~~
+
 XML 文档约束（XML Document Type Definition，DTD）是一种用于定义 XML 文档结构和规则的文档类型定义语言。通过使用 DTD，我们可以约束一个 XML 文档只能包括哪些元素、元素的属性、元素之间的关系和顺序等信息。
 
 在实际应用中，通常需要将 DTD 文件与 XML 文档关联起来，以便在解析 XML 文档时自动进行验证。在 XML 文档中，可以通过 <!DOCTYPE> 元素来指定 DTD 文件及其位置。
@@ -244,7 +247,7 @@ config xml
 
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE configuration PUBLIC "-//juice.org//DTD Config 1.0//EN"
-            "https://raw.githubusercontent.com/eatmoreapple/juice/main/config.dtd">
+            "https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/config.dtd">
 
 mapper xml
 
@@ -252,4 +255,39 @@ mapper xml
 
     <?xml version="1.0" encoding="utf-8" ?>
     <!DOCTYPE mapper PUBLIC "-//juice.org//DTD Config 1.0//EN"
-            "https://raw.githubusercontent.com/eatmoreapple/juice/main/mapper.dtd">
+            "https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/mapper.dtd">
+
+
+XSD
+~~~~
+
+XML Schema Definition (XSD) 是 DTD 的继任者，提供了更强大和灵活的 XML 文档验证机制。相比 DTD，XSD 具有以下优势：
+
+1. **类型系统**
+   
+   - 支持更丰富的数据类型
+   - 可以自定义复杂类型
+   - 支持类型继承和扩展
+
+2. **命名空间支持**
+   
+   - 更好的模块化支持
+   - 避免命名冲突
+   - 更容易管理大型 XML 结构
+
+3. **可读性**
+   
+   - 使用 XML 语法编写
+   - 更容易理解和维护
+   - 更好的工具支持
+
+在 Juice 中使用 XSD：
+
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration xmlns="http://juice.org/schema"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://juice.org/schema 
+                  https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/juice-mapper.xsd">
