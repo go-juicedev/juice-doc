@@ -150,7 +150,7 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
             return
         }
 
-        count, err := juice.NewGenericManager[int64](engine).Object(CountUserByName).Query(map[string]interface{}{
+        count, err := juice.NewGenericManager[int64](engine).Object(CountUserByName).QueryContext(context.TODO(), juice.H(map[string]interface{}{
             "name": "eatmoreapple",
         })
         if err != nil {
@@ -199,7 +199,7 @@ map-struct参数
 
 .. code-block:: go
 
-    count, err := juice.NewGenericManager[int64](engine).Object(CountUserByName).Query("eatmoreapple")
+    count, err := juice.NewGenericManager[int64](engine).Object(CountUserByName).QueryContext(context.TODO(), "eatmoreapple")
 
 .. code-block:: xml
 
