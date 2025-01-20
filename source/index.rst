@@ -155,8 +155,6 @@ http://github.com/go-juicedev/juice
 
    tx
 
-   cache
-
    dynamic_sql
 
    expr
