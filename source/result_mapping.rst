@@ -63,12 +63,6 @@ Object方法说明
 
 Juice提供了强大的泛型支持，使结果集映射更加类型安全：
 
-.. code-block:: go
-
-    type GenericManager[T any] interface {
-        Object(v any) GenericExecutor[T]
-    }
-
 映射场景示例
 """""""""""
 
