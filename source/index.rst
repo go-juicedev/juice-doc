@@ -159,6 +159,8 @@ http://github.com/go-juicedev/juice
 
    expr
 
+   raw_sql
+
    hot_reload
 
    middleware
