@@ -307,8 +307,6 @@ Context 参数
         DeleteUser(ctx context.Context, id int64) (error, bool)
     }
 
-返回值规范
----------
 
 查询操作 (action="select")
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -343,7 +341,7 @@ Context 参数
     }
 
 参数处理
--------
+~~~~~~~~~~
 当参数超过两个时，除 context 外的参数会被封装为 map：
 
 .. code-block:: go
@@ -361,7 +359,7 @@ Context 参数
     }
 
 Context 要求
-----------
+~~~~~~~~~~
 调用时必须使用带有 manager 实现的 context：
 
 .. code-block:: go
