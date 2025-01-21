@@ -259,10 +259,18 @@ namespace 也可以不指定，它会自动去找go.mod这个文件和你接口�
 
 .. code-block:: go
 
-    juicecli impl --type=UserRepository --output=user_repo.go 
+    juicecli impl --type=UserRepository --output=user_repo.go
 
+或者
+
+.. code-block:: go
+
+    juicecli impl -t UserRepository -o user_repo.go
 
 其实output也可以不写，它会默认输出到控制台。
+
+
+
 
 接口约束
 ----------
