@@ -274,20 +274,112 @@ namespace 也可以不指定，它会自动去找go.mod这个文件和你接口�
 
 接口约束
 ----------
-需要注意的是，虽然juicecli能够去解析接口签名来自动生成接口实现，但它是有它自己的规则的。
 
-1、接口的定义每个函数的第一个参数都必须是 `context.Context`。
+juicecli 工具可以自动解析接口签名并生成实现，但接口定义必须遵循以下规范。
 
-2、每个函数都必须有一个error的返回值，且必须作为最后一个参数。(go style)
 
-3、当函数名对应的id的 `action` 是 `select`，也就是查询的时候，那么当前函数必须有一个映射结果的返回值。(没有返回值你查乜呀？)
+Context 参数
+~~~~~~~~~~
+所有接口方法必须将 ``context.Context`` 作为第一个参数：
 
-4、当函数名对应的id的 `action` 不是 `select`，那么当前的函数可以有只有一个error的函数值。
-如果有2个返回值，那么第一个必须为 `sql.Result` 类型。
+.. code-block:: go
 
-5、函数可以有多个参数，当参数超过2个（第一个为context）的时候，juice会将除context以外的参数用map来包装一层，map的key即为函数定义时行参的名字。
+    type UserRepository interface {
+        // ✓ 正确：context.Context 作为第一个参数
+        GetUser(ctx context.Context, id int64) (*User, error)
 
-6、在调用的时候，context必须是一个带有manager实现的context。可以通过 `juice.ContextWithManager` 返回的context来传递。
+        // ✗ 错误：缺少 context.Context
+        GetUser(id int64) (*User, error)
+    }
+
+错误返回值
+~~~~~~~~~
+遵循 Go 语言规范，error 必须是最后一个返回值：
+
+.. code-block:: go
+
+    type UserRepository interface {
+        // ✓ 正确：error 作为最后一个返回值
+        CreateUser(ctx context.Context, user *User) error
+        UpdateUser(ctx context.Context, user *User) (sql.Result, error)
+
+        // ✗ 错误：error 不是最后一个返回值
+        DeleteUser(ctx context.Context, id int64) (error, bool)
+    }
+
+返回值规范
+---------
+
+查询操作 (action="select")
+~~~~~~~~~~~~~~~~~~~~~~~~
+必须有数据返回值，且在 error 之前：
+
+.. code-block:: go
+
+    type UserRepository interface {
+        // ✓ 正确：有查询结果返回值
+        GetUser(ctx context.Context, id int64) (*User, error)
+        ListUsers(ctx context.Context) ([]*User, error)
+
+        // ✗ 错误：查询操作缺少结果返回值
+        FindUser(ctx context.Context, id int64) error
+    }
+
+非查询操作 (INSERT/UPDATE/DELETE)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+可以只返回 error，或返回 sql.Result：
+
+.. code-block:: go
+
+    type UserRepository interface {
+        // ✓ 正确：只返回 error
+        DeleteUser(ctx context.Context, id int64) error
+
+        // ✓ 正确：返回 sql.Result 和 error
+        UpdateUser(ctx context.Context, user *User) (sql.Result, error)
+
+        // ✗ 错误：非查询操作返回值类型错误
+        CreateUser(ctx context.Context, user *User) (int64, error)
+    }
+
+参数处理
+-------
+当参数超过两个时，除 context 外的参数会被封装为 map：
+
+.. code-block:: go
+
+    type UserRepository interface {
+        // 定义的接口方法
+        SearchUsers(ctx context.Context, name string, age int, city string) ([]*User, error)
+    }
+
+    // Juice 内部处理为：
+    params := map[string]any{
+        "name": name,
+        "age":  age,
+        "city": city,
+    }
+
+Context 要求
+----------
+调用时必须使用带有 manager 实现的 context：
+
+.. code-block:: go
+
+    // ✓ 正确：使用 ContextWithManager
+    ctx := juice.ContextWithManager(context.Background(), manager)
+    users, err := repo.SearchUsers(ctx, "John", 25, "New York")
+
+    // ✗ 错误：直接使用普通 context
+    ctx := context.Background()
+    users, err := repo.SearchUsers(ctx, "John", 25, "New York")
+
+注意事项
+-------
+* juicecli 工具会根据这些规范自动生成实现代码
+* 不符合规范的接口定义可能导致生成失败或运行时错误
+* 参数名称会影响生成的 SQL 参数映射，请确保命名准确
+
 
 go generate
 -----------------
