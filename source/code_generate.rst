@@ -280,7 +280,7 @@ namespace 也可以不指定，它会自动去找go.mod这个文件和你接口�
 
 2、每个函数都必须有一个error的返回值，且必须作为最后一个参数。(go style)
 
-3、当函数名对应的id的 `action` 是 `select`，也就是查询的时候，那么当前函数必须有一个映射结果的返回值。(没有返回值你查什么呢？)
+3、当函数名对应的id的 `action` 是 `select`，也就是查询的时候，那么当前函数必须有一个映射结果的返回值。(没有返回值你查乜呀？)
 
 4、当函数名对应的id的 `action` 不是 `select`，那么当前的函数可以有只有一个error的函数值。
 如果有2个返回值，那么第一个必须为 `sql.Result` 类型。
@@ -294,7 +294,7 @@ go generate
 
 .. code-block:: go
 
-    //go:generate juicecli impl --type UserRepository --output user_repo.go
+    //go:generate juicecli impl -t UserRepository -o user_repo.go
     type UserRepository interface {
         CreateUser(ctx context.Context, user *User) (sql.Result, error)
         DeleteUserByID(ctx context.Context, id int64) (sql.Result, error)
