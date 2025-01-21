@@ -182,6 +182,34 @@ SQL片段复用（sql/include）
         </select>
     </mapper>
 
+
+跨namespace 引用
+~~~~~~~~~~~~~~~~
+
+在多个namespace之间，可以使用 ``sql/include`` 元素来引用另一个namespace中的SQL片段。
+
+.. code-block:: xml
+
+    <mapper namespace="user">
+        <sql id="userColumns">
+            id, name, age, email, create_time
+        </sql>
+    </mapper>
+
+    <mapper namespace="admin">
+        <select id="GetUsers">
+            select
+            <include refid="user.userColumns"/>
+            from user
+            where status = 1
+        </select>
+    </mapper>
+
+.. tip::
+    sql 的 id 属性是必须的，但是必须是合法的变量名。
+
+
+
 动态插入（values/value）
 ----------------------
 
