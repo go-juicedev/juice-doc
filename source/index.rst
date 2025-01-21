@@ -102,6 +102,7 @@ http://github.com/go-juicedev/juice
          fmt.Println(err)
          return
       }
+      defer engine.Close()
 
       message, err := juice.NewGenericManager[string](engine).Object(HelloWorld).QueryContext(context.Background(), nil)
       if err != nil {
