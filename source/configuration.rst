@@ -174,8 +174,12 @@ Juice 提供了 ``With`` 方法用于在运行时切换数据源：
     // 初始化引擎
     engine, _ := juice.New(cfg)
 
+    fmt.Println("默认数据源:", engine.EnvID())
+
     // 切换到 slave1 数据源
     slave1Engine, err := engine.With("slave1")
+    
+    fmt.Println("切换到 slave1 数据源:", slave1Engine.EnvID())
 
 .. note::
     ``With`` 方法会返回一个新的 Engine 实例，原有的 Engine 实例不会受到影响。这种设计确保了数据源切换的安全性和隔离性。
