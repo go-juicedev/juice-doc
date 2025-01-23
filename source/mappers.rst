@@ -181,16 +181,44 @@ map-struct参数
         Name string `param:"name"`
     }
 
+
+    var user = User{
+        Name: "eatmoreapple",
+    }
+
+
+    engine.Raw("select * from user where name = #{name}").Select(context.TODO(), user)
+
+
+    userMap := map[string]interface{}{
+        "name": "eatmoreapple",
+    }
+
+    engine.Raw("select * from user where name = #{name}").Select(context.TODO(), userMap)
+
 指定结构体字段的tag为param，那么这个字段就会被当作sql语句中的参数名，而不是字段名。
 
 
 .. attention::
     当你的参数是一个map的时候，这个map的key必须是string类型的。
 
-非map-struct的参数传递
-"""""""""""""""""""""""
+slice-array 参数传递
+"""""""""""""""""""""
 
-既然map和struct都可以转换成key-value结构，那么如果我们传递一个非struct的参数或者非map的参数，那么这个参数传递到xml中的key是什么呢？
+既然map和struct都可以转换成key-value结构，那么如果我们传递一个slice或者array的参数，那么这个参数传递到xml中的key是什么呢？
+
+我们可以直接用索引访问的形式来访问传递的参数，如下所示：
+
+.. code-block:: go
+
+    engine.Raw("select * from user limit #{0}, #{1}").Select(context.TODO(), []int{0, 10})
+
+
+
+非map-struct、slice-array的参数传递
+"""""""""""""""""""""""""""""""""""
+
+既然map和struct都可以转换成key-value结构，slice-array 可以用过索引访问的时候，那么如果我们传递一个非struct的参数或者非map的参数，那么这个参数传递到xml中的key是什么呢？
 
 这个时候，juice就会将这个参数包装成一个 `map`，这个 `map` 的key就是 ``param`` ，这个 `map` 的value就是我们传递的参数。
 
@@ -199,7 +227,11 @@ map-struct参数
 
 .. code-block:: go
 
-    count, err := juice.NewGenericManager[int64](engine).Object(CountUserByName).QueryContext(context.TODO(), "eatmoreapple")
+    engine.Raw("select * from user where name = #{param}").Select(context.TODO(), "eatmoreapple")
+
+    // or
+
+    engine.Object(CountUserByName).QueryContext(context.TODO(), "eatmoreapple")
 
 .. code-block:: xml
 
