@@ -87,6 +87,16 @@ sql.DB 执行
 那么它跟上面的 ``engine.Raw()`` 方法有什么区别？
 
 
-- ``engine.Raw()`` 可以屏蔽底层驱动占位符的差异，而 ``DB.Exec()`` 和 ``DB.Query()`` 不会需要开发者手动指定占位符。
+.. code-block:: go
+
+    engine.DB().Query("SELECT * FROM user WHERE id = ?", 1)
+
+
+.. code-block:: go
+
+    engine.Raw("SELECT * FROM user WHERE id = {id}").Select(context.TODO(), juice.H{"id": 1})
+
+
+- ``engine.Raw()`` 可以屏蔽底层驱动占位符的差异，而 ``DB.Exec()`` 和 ``DB.Query()`` 需要开发者手动指定占位符。
 
 - ``engine.Raw()`` 会走中间件，而 ``DB.Exec()`` 和 ``DB.Query()`` 不会走。
