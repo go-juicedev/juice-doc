@@ -155,7 +155,7 @@ map-struct参数
         "name": "eatmoreapple",
     }
 
-    engine.Object("main.CountUserByName").QueryContext(context.TODO(), user)
+    engine.Object("main.CountUserByName").QueryContext(context.TODO(), userMap)
 
 指定结构体字段的tag为param，那么这个字段就会被当作sql语句中的参数名，而不是字段名。
 
