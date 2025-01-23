@@ -138,20 +138,24 @@ map-struct参数
         Name string `param:"name"`
     }
 
+    func CountUserByName() {}
 
     var user = User{
         Name: "eatmoreapple",
     }
 
 
-    engine.Raw("select * from user where name = #{name}").Select(context.TODO(), user)
+    engine.Object("main.CountUserByName").QueryContext(context.TODO(), user)
 
+    // or
+
+    engine.Object(CountUserByName).QueryContext(context.TODO(), user)
 
     userMap := map[string]interface{}{
         "name": "eatmoreapple",
     }
 
-    engine.Raw("select * from user where name = #{name}").Select(context.TODO(), userMap)
+    engine.Object("main.CountUserByName").QueryContext(context.TODO(), user)
 
 指定结构体字段的tag为param，那么这个字段就会被当作sql语句中的参数名，而不是字段名。
 
@@ -166,9 +170,18 @@ slice-array 参数传递
 
 我们可以直接用索引访问的形式来访问传递的参数，如下所示：
 
+
+.. code-block:: xml
+
+     <mapper namespace="main">
+        <select id="CountUserByName">
+            select count(*) from user where name = #{0}
+        </select>
+    </mapper>
+
 .. code-block:: go
 
-    engine.Raw("select * from user limit #{0}, #{1}").Select(context.TODO(), []int{0, 10})
+     engine.Object("main.CountUserByName").QueryContext(context.TODO(), []string{"eatmoreapple"})
 
 
 
@@ -184,11 +197,8 @@ slice-array 参数传递
 
 .. code-block:: go
 
-    engine.Raw("select * from user where name = #{param}").Select(context.TODO(), "eatmoreapple")
+    engine.Object("main.CountUserByName").QueryContext(context.TODO(), "eatmoreapple"})
 
-    // or
-
-    engine.Object(CountUserByName).QueryContext(context.TODO(), "eatmoreapple")
 
 .. code-block:: xml
 
