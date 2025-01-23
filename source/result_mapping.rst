@@ -236,8 +236,7 @@ Iter 函数
    - 想避免值拷贝
 
 4. 使用 ``Iter`` 当:
-   - 需要迭代大量数据
-   - 需要处理逐个单行数据
+   - 需要迭代处理大量数据
 
 .. note::
     性能提示：
@@ -256,7 +255,7 @@ Iter 函数
 .. code-block:: xml
 
     <insert id="CreateUser" useGeneratedKeys="true" keyProperty="ID">
-        INSERT INTO users(name, age) VALUES(#{name}, #{age})
+        INSERT INTO users (name, age) VALUES (#{name}, #{age})
     </insert>
 
 使用条件：
@@ -275,7 +274,7 @@ Iter 函数
 .. code-block:: xml
 
     <insert id="BatchInsertUsers" batchSize="100">
-        INSERT INTO users(name, age) VALUES
+        INSERT INTO users (name, age) VALUES
         <foreach collection="users" item="user" open="(" separator="," close=")">
             (#{user.name}, #{user.age})
         </foreach>
