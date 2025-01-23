@@ -30,7 +30,7 @@ Juice 提供了多种方式来映射查询结果到 Go 结构体：
     }
 
     // 创建查询
-    runner := engine.Raw("SELECT * FROM user WHERE id = #{id}")
+    runner := engine.Raw("SELECT id, name FROM user WHERE id = #{id}")
 
     // 方式 1: 直接绑定到切片
     users, err := juice.NewGenericRunner[[]User](runner).
@@ -62,7 +62,7 @@ Juice 提供了多种方式来映射查询结果到 Go 结构体：
     }
 
     // 在事务中执行查询
-    runner := tx.Raw("SELECT * FROM user WHERE id = #{id}")
+    runner := tx.Raw("SELECT id, name FROM user WHERE id = #{id}")
     // 后续用法与非事务相同
 
     // 别忘了提交或回滚事务
@@ -88,12 +88,12 @@ sql.DB 执行
 
 .. code-block:: go
 
-    engine.DB().Query("SELECT * FROM user WHERE id = ?", 1)
+    engine.DB().Query("SELECT id, name FROM user WHERE id = ?", 1)
 
 
 .. code-block:: go
 
-    engine.Raw("SELECT * FROM user WHERE id = {id}").Select(context.TODO(), juice.H{"id": 1})
+    engine.Raw("SELECT id, name FROM user WHERE id = {id}").Select(context.TODO(), juice.H{"id": 1})
 
 
 - ``engine.Raw()`` 可以屏蔽底层驱动占位符的差异，而 ``DB.Exec()`` 和 ``DB.Query()`` 需要开发者手动指定占位符。
