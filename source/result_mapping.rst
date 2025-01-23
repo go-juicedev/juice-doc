@@ -206,16 +206,14 @@ Iter 函数
     rows, _ := db.Query("SELECT id, name FROM users")
     defer rows.Close()
 
-    iterator, err := juice.Iter[User](rows)
-    if err != nil {
-        panic(err)
+    iterator := juice.Iter[User](rows)
+
+    for user := range iterator.Iter() {
+        fmt.Println(user)
     }
 
-    for user, err := range iterator {
-        if err != nil {
-            panic(err)
-        }
-        fmt.Println(user)
+    if err := iterator.Err(); err != nil {
+        fmt.Println(err)
     }
 
 
