@@ -125,49 +125,6 @@ select标签用来存储select语句。 select标签必须在mapper标签中才�
 参数传递
 ~~~~~~~~~~~~~~~~
 
-.. code-block:: go
-
-    package main
-
-    import (
-        "fmt"
-        "github.com/go-juicedev/juice"
-        _ "github.com/go-sql-driver/mysql"
-    )
-
-    func CountUserByName() {}
-
-    func main() {
-        cfg, err := juice.NewXMLConfiguration("config.xml")
-        if err != nil {
-            fmt.Println(err)
-            return
-        }
-
-        engine, err := juice.DefaultEngine(cfg)
-        if err != nil {
-            fmt.Println(err)
-            return
-        }
-
-        count, err := juice.NewGenericManager[int64](engine).Object(CountUserByName).QueryContext(context.TODO(), juice.H(map[string]interface{}{
-            "name": "eatmoreapple",
-        })
-        if err != nil {
-            fmt.Println(err)
-            return
-        }
-        fmt.Println(count)
-    }
-
-
-
-如上所示，我们在创建完 `engine` 之后, 使用 `NewGenericManager` 来创建一个 `GenericManager` , 这个方法接受一个泛型参数, 这个参数是用来指定返回值的类型的, 这里我们指定的是 ``int64`` 。然后，我们使用 `Object` 方法来指定我们要执行的sql语句，这个方法接受一个参数，这里我们传入了 `CountUserByName` 这个函数，因为 `CountUserByName` 这个函数在main包下，并且它不属于任何自定义结构，所以它的全名就是 `main.CountUserByName` 。
-
-对应到xml配置文件中，它就会去找main这个命名空间下的 `CountUserByName` 这个id。当然，我们也可以在直接调用 `Object` 方法的时候，传入一个字符串，这个字符串就是我们要执行的sql语句的id，如 `main.CountUserByName` 。
-
-最后，我们使用 `Query` 方法来执行sql语句，这个方法接受一个参数，这个参数就是我们要传递给sql语句的参数。
-
 map-struct参数
 """""""""""""""
 
