@@ -287,7 +287,8 @@ XML Schema Definition (XSD) 是 DTD 的继任者，提供了更强大和灵活�
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <configuration xmlns="http://juice.org/schema"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://juice.org/schema 
+    <configuration
+        xmlns="http://github.com/go-juciedev/juice/schema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://github.com/go-juciedev/juice/schema
                   https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/juice-mapper.xsd">
