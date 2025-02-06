@@ -170,4 +170,6 @@ http://github.com/go-juicedev/juice
 
    extension
 
+   idea-plugin
+
    eatmoreapple
