@@ -162,8 +162,6 @@ http://github.com/go-juicedev/juice
 
    raw_sql
 
-   hot_reload
-
    middleware
 
    code_generate
