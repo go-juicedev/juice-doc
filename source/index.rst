@@ -27,7 +27,6 @@ http://github.com/go-juicedev/juice
 - 中间件
 - 自定义表达式
 - 自定义函数
-- 热更新
 - 代码生成
 
 
@@ -38,7 +37,7 @@ http://github.com/go-juicedev/juice
 
 **版本要求**
 
-- go 1.23+
+- go 1.24+
 
 .. code-block:: bash
 
