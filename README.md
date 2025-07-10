@@ -109,12 +109,6 @@ func main() {
 
 或者，您可以查阅 `CONTRIBUTING.md` (如果存在) 获取更详细的贡献指南。
 
-### 许可证
-
-本项目采用 [Your License Name e.g., MIT License or Apache 2.0] 许可证。详情请参阅 `LICENSE` 文件 (如果存在)。
-
-*(开发者请注意：请根据您的项目实际情况替换 "Your License Name" 和确认 `LICENSE` 文件的存在与内容。)*
-
 ### 支持一下作者
 
 如果您觉得 Juice 对您有所帮助，可以考虑支持一下作者：
