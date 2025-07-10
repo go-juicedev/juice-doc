@@ -119,8 +119,6 @@ func main() {
 
 如果您觉得 Juice 对您有所帮助，可以考虑支持一下作者：
 
-.. image:: https://raw.githubusercontent.com/eatmoreapple/eatmoreapple/main/img/wechat_pay.jpg
-    :width: 200px
-    :alt: 微信赞赏码
+![微信赞赏码](https://raw.githubusercontent.com/eatmoreapple/eatmoreapple/main/img/wechat_pay.jpg)
 
 (二维码来自 `source/eatmoreapple.rst`)
