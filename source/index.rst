@@ -14,20 +14,28 @@ juice 是一个基于 golang 的 sql mapper 框架，它的目标是提供一个
 项目主页
 ------------------------------
 
-http://github.com/go-juicedev/juice
+https://github.com/go-juicedev/juice
+
+**文档链接**
+
+- 简体中文: https://juice-doc.readthedocs.io/en/latest/
+- English: https://juice-doc.readthedocs.io/projects/juice-doc-en/en/latest/
 
 
 特性
 ------------------------------
 
-- 轻量级，高性能，无第三方依赖
-- 动态 sql
-- 支持多数据源
-- 泛型结果集映射
-- 中间件
-- 自定义表达式
-- 自定义函数
-- 代码生成
+- 🚀 轻量级，高性能，无第三方依赖
+- 🔧 动态 SQL 支持，灵活构建复杂查询
+- 🗄️ 支持多数据源，主从数据库切换
+- 🎯 泛型结果集映射，类型安全
+- 🔗 中间件机制，可扩展架构
+- 📝 自定义表达式和函数
+- 🛠️ 代码生成工具
+- 🔒 事务管理
+- 🔍 SQL 调试和性能监控
+- 📊 多种数据库支持 (MySQL, PostgreSQL, SQLite, Oracle)
+- 🔧 连接池管理
 
 
 安装
@@ -84,6 +92,7 @@ http://github.com/go-juicedev/juice
       "context"
       "fmt"
       "github.com/go-juicedev/juice"
+
       _ "github.com/go-sql-driver/mysql"
    )
 
@@ -145,28 +154,27 @@ http://github.com/go-juicedev/juice
 
 .. toctree::
    :maxdepth: 2
-   :caption: Juice 简介
+   :caption: 核心功能
 
    configuration
-
    mappers
-
    result_mapping
-
    tx
-
    dynamic_sql
-
    expr
-
    raw_sql
-
    middleware
 
+.. toctree::
+   :maxdepth: 2
+   :caption: 高级功能
+
    code_generate
-
    extension
-
    idea-plugin
+
+.. toctree::
+   :maxdepth: 2
+   :caption: 其他
 
    eatmoreapple
