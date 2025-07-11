@@ -144,19 +144,19 @@ Juice 将根据 ``environments`` 的 ``default`` 属性来确定默认加载的�
         <environments default="master">
             <!-- 主库配置 -->
             <environment id="master">
-                <dataSource>root:qwe123@tcp(localhost:3306)/database</provider>
+                <dataSource>root:qwe123@tcp(localhost:3306)/database</dataSource>
                 <driver>mysql</driver>
             </environment>
 
             <!-- 从库1配置 -->
             <environment id="slave1">
-                <dataSource>root:qwe123@tcp(localhost:3307)/database</provider>
+                <dataSource>root:qwe123@tcp(localhost:3307)/database</dataSource>
                 <driver>mysql</driver>
             </environment>
 
             <!-- 从库2配置 -->
             <environment id="slave2">
-                <dataSource>root:qwe123@tcp(localhost:3308)/database</provider>
+                <dataSource>root:qwe123@tcp(localhost:3308)/database</dataSource>
                 <driver>mysql</driver>
             </environment>
         </environments>
