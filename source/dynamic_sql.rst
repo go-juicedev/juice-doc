@@ -209,41 +209,6 @@ SQL片段复用（sql/include）
     sql 的 id 属性是必须的，但是必须是合法的变量名。
 
 
-
-动态插入（values/value）
-----------------------
-
-``values`` 和 ``value`` 元素用于构建灵活的INSERT语句：
-
-.. code-block:: xml
-
-    <insert id="InsertUser">
-        insert into user
-        <values>
-            <value column="id" value="#{id}"/>
-            <value column="create_time" value="NOW()"/>
-            <value column="status" value="1"/>
-            <value column="name"/>  <!-- 自动使用参数名 -->
-        </values>
-    </insert>
-
-字段别名（alias/field）
----------------------
-
-``alias`` 和 ``field`` 元素用于设置表和字段别名：
-
-.. code-block:: xml
-
-    <select id="GetUserInfo">
-        select
-        <alias>
-            <field column="user_id" alias="id"/>
-            <field column="user_name" alias="name"/>
-            <field column="create_time"/>  <!-- 使用原列名 -->
-        </alias>
-        from user
-    </select>
-
 .. tip::
     动态SQL的最佳实践：
 
