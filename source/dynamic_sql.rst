@@ -209,6 +209,72 @@ SQL片段复用（sql/include）
     sql 的 id 属性是必须的，但是必须是合法的变量名。
 
 
+sql 片段参数化
+~~~~~~~~~~~~~~~~
+``sql`` 元素支持参数化，可以通过 ``<bind>`` 元素传递参数：
+.. code-block:: xml
+
+    <mapper namespace="user">
+        <sql id="selectByField">
+            select * from user where ${field} = #{value}
+        </sql>
+
+        <select id="GetUsersByDynamicField">
+            <bind name="field" value='name'/> <!-- 动态字段名 -->
+            <bind name="value" value='"eatmoreapple"'/> <!-- 静态值 -->
+            <include refid="selectByField"/>
+        </select>
+    </mapper>
+
+在上面的例子中，我们通过 <bind> 元素定义了两个参数 field 和 value，并在 sql 片段中使用它们来动态生成 SQL 语句。
+
+参数作用域和优先级
+
+作用域限制
+- bind 标签只能在包含它的语句中使用，不能跨语句使用
+- bind 标签只能在 select、insert、update、delete 的第一层子标签中定义
+
+ 参数查找优先级
+  参数查找时遵循以下优先级顺序：
+   1. bind 定义的参数 - 优先级最高
+   2. 传递的参数 - 用户传入的参数
+   3. 系统内置参数 - 如 _databaseId、_parameter 等
+
+  这意味着 bind 定义的参数可以覆盖用户传递的同名参数。
+
+  高级用法示例
+
+  1. 字符串处理
+
+    .. code-block:: xml
+
+       <select id="searchUsers">
+           <bind name="searchPattern" value='"%" + name + "%"'/>
+           <bind name="upperName" value='name.toUpperCase()'/>
+           SELECT * FROM users WHERE name LIKE #{searchPattern} OR UPPER(name) = #{upperName}
+       </select>
+
+  2. 数值计算
+
+    .. code-block:: xml
+
+       <select id="getPageUsers">
+           <bind name="offset" value='pageNum * pageSize'/>
+           <bind name="limit" value='pageSize'/>
+           SELECT * FROM users ORDER BY id LIMIT #{limit} OFFSET #{offset}
+       </select>
+
+  3. 复杂对象处理
+
+     .. code-block:: xml
+
+        <select id="complexSearch">
+            <bind name="userAge" value='user.age'/>
+            <bind name="userName" value='user.name'/>
+            <bind name="isActive" value='user.active'/>
+            SELECT * FROM users WHERE age >= #{userAge} AND name = #{userName} AND active = #{isActive}
+        </select>
+
 .. tip::
     动态SQL的最佳实践：
 
