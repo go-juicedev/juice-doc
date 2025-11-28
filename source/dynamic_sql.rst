@@ -246,34 +246,34 @@ sql 片段参数化
 
   1. 字符串处理
 
-    .. code-block:: xml
+.. code-block:: xml
 
-       <select id="searchUsers">
-           <bind name="searchPattern" value='"%" + name + "%"'/>
-           <bind name="upperName" value='name.toUpperCase()'/>
-           SELECT * FROM users WHERE name LIKE #{searchPattern} OR UPPER(name) = #{upperName}
-       </select>
+   <select id="searchUsers">
+       <bind name="searchPattern" value='"%" + name + "%"'/>
+       <bind name="upperName" value='name.toUpperCase()'/>
+       SELECT * FROM users WHERE name LIKE #{searchPattern} OR UPPER(name) = #{upperName}
+   </select>
 
   2. 数值计算
 
-    .. code-block:: xml
+.. code-block:: xml
 
-       <select id="getPageUsers">
-           <bind name="offset" value='pageNum * pageSize'/>
-           <bind name="limit" value='pageSize'/>
-           SELECT * FROM users ORDER BY id LIMIT #{limit} OFFSET #{offset}
-       </select>
+   <select id="getPageUsers">
+       <bind name="offset" value='pageNum * pageSize'/>
+       <bind name="limit" value='pageSize'/>
+       SELECT * FROM users ORDER BY id LIMIT #{limit} OFFSET #{offset}
+   </select>
 
   3. 复杂对象处理
 
-     .. code-block:: xml
+.. code-block:: xml
 
-        <select id="complexSearch">
-            <bind name="userAge" value='user.age'/>
-            <bind name="userName" value='user.name'/>
-            <bind name="isActive" value='user.active'/>
-            SELECT * FROM users WHERE age >= #{userAge} AND name = #{userName} AND active = #{isActive}
-        </select>
+    <select id="complexSearch">
+        <bind name="userAge" value='user.age'/>
+        <bind name="userName" value='user.name'/>
+        <bind name="isActive" value='user.active'/>
+        SELECT * FROM users WHERE age >= #{userAge} AND name = #{userName} AND active = #{isActive}
+    </select>
 
 .. tip::
     动态SQL的最佳实践：
