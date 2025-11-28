@@ -248,21 +248,21 @@ sql 片段参数化
 
 .. code-block:: xml
 
-   <select id="searchUsers">
+    <select id="searchUsers">
        <bind name="searchPattern" value='"%" + name + "%"'/>
        <bind name="upperName" value='name.toUpperCase()'/>
        SELECT * FROM users WHERE name LIKE #{searchPattern} OR UPPER(name) = #{upperName}
-   </select>
+    </select>
 
   2. 数值计算
 
 .. code-block:: xml
 
-   <select id="getPageUsers">
+    <select id="getPageUsers">
        <bind name="offset" value='pageNum * pageSize'/>
        <bind name="limit" value='pageSize'/>
        SELECT * FROM users ORDER BY id LIMIT #{limit} OFFSET #{offset}
-   </select>
+    </select>
 
   3. 复杂对象处理
 
