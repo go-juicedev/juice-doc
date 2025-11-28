@@ -212,6 +212,7 @@ SQL片段复用（sql/include）
 sql 片段参数化
 ~~~~~~~~~~~~~~~~
 ``sql`` 元素支持参数化，可以通过 ``<bind>`` 元素传递参数：
+
 .. code-block:: xml
 
     <mapper namespace="user">
@@ -234,17 +235,17 @@ sql 片段参数化
 - bind 标签只能在包含它的语句中使用，不能跨语句使用
 - bind 标签只能在 select、insert、update、delete 的第一层子标签中定义
 
- 参数查找优先级
-  参数查找时遵循以下优先级顺序：
-   1. bind 定义的参数 - 优先级最高
-   2. 传递的参数 - 用户传入的参数
-   3. 系统内置参数 - 如 _databaseId、_parameter 等
+参数查找优先级
+参数查找时遵循以下优先级顺序：
+    1. bind 定义的参数 - 优先级最高
+    2. 传递的参数 - 用户传入的参数
+    3. 系统内置参数 - 如 _databaseId、_parameter 等
 
-  这意味着 bind 定义的参数可以覆盖用户传递的同名参数。
+这意味着 bind 定义的参数可以覆盖用户传递的同名参数。
 
-  高级用法示例
+高级用法示例
 
-  1. 字符串处理
+1. 字符串处理
 
 .. code-block:: xml
 
@@ -254,7 +255,7 @@ sql 片段参数化
        SELECT * FROM users WHERE name LIKE #{searchPattern} OR UPPER(name) = #{upperName}
     </select>
 
-  2. 数值计算
+2. 数值计算
 
 .. code-block:: xml
 
@@ -264,7 +265,7 @@ sql 片段参数化
        SELECT * FROM users ORDER BY id LIMIT #{limit} OFFSET #{offset}
     </select>
 
-  3. 复杂对象处理
+3. 复杂对象处理
 
 .. code-block:: xml
 
