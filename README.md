@@ -23,7 +23,7 @@ Juice 是一个用 Go 语言编写的 SQL Mapper 框架。它的设计目标是�
 ```bash
 go get -u github.com/go-juicedev/juice
 ```
-*(请确保你的 Go 版本 >= 1.24)*
+*(请确保你的 Go 版本 >= 1.25)*
 
 #### 2. 配置 SQL Mapper
 
@@ -58,6 +58,7 @@ package main
 import (
 	"context"
 	"fmt"
+	
 	"github.com/go-juicedev/juice"
 	_ "github.com/go-sql-driver/mysql" // 导入 MySQL 驱动示例
 )
@@ -96,7 +97,7 @@ func main() {
 
 更详细的文档和高级用法，请参考：
 *   [Read the Docs](https://pkg.go.dev/github.com/go-juicedev/juice) (API 参考)
-*   [项目内详细文档](./source/index.rst) (如果项目使用 Sphinx 生成文档)
+*   [项目内详细文档](source/index.rst) (如果项目使用 Sphinx 生成文档)
 
 ### 如何贡献
 
@@ -107,7 +108,6 @@ func main() {
 4.  将您的更改推送到分支 (`git push origin feature/AmazingFeature`)。
 5.  开启一个 Pull Request。
 
-或者，您可以查阅 `CONTRIBUTING.md` (如果存在) 获取更详细的贡献指南。
 
 ### 支持一下作者
 
