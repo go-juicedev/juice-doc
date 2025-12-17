@@ -232,8 +232,10 @@ sql 片段参数化
 参数作用域和优先级
 
 作用域限制
-- bind 标签只能在包含它的语句中使用，不能跨语句使用
-- bind 标签只能在 select、insert、update、delete 的第一层子标签中定义
+- bind 标签不仅可以在语句的顶层定义，还可以嵌套在动态 SQL 标签（如 <if>、<where>、<foreach> 等）内部使用
+- 嵌套的 bind 标签具有局部作用域，只在当前标签及其子标签内有效
+- 父标签定义的 bind 变量对子标签可见，子标签可直接使用
+- 内部作用域定义的变量会覆盖外部作用域的同名变量
 
 参数查找优先级
 参数查找时遵循以下优先级顺序：
@@ -274,6 +276,24 @@ sql 片段参数化
         <bind name="userName" value='user.name'/>
         <bind name="isActive" value='user.active'/>
         SELECT * FROM users WHERE age >= #{userAge} AND name = #{userName} AND active = #{isActive}
+    </select>
+
+4. 作用域与覆盖示例
+
+.. code-block:: xml
+
+    <select id="scopedBindExample">
+        <bind name="pattern" value='"%"'/>
+        SELECT * FROM users
+        <where>
+            <if test='name != ""'>
+                <!-- 覆盖外部的 pattern 变量 -->
+                <bind name="pattern" value='"%" + name + "%"'/>
+                AND name LIKE #{pattern}
+            </if>
+        </where>
+        <!-- 这里的 pattern 仍然是 "%" -->
+        OR description LIKE #{pattern}
     </select>
 
 .. tip::
