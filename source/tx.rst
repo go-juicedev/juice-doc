@@ -4,21 +4,22 @@
 概述
 ----
 
-事务是数据库操作的基本单位，用于保证数据的一致性和完整性。Juice 提供了完整的事务支持，包括基本事务操作、嵌套事务和隔离级别控制。
+事务用于保证一组数据库操作的原子性、一致性、隔离性和持久性。Juice 提供两套事务使用方式：
+
+1. 手动事务（``engine.Tx()`` / ``engine.ContextTx(...)``）
+2. 函数式事务（``juice.Transaction(...)`` / ``juice.NestedTransaction(...)``）
 
 事务接口
--------
+----------------
 
-Juice 定义了两个核心接口来处理事务：
+Juice 的事务相关核心接口如下：
 
 .. code-block:: go
 
-    // Manager 接口定义了基本的数据库操作
     type Manager interface {
-        Object(v any) Executor
+        Object(v any) SQLRowsExecutor
     }
 
-    // TxManager 接口扩展了 Manager，添加了事务控制方法
     type TxManager interface {
         Manager
         Begin() error
@@ -26,123 +27,88 @@ Juice 定义了两个核心接口来处理事务：
         Rollback() error
     }
 
-基本事务操作
-----------
+手动事务
+----------------
 
-示例代码展示了如何使用事务：
+适合你需要显式控制 ``Begin/Commit/Rollback`` 的场景：
 
 .. code-block:: go
 
-    engine, err := juice.Default(cfg)
-    if err != nil {
-        panic(err)
-    }
-
-    // 开启事务
     tx := engine.Tx()
     if err := tx.Begin(); err != nil {
-        panic(err)
+        return err
     }
-
-    // 确保事务最终会被回滚或提交
     defer tx.Rollback()
 
-    // 事务内的操作
-    {
-        // 查询操作
-        result1, err := tx.Object("QueryUser").
-            QueryContext(context.TODO(), nil)
-        if err != nil {
-            return err
-        }
-
-        // 使用泛型管理器
-        result2, err := juice.NewGenericManager[User](tx).
-            Object("CreateUser").
-            QueryContext(context.TODO(), param)
-        if err != nil {
-            return err
-        }
+    if _, err := tx.Object(Repo{}.CreateUser).ExecContext(ctx, user); err != nil {
+        return err
     }
 
-    // 提交事务
+    if _, err := tx.Object(Repo{}.CreateOrder).ExecContext(ctx, order); err != nil {
+        return err
+    }
+
     return tx.Commit()
 
 .. note::
-    事务使用建议：
 
-    1. 总是使用 defer tx.Rollback()
-    2. 在提交前检查所有错误
-    3. 事务完成后不要再使用事务对象
+    建议始终使用 ``defer tx.Rollback()`` 作为兜底，成功路径再执行 ``tx.Commit()``。
 
-嵌套事务
--------
+函数式事务
+----------------
 
-Juice 支持嵌套事务，但需要注意正确管理：
+函数式事务会在回调中自动注入事务 manager，适合 service 层封装：
 
 .. code-block:: go
 
-    tx1 := engine.Tx()
-    if err := tx1.Begin(); err != nil {
+    baseCtx := juice.ContextWithManager(context.Background(), engine)
+
+    err := juice.Transaction(baseCtx, func(ctx context.Context) error {
+        repo := NewUserRepository()
+        _, err := repo.CreateUser(ctx, user)
         return err
-    }
-    defer tx1.Rollback()
-
-    // 嵌套事务
-    tx2 := engine.Tx()
-    if err := tx2.Begin(); err != nil {
-        return err
-    }
-    defer tx2.Rollback()
-
-    // 内层事务操作
-    if err := tx2.Commit(); err != nil {
-        return err
-    }
-
-    // 外层事务操作
-    return tx1.Commit()
-
-.. attention::
-    嵌套事务注意事项：
-
-    1. 每个事务对象都需要正确关闭
-    2. 遵循先开启后关闭的原则
-    3. 注意事务之间的依赖关系
-
-隔离级别控制
-----------
-
-Juice 支持完整的事务隔离级别控制，与 ``database/sql`` 包保持一致：
-
-.. code-block:: go
-
-    // 支持的隔离级别
-    const (
-        LevelDefault         sql.IsolationLevel = iota
-        LevelReadUncommitted
-        LevelReadCommitted
-        LevelWriteCommitted
-        LevelRepeatableRead
-        LevelSnapshot
-        LevelSerializable
-        LevelLinearizable
+    },
+        tx.WithIsolationLevel(sql.LevelReadCommitted),
+        tx.WithReadOnly(false),
     )
 
-使用示例：
+    if err != nil {
+        return err
+    }
+
+``Transaction`` 的行为是：回调返回 ``nil`` 时提交，返回非 ``nil`` 时回滚。
+
+嵌套调用语义
+----------------
+
+``NestedTransaction`` 的语义是“**已在事务中则复用当前事务，否则新开事务**”：
 
 .. code-block:: go
 
-    // 使用特定隔离级别开启事务
-    tx := engine.ContextTx(ctx, &sql.TxOptions{
-        Isolation: sql.LevelSerializable,
-        ReadOnly:  false,
+    err := juice.Transaction(baseCtx, func(ctx context.Context) error {
+        if err := serviceA(ctx); err != nil {
+            return err
+        }
+
+        return juice.NestedTransaction(ctx, func(ctx context.Context) error {
+            return serviceB(ctx)
+        })
     })
-    if err := tx.Begin(); err != nil {
-        return err
-    }
-    defer tx.Rollback()
 
-    // 事务操作...
+.. attention::
 
-    return tx.Commit()
+    ``NestedTransaction`` 不是数据库 savepoint 语义；它不会自动创建独立的内层提交点。
+
+隔离级别与只读选项
+----------------------
+
+你可以在事务开启时指定隔离级别和只读属性：
+
+.. code-block:: go
+
+    err := juice.Transaction(baseCtx, handler,
+        tx.WithIsolationLevel(sql.LevelSerializable),
+        tx.WithReadOnly(true),
+    )
+
+这些选项与 ``database/sql`` 的 ``sql.TxOptions`` 对齐。

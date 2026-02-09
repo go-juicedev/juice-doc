@@ -8,7 +8,7 @@ mappers 标签
 
 ``mappers`` 是 ``mapper`` 标签的父标签，它是一个集合标签，用来存放 ``mapper`` 标签。
 
-.. code-block:: xml
+.. code-block:: text
 
    <?xml version="1.0" encoding="UTF-8"?>
     <configuration>
@@ -103,7 +103,7 @@ Juice 支持四种类型的 SQL 语句标签：``select``、``insert``、``updat
 ----------------
 
 在 SQL 语句中使用参数
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 我们可以在 SQL 语句中使用参数，这些参数可以通过外部传递进来，我们只需要通过特定的语法来引用这些参数即可。
 
@@ -291,9 +291,9 @@ SQL 语句标签支持多种属性来控制执行行为：
    - 使用合适的数据类型
 
 示例：完整的 Mapper 配置
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: xml
+.. code-block:: text
 
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE mapper PUBLIC "-//juice.org//DTD Config 1.0//EN"
@@ -365,7 +365,5 @@ SQL 语句标签支持多种属性来控制执行行为：
     </mapper>
 
 通过以上的配置和使用方式，您可以充分利用 Juice 的 SQL Mapper 功能来构建高效、安全的数据访问层。
-
-
 
 

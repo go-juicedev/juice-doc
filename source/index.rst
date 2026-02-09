@@ -226,7 +226,7 @@ Juice 在设计时特别注重性能优化：
 1. 编写sql mapper配置文件
 
 
-.. code-block:: xml
+.. code-block:: html
 
    <?xml version="1.0" encoding="UTF-8"?>
    <configuration>
@@ -304,7 +304,7 @@ Juice 在设计时特别注重性能优化：
 
 .. code-block:: bash
 
-   go run main.go
+   go run .
 
 4. 输出结果
 
@@ -326,7 +326,7 @@ Juice 在设计时特别注重性能优化：
 
 **配置文件 (user_mapper.xml)**
 
-.. code-block:: xml
+.. code-block:: text
 
    <?xml version="1.0" encoding="UTF-8"?>
    <mapper namespace="repository.UserRepository">

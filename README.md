@@ -96,7 +96,7 @@ func main() {
 ### 文档
 
 更详细的文档和高级用法，请参考：
-*   [Read the Docs](https://pkg.go.dev/github.com/go-juicedev/juice) (API 参考)
+*   [Go API 文档](https://pkg.go.dev/github.com/go-juicedev/juice) (pkg.go.dev)
 *   [项目内详细文档](source/index.rst) (如果项目使用 Sphinx 生成文档)
 
 ### 如何贡献

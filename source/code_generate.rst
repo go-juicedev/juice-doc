@@ -117,28 +117,40 @@ juice提供了一个代码生成工具来方便开发者简化开发。
     type UserRepositoryImpl struct{}
 
     func (u UserRepositoryImpl) CreateUser(ctx context.Context, user *User) (result0 sql.Result, result1 error) {
-        manager := juice.ManagerFromContext(ctx)
+        manager, err := juice.ManagerFromContext(ctx)
+        if err != nil {
+            return nil, err
+        }
         var iface UserRepository = u
         executor := juice.NewGenericManager[any](manager).Object(iface.CreateUser)
         return executor.ExecContext(ctx, user)
     }
 
     func (u UserRepositoryImpl) DeleteUserByID(ctx context.Context, id int64) (result0 sql.Result, result1 error) {
-        manager := juice.ManagerFromContext(ctx)
+        manager, err := juice.ManagerFromContext(ctx)
+        if err != nil {
+            return nil, err
+        }
         var iface UserRepository = u
         executor := juice.NewGenericManager[any](manager).Object(iface.DeleteUserByID)
         return executor.ExecContext(ctx, id)
     }
 
     func (u UserRepositoryImpl) UpdateUserNameByID(ctx context.Context, id int64, name string) (result0 sql.Result, result1 error) {
-        manager := juice.ManagerFromContext(ctx)
+        manager, err := juice.ManagerFromContext(ctx)
+        if err != nil {
+            return nil, err
+        }
         var iface UserRepository = u
         executor := juice.NewGenericManager[any](manager).Object(iface.UpdateUserNameByID)
         return executor.ExecContext(ctx, juice.H{"id": id, "name": name})
     }
 
     func (u UserRepositoryImpl) GetUserByID(ctx context.Context, id int64) (result0 *User, result1 error) {
-        manager := juice.ManagerFromContext(ctx)
+        manager, err := juice.ManagerFromContext(ctx)
+        if err != nil {
+            return nil, err
+        }
         var iface UserRepository = u
         executor := juice.NewGenericManager[User](manager).Object(iface.GetUserByID)
         ret, err := executor.QueryContext(ctx, id)
@@ -188,7 +200,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
             panic(err)
         }
 
-        engine, err := juice.DefaultEngine(cfg)
+        engine, err := juice.Default(cfg)
         if err != nil {
             panic(err)
         }
@@ -279,7 +291,7 @@ juicecli 工具可以自动解析接口签名并生成实现，但接口定义�
 
 
 Context 参数
-~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 所有接口方法必须将 ``context.Context`` 作为第一个参数：
 
 .. code-block:: go
@@ -293,7 +305,7 @@ Context 参数
     }
 
 错误返回值
-~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 遵循 Go 语言规范，error 必须是最后一个返回值：
 
 .. code-block:: go
@@ -309,7 +321,7 @@ Context 参数
 
 
 查询操作 (action="select")
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 必须有数据返回值，且在 error 之前：
 
 .. code-block:: go
@@ -324,7 +336,7 @@ Context 参数
     }
 
 非查询操作 (INSERT/UPDATE/DELETE)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 可以只返回 error，或返回 sql.Result：
 
 .. code-block:: go
@@ -359,7 +371,7 @@ Context 参数
     }
 
 Context 要求
-~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 调用时必须使用带有 manager 实现的 context：
 
 .. code-block:: go
@@ -373,7 +385,7 @@ Context 要求
     users, err := repo.SearchUsers(ctx, "John", 25, "New York")
 
 注意事项
--------
+--------------------
 * juicecli 工具会根据这些规范自动生成实现代码
 * 不符合规范的接口定义可能导致生成失败或运行时错误
 * 参数名称会影响生成的 SQL 参数映射，请确保命名准确

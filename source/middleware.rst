@@ -202,14 +202,13 @@ juice中内置了一些中间件，比如：
             panic(err)
         }
 
-        engine, err := juice.DefaultEngine(cfg)
+        engine, err := juice.Default(cfg)
         if err != nil {
             panic(err)
         }
 
         engine.Use(mymiddleware)
     }
-
 
 
 
