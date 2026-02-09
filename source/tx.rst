@@ -112,3 +112,9 @@ Juice 的事务相关核心接口如下：
     )
 
 这些选项与 ``database/sql`` 的 ``sql.TxOptions`` 对齐。
+
+延伸阅读
+----------------
+
+- :doc:`tx_semantics`
+- :doc:`multi_source_tx`

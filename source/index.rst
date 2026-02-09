@@ -163,7 +163,7 @@ Juice 特别适合以下场景：
 
 - 🔒 **事务管理**
   
-  简洁的事务 API，支持嵌套和传播
+  简洁的事务 API，支持事务复用语义与隔离级别控制
 
 - 🔍 **SQL 调试和性能监控**
   
@@ -536,8 +536,11 @@ A: Juice 支持所有 database/sql 兼容的数据库：
 
    configuration
    mappers
+   security
    result_mapping
    tx
+   tx_semantics
+   multi_source_tx
    dynamic_sql
    expr
    raw_sql
@@ -547,6 +550,7 @@ A: Juice 支持所有 database/sql 兼容的数据库：
    :maxdepth: 2
    :caption: 高级功能
 
+   e2e_best_practice
    code_generate
    extension
    idea-plugin
