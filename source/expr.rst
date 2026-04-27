@@ -1,5 +1,5 @@
 表达式系统
-========
+==========
 
 概述
 ----
@@ -7,7 +7,7 @@
 从上面的动态sql里面我们可以看出 juice 支持在 ``if`` 和 ``when`` 标签中使用表达式，这些表达式的语法和 go 语言中的语法基本一致。
 
 使用限制
--------
+--------
 
 1. juice 只支持单行表达式，不支持多行表达式。
 
@@ -21,10 +21,10 @@
 3. 尽量写简单一点的表达式。
 
 基本运算符
---------
+----------
 
 比较运算符
-~~~~~~~~~
+~~~~~~~~~~
 
 juice 支持以下比较运算符：
 
@@ -38,7 +38,7 @@ juice 支持以下比较运算符：
     ``<`` 和 ``<=`` 不支持，因为它们会跟xml的语法冲突。那么怎么办呢？我们可以使用 ``&lt;`` 和 ``&lt;=`` 来代替 ``<`` 和 ``<=``。
 
 逻辑运算符
-~~~~~~~~~
+~~~~~~~~~~
 
 juice 支持以下逻辑运算符：
 
@@ -47,7 +47,7 @@ juice 支持以下逻辑运算符：
 3. ``!``: 逻辑非。
 
 算术运算符
-~~~~~~~~~
+~~~~~~~~~~
 
 juice 支持以下算术运算符：
 
@@ -58,7 +58,7 @@ juice 支持以下算术运算符：
 5. ``%``: 取余运算。
 
 保留关键字
-~~~~~~~~~
+~~~~~~~~~~
 
 保留关键字是指 juice 里面已经定义好的关键字，不能用作变量名：
 
@@ -69,60 +69,69 @@ juice 支持以下算术运算符：
 5. ``or``: 逻辑或。
 
 内置函数
--------
+--------
 
-juice 内置了一些常用函数：
+juice 内置了一些常用函数。这些函数由 ``github.com/go-juicedev/juice/eval`` 包注册，可直接在动态 SQL 表达式中使用。
 
-1. ``length``: 返回字符串的长度，或者数组、切片、map的长度。
+1. ``len``: 返回字符串、数组、切片、map 或 channel 的长度。
 
-    .. code::
+    .. code-block:: go
 
-       func length[T slice|map|string](T) int
+       func len(any) (int, error)
 
 2. ``substr``: 返回字符串的子串。
 
-    .. code::
+    .. code-block:: go
 
-       func substr(string, int, int) string
+       func substr(string, int, int) (string, error)
 
-3. ``join``: 将字符串数组或者切片用分隔符连接。
+3. ``join``: 将字符串数组或切片用分隔符连接。
 
-    .. code::
+    .. code-block:: go
 
-       func join[T slice](T, string) string
+       func join(any, string) (string, error)
 
-4. ``contains``: 判断是否包含指定元素。
+4. ``slice``: 对数组或切片进行切片操作。
 
-    .. code::
+    .. code-block:: go
 
-       func contains[T slice|map|string](T, interface{}) bool
+       func slice(any, int, int) ([]any, error)
 
-5. ``slice``: 切片操作。
+5. ``lower``: 转换为小写。
 
-    .. code::
+    .. code-block:: go
 
-       func slice[T slice](T, int, int) T
+       func lower(string) (string, error)
 
-6. ``title``: 首字母大写。
+6. ``upper``: 转换为大写。
 
-    .. code::
+    .. code-block:: go
 
-       func title(string) string
+       func upper(string) (string, error)
 
-7. ``lower``: 转换为小写。
+7. ``trim``、``trimLeft``、``trimRight``: 去除字符串两端或指定方向的字符。
 
-     .. code::
+    .. code-block:: go
 
-        func lower(string) string
+       func trim(string, string) (string, error)
 
-8. ``upper``: 转换为大写。
+8. ``replace`` 和 ``replaceAll``: 替换字符串中的子串。
 
-      .. code::
+    .. code-block:: go
 
-        func upper(string) string
+       func replace(string, string, string, int) (string, error)
+       func replaceAll(string, string, string) (string, error)
+
+9. ``split``、``splitN``、``splitAfter``: 分割字符串。
+
+    .. code-block:: go
+
+       func split(string, string) ([]string, error)
+       func splitN(string, string, int) ([]string, error)
+       func splitAfter(string, string) ([]string, error)
 
 自定义函数
----------
+----------
 
 注册条件：
 
@@ -138,10 +147,16 @@ juice 内置了一些常用函数：
     }
 
     func main() {
-        if err := juice.RegisterEvalFunc("add", add); err != nil {
+        if err := eval.RegisterEvalFunc("add", add); err != nil {
             panic(err)
         }
     }
+
+注册自定义函数时，需要显式导入 ``eval`` 包：
+
+.. code-block:: go
+
+    import "github.com/go-juicedev/juice/eval"
 
 使用示例：
 
@@ -151,7 +166,7 @@ juice 内置了一些常用函数：
     </if>
 
 函数调用
--------
+--------
 
 基本函数调用：
 
@@ -215,7 +230,7 @@ juice 内置了一些常用函数：
     }
 
 自定义类型方法
-------------
+--------------
 
 方法调用：
 
@@ -239,7 +254,7 @@ juice 内置了一些常用函数：
     }
 
 属性访问
--------
+--------
 
 结构体属性：
 
@@ -288,7 +303,7 @@ Map操作
     3. 点号访问支持方法调用
 
 数组操作
--------
+--------
 
 .. code-block:: xml
 
@@ -300,6 +315,18 @@ Map操作
     param := juice.H{
         "a": []string{"eatmoreapple"},
     }
+
+也支持切片表达式：
+
+.. code-block:: xml
+
+    <if test='len(a[1:]) > 0'>
+    </if>
+
+    <if test='len(a[start:end]) > 0'>
+    </if>
+
+下标和切片边界必须计算为整数类型。单个负数下标会从数组或切片末尾开始计数，例如 ``a[-1]`` 返回最后一个元素。
 
 .. tip::
     最佳实践：

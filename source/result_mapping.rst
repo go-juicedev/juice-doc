@@ -5,16 +5,19 @@
 原生SQL.Rows支持
 ----------------
 
-Juice 完全兼容 ``database/sql`` 包的 ``Rows`` 接口：
+Juice 通过自己的轻量 ``Rows`` 接口兼容 ``*database/sql.Rows``：
 
 .. code-block:: go
 
     type Rows interface {
-        Columns() ([]string, error)
-        Close() error
         Next() bool
-        Scan(dest ...interface{}) error
+        Scan(dest ...any) error
+        Close() error
+        Err() error
+        Columns() ([]string, error)
     }
+
+下文函数签名中的 ``sql.Rows`` 指的是 ``github.com/go-juicedev/juice/sql.Rows``。``*database/sql.Rows`` 实现了这个接口。
 
 基本用法示例：
 
@@ -39,7 +42,7 @@ Juice 完全兼容 ``database/sql`` 包的 ``Rows`` 接口：
     }
 
 Object方法说明
-"""""""""""""
+""""""""""""""
 
 ``Object`` 方法支持多种参数类型：
 
@@ -59,12 +62,12 @@ Object方法说明
     - 注意区分interface和struct
 
 泛型结果集映射
--------------
+--------------
 
 Juice提供了强大的泛型支持，使结果集映射更加类型安全：
 
 映射场景示例
-"""""""""""
+""""""""""""
 
 1. **单字段单行**：
 
@@ -109,9 +112,9 @@ Juice提供了强大的泛型支持，使结果集映射更加类型安全：
     - 不支持使用map接收结果（设计选择）
 
 自定义结果集映射
---------------
+----------------
 
-Juice 提供了三个核心的结果集映射函数：``Bind``、``List`` 和 ``List2``，它们各自适用于不同的场景。
+Juice 提供了四个核心的结果集映射函数：``Bind``、``List``、``List2`` 和 ``Iter``，它们各自适用于不同的场景。
 
 Bind 函数
 """""""""""
@@ -120,7 +123,7 @@ Bind 函数
 
 .. code-block:: go
 
-    func Bind[T any](rows *sql.Rows) (result T, err error)
+    func Bind[T any](rows sql.Rows) (result T, err error)
 
 特点：
 - 支持任意类型的映射（结构体、切片、基本类型等）
@@ -140,7 +143,7 @@ Bind 函数
     defer rows.Close()
 
     // 映射到切片
-    users, err := Bind[[]User](rows)
+    users, err := juice.Bind[[]User](rows)
 
     // 映射到单个结构体
     user, err := juice.Bind[User](rows)
@@ -152,7 +155,7 @@ List 函数
 
 .. code-block:: go
 
-    func List[T any](rows *sql.Rows) (result []T, err error)
+    func List[T any](rows sql.Rows) (result []T, err error)
 
 特点：
 - 始终返回切片类型 ``[]T``
@@ -176,7 +179,7 @@ List2 函数
 
 .. code-block:: go
 
-    func List2[T any](rows *sql.Rows) ([]*T, error)
+    func List2[T any](rows sql.Rows) ([]*T, error)
 
 List2 主要是为了做一些指针类型的泛型结果集的返回。
 
@@ -206,16 +209,37 @@ Iter 函数
     rows, _ := db.Query("SELECT id, name FROM users")
     defer rows.Close()
 
-    iterator := juice.Iter[User](rows)
+    iterator, err := juice.Iter[User](rows)
+    if err != nil {
+        return err
+    }
 
-    for user := range iterator.Iter() {
+    for user, err := range iterator {
+        if err != nil {
+            return err
+        }
         fmt.Println(user)
     }
 
-    if err := iterator.Err(); err != nil {
-        fmt.Println(err)
-    }
+``Iter`` 返回 ``iter.Seq2[T, error]``。迭代期间需要保持 rows 打开，并在使用结束后关闭。
 
+
+Context 快捷函数
+""""""""""""""""
+
+当 context 通过 ``juice.ContextWithManager`` 携带 manager 时，可以使用快捷函数，避免手动创建 executor。
+
+.. code-block:: go
+
+    ctx := juice.ContextWithManager(context.Background(), engine)
+
+    user, err := juice.QueryContext[User](ctx, "GetUser", juice.H{"id": 1})
+    users, err := juice.QueryListContext[User](ctx, "ListUsers", nil)
+    userPtrs, err := juice.QueryList2Context[User](ctx, "ListUsers", nil)
+
+    iter, err := juice.QueryIterContext[User](ctx, "ListUsers", nil)
+
+迭代器快捷函数会在迭代完成或提前停止时关闭底层 rows。返回的迭代器仍然需要被消费，否则包装器无法代为关闭 rows。
 
 选择指南
 """""""""""
@@ -248,7 +272,7 @@ Iter 函数
 
 
 自增主键映射
------------
+------------
 
 支持自动获取自增主键值：
 
@@ -267,7 +291,7 @@ Iter 函数
 5. 主键字段类型必须支持整数赋值
 
 批量插入优化
------------
+------------
 
 高效的批量数据插入支持：
 

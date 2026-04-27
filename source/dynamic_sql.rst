@@ -25,7 +25,7 @@ Juice提供了丰富的动态SQL支持，通过XML配置方式实现灵活的SQL
     条件表达式支持各种运算符和函数，如：``&&``、``||``、``!``、``>``, ``<``、``==``、``!=`` 等。
 
 动态WHERE（where）
-----------------
+------------------
 
 ``where`` 元素智能处理WHERE子句，自动添加WHERE关键字并去除多余的AND/OR：
 
@@ -51,7 +51,7 @@ Juice提供了丰富的动态SQL支持，通过XML配置方式实现灵活的SQL
     - 确保生成的SQL语法正确
 
 动态SET（set）
--------------
+--------------
 
 ``set`` 元素用于UPDATE语句，自动处理SET子句并去除多余的逗号：
 
@@ -80,7 +80,7 @@ Juice提供了丰富的动态SQL支持，通过XML配置方式实现灵活的SQL
     - 如果没有要更新的字段，会生成有效的SQL
 
 集合遍历（foreach）
------------------
+-------------------
 
 ``foreach`` 元素用于遍历集合，常用于IN条件和批量操作：
 
@@ -112,7 +112,7 @@ Juice提供了丰富的动态SQL支持，通过XML配置方式实现灵活的SQL
     - ``separator``: 分隔符
 
 条件修饰（trim）
---------------
+----------------
 
 ``trim`` 元素用于自定义SQL语句的修饰规则：
 
@@ -139,7 +139,7 @@ Juice提供了丰富的动态SQL支持，通过XML配置方式实现灵活的SQL
     - ``suffixOverrides``: 要去除的后缀
 
 多重条件选择（choose）
--------------------
+----------------------
 
 ``choose`` 元素提供类似switch的条件选择功能：
 
@@ -163,7 +163,7 @@ Juice提供了丰富的动态SQL支持，通过XML配置方式实现灵活的SQL
     </select>
 
 SQL片段复用（sql/include）
-------------------------
+--------------------------
 
 ``sql`` 和 ``include`` 元素用于SQL片段的定义和复用：
 
@@ -239,9 +239,10 @@ sql 片段参数化
 
 参数查找优先级
 参数查找时遵循以下优先级顺序：
-    1. bind 定义的参数 - 优先级最高
-    2. 传递的参数 - 用户传入的参数
-    3. 系统内置参数 - 如 _databaseId、_parameter 等
+
+1. bind 定义的参数 - 优先级最高
+2. 传递的参数 - 用户传入的参数
+3. 系统内置参数 - 如 _databaseId、_parameter 等
 
 这意味着 bind 定义的参数可以覆盖用户传递的同名参数。
 
@@ -347,7 +348,7 @@ sql 片段参数化
             </if>
             
             <!-- 分类过滤：支持多个分类 -->
-            <if test='categoryIds != nil and length(categoryIds) > 0'>
+            <if test='categoryIds != nil and len(categoryIds) > 0'>
                 AND p.category_id IN
                 <foreach collection="categoryIds" item="id" open="(" close=")" separator=",">
                     #{id}
@@ -355,7 +356,7 @@ sql 片段参数化
             </if>
             
             <!-- 品牌过滤 -->
-            <if test='brandIds != nil and length(brandIds) > 0'>
+            <if test='brandIds != nil and len(brandIds) > 0'>
                 AND p.brand_id IN
                 <foreach collection="brandIds" item="id" open="(" close=")" separator=",">
                     #{id}
@@ -368,7 +369,7 @@ sql 片段参数化
             </if>
             
             <!-- 标签过滤 -->
-            <if test='tags != nil and length(tags) > 0'>
+            <if test='tags != nil and len(tags) > 0'>
                 AND EXISTS (
                     SELECT 1 FROM product_tags pt
                     WHERE pt.product_id = p.id
@@ -429,7 +430,7 @@ sql 片段参数化
             </if>
             
             <!-- 权限类型过滤 -->
-            <if test='resourceTypes != nil and length(resourceTypes) > 0'>
+            <if test='resourceTypes != nil and len(resourceTypes) > 0'>
                 AND p.resource_type IN
                 <foreach collection="resourceTypes" item="type" open="(" close=")" separator=",">
                     #{type}
@@ -482,7 +483,7 @@ sql 片段参数化
             </if>
             
             <!-- 订单状态过滤 -->
-            <if test='statuses != nil and length(statuses) > 0'>
+            <if test='statuses != nil and len(statuses) > 0'>
                 AND o.status IN
                 <foreach collection="statuses" item="status" open="(" close=")" separator=",">
                     #{status}
@@ -545,7 +546,7 @@ sql 片段参数化
             </if>
             
             <!-- 排除特定用户ID -->
-            <if test='excludeIds != nil and length(excludeIds) > 0'>
+            <if test='excludeIds != nil and len(excludeIds) > 0'>
                 AND id NOT IN
                 <foreach collection="excludeIds" item="id" open="(" close=")" separator=",">
                     #{id}
@@ -830,7 +831,7 @@ SQL 调试技巧
     }
 
     func (m *SQLLogger) QueryContext(stmt juice.Statement, cfg juice.Configuration, next juice.QueryHandler) juice.QueryHandler {
-        return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+        return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
             start := time.Now()
             
             // 记录SQL和参数
@@ -863,7 +864,7 @@ SQL 调试技巧
     }
 
     func (m *SlowQueryMonitor) QueryContext(stmt juice.Statement, cfg juice.Configuration, next juice.QueryHandler) juice.QueryHandler {
-        return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+        return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
             start := time.Now()
             rows, err := next(ctx, query, args...)
             duration := time.Since(start)

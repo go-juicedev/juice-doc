@@ -10,7 +10,7 @@
 .. code:: go
 
     // QueryHandler defines the handler of the query.
-    type QueryHandler func(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+    type QueryHandler func(ctx context.Context, query string, args ...any) (sql.Rows, error)
 
     // ExecHandler defines the handler of the exec.
     type ExecHandler func(ctx context.Context, query string, args ...any) (sql.Result, error)
@@ -57,7 +57,7 @@ juice中内置了一些中间件，比如：
     		return next
     	}
     	// wrapper QueryHandler
-    	return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+    	return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
     		start := time.Now()
     		rows, err := next(ctx, query, args...)
     		spent := time.Since(start)
@@ -142,7 +142,7 @@ juice中内置了一些中间件，比如：
     	if timeout <= 0 {
     		return next
     	}
-    	return func(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+    	return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
     		ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Millisecond)
     		defer cancel()
     		return next(ctx, query, args...)
@@ -195,7 +195,7 @@ juice中内置了一些中间件，比如：
 .. code-block:: go
 
     func main() {
-        var mymiddleware Middleware = yourMiddlewareImpl{}
+        var mymiddleware juice.Middleware = yourMiddlewareImpl{}
 
         cfg, err := juice.NewXMLConfiguration("config.xml")
         if err != nil {
