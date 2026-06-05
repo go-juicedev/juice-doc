@@ -5,210 +5,192 @@
 什么是中间件
 ---------------
 
-在juice中，中间件是一个接口，接口的描述如下：
+在 Juice 中，中间件用于拦截 SQL 执行链。它可以在真正访问数据库前后增加日志、超时控制、链路追踪、数据源路由等横切逻辑。
 
-.. code:: go
+当前版本的核心接口如下：
 
-    // QueryHandler defines the handler of the query.
-    type QueryHandler func(ctx context.Context, query string, args ...any) (sql.Rows, error)
+.. code-block:: go
 
-    // ExecHandler defines the handler of the exec.
-    type ExecHandler func(ctx context.Context, query string, args ...any) (sql.Result, error)
+    type Handler[T any] func(ctx context.Context, query string, args ...any) (T, error)
 
-    // Middleware defines the interface for intercepting and processing SQL statement executions.
-    // It implements the interceptor pattern, allowing cross-cutting concerns like logging, 
-    // timeout management, and connection switching to be handled transparently.
+    type QueryHandler = Handler[sql.Rows]
+    type ExecHandler = Handler[sql.Result]
+
     type Middleware interface {
-    	// QueryContext intercepts and processes SELECT query executions.
-    	// It receives the statement, configuration, and the next handler in the chain.
-    	// Must return a QueryHandler that processes the actual query execution.
-    	QueryContext(stmt Statement, configuration Configuration, next QueryHandler) QueryHandler
-    	
-    	// ExecContext intercepts and processes INSERT/UPDATE/DELETE executions.
-    	// It receives the statement, configuration, and the next handler in the chain.
-    	// Must return an ExecHandler that processes the actual execution.
-    	ExecContext(stmt Statement, configuration Configuration, next ExecHandler) ExecHandler
+        QueryContext(ctx *StatementContext, next QueryHandler) QueryHandler
+        ExecContext(ctx *StatementContext, next ExecHandler) ExecHandler
     }
 
-中间件的作用是在执行SQL语句之前，对SQL语句进行一些处理，比如SQL语句的日志记录，SQL语句的缓存等等。
+``StatementContext`` 会携带当前执行所需的上下文信息：
 
-当执行的是查询操作的时候，``QueryContext`` 将会被执行。否则执行 ``ExecContext``
+.. code-block:: go
 
-juice中内置了一些中间件，比如：
-
-- :class:`juice/middleware/DebugMiddleware`：用于打印SQL语句的中间件。
-
-.. code:: go
-
-    // logger is a default logger for debug.
-    var logger = log.New(log.Writer(), "[juice] ", log.Flags())
-
-    // DebugMiddleware is a middleware that logs SQL statements with their execution time and parameters.
-    // It provides debugging capabilities by printing formatted SQL queries along with execution metrics.
-    // The middleware can be enabled/disabled through statement attributes or global configuration settings.
-    type DebugMiddleware struct{}
-
-    // QueryContext implements Middleware.
-    // QueryContext logs SQL SELECT statements with their execution time and parameters.
-    // The logging includes statement ID, SQL query, arguments, and execution duration.
-    // Logging is controlled by the debug mode setting from statement attributes or global configuration.
-    func (m *DebugMiddleware) QueryContext(stmt Statement, configuration Configuration, next QueryHandler) QueryHandler {
-    	if !m.isDeBugMode(stmt, configuration) {
-    		return next
-    	}
-    	// wrapper QueryHandler
-    	return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
-    		start := time.Now()
-    		rows, err := next(ctx, query, args...)
-    		spent := time.Since(start)
-    		logger.Printf("\x1b[33m[%s]\x1b[0m args: \u001B[34m%v\u001B[0m time: \u001B[31m%v\u001B[0m \x1b[32m%s\x1b[0m",
-    			stmt.Name(), query, args, spent, query)
-    		return rows, err
-    	}
+    type StatementContext struct {
+        // 具体字段未导出，通过方法访问。
     }
 
-    // ExecContext implements Middleware.
-    // ExecContext logs SQL INSERT/UPDATE/DELETE statements with their execution time and parameters.
-    // The logging includes statement ID, SQL query, arguments, and execution duration.
-    // Logging is controlled by the debug mode setting from statement attributes or global configuration.
-    func (m *DebugMiddleware) ExecContext(stmt Statement, configuration Configuration, next ExecHandler) ExecHandler {
-    	if !m.isDeBugMode(stmt, configuration) {
-    		return next
-    	}
-    	// wrapper ExecContext
-    	return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
-    		start := time.Now()
-    		rows, err := next(ctx, query, args...)
-    		spent := time.Since(start)
-    		logger.Printf("\x1b[33m[%s]\x1b[0m args: \u001B[34m%v\u001B[0m time: \u001B[31m%v\u001B[0m \x1b[32m%s\x1b[0m",
-    			stmt.Name(), query, args, spent, query)
-    		return rows, err
-    	}
-    }
+    func (m *StatementContext) Engine() *Engine
+    func (m *StatementContext) Statement() Statement
+    func (m *StatementContext) Context() context.Context
+    func (m *StatementContext) Param() eval.Param
+    func (m *StatementContext) Session() session.Session
+    func (m *StatementContext) WithSession(session session.Session)
 
-    // isDeBugMode determines whether debug logging should be enabled for the given statement.
-    // It checks debug settings in the following priority order:
-    // 1. Statement-level "debug" attribute (if set to "false", disables debug)
-    // 2. Global configuration "debug" setting (if set to "false", disables debug)
-    // 3. Default is true (debug mode enabled) if neither is explicitly set to false
-    //
-    // Returns true if debug mode should be enabled, false otherwise.
-    func (m *DebugMiddleware) isDeBugMode(stmt Statement, configuration Configuration) bool {
-    	// try to get the debug mode from the Statement
-    	debug := stmt.Attribute("debug")
-    	// if the debug mode is not set, try to get the debug mode from the configuration
-    	if debug == "false" {
-    		return false
-    	}
-    	if configuration.Settings().Get("debug") == "false" {
-    		return false
-    	}
-    	return true
-    }
+``QueryContext`` 只会拦截查询类语句；``ExecContext`` 会拦截 ``insert``、``update``、``delete`` 和原始 SQL 的写操作。
 
-当你启用了这个中间件，juice会将每次执行的sql语句和参数写入到log包的默认的writer里面（默认是console），并且记录耗时。
 
-当不想使用这个中间件的时候，可以在setting里面将debug设置为false, 这样就会全局关闭这个中间件。
+注册与执行顺序
+---------------
 
-.. code:: xml
+通过 ``engine.Use`` 注册中间件：
+
+.. code-block:: go
+
+    engine.Use(&TraceMiddleware{})
+    engine.Use(&MetricsMiddleware{})
+
+中间件按注册顺序组合，但**最后注册的中间件会最先执行**。如果按 ``A``、``B``、``C`` 的顺序注册，运行时顺序是：
+
+.. code-block:: text
+
+    C before -> B before -> A before -> database -> A after -> B after -> C after
+
+``juice.New`` 会默认注册自增主键回填中间件。``juice.Default`` 会在 ``New`` 的基础上额外注册 ``TimeoutMiddleware`` 和
+``DebugMiddleware``。
+
+
+DebugMiddleware
+---------------
+
+``DebugMiddleware`` 用于打印 SQL、参数与执行耗时。
+
+默认情况下，只要使用 ``juice.Default`` 初始化 engine，就会启用 ``DebugMiddleware``：
+
+.. code-block:: go
+
+    engine, err := juice.Default(cfg)
+
+如果不希望打印 SQL，可以在全局 ``settings`` 中关闭：
+
+.. code-block:: xml
 
     <settings>
         <setting name="debug" value="false"/>
     </settings>
 
-当你想局部禁用这个功能的时候，可以在对应的action上面配置，如：
-
-.. code:: xml
-
-    <insert id="xxx" debug="false">
-    </insert>
-
-
-- :class:`juice/middleware/TimeoutMiddleware`：用于控制sql执行超时。
-
-.. code-block:: go
-
-    // TimeoutMiddleware is a middleware that manages query execution timeouts.
-    // It sets context timeouts for SQL statements to prevent long-running queries from hanging.
-    // The timeout value is obtained from the statement's "timeout" attribute and is specified in milliseconds.
-    type TimeoutMiddleware struct{}
-
-    // QueryContext implements Middleware.
-    // QueryContext sets a context timeout for SELECT queries to prevent long-running operations.
-    // The timeout value is obtained from the statement's "timeout" attribute.
-    // If timeout is <= 0, no timeout is applied and the original handler is returned unchanged.
-    func (t TimeoutMiddleware) QueryContext(stmt Statement, _ Configuration, next QueryHandler) QueryHandler {
-    	timeout := t.getTimeout(stmt)
-    	if timeout <= 0 {
-    		return next
-    	}
-    	return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
-    		ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Millisecond)
-    		defer cancel()
-    		return next(ctx, query, args...)
-    	}
-    }
-
-    // ExecContext implements Middleware.
-    // ExecContext sets a context timeout for INSERT/UPDATE/DELETE operations to prevent long-running operations.
-    // The timeout value is obtained from the statement's "timeout" attribute.
-    // If timeout is <= 0, no timeout is applied and the original handler is returned unchanged.
-    func (t TimeoutMiddleware) ExecContext(stmt Statement, _ Configuration, next ExecHandler) ExecHandler {
-    	timeout := t.getTimeout(stmt)
-    	if timeout <= 0 {
-    		return next
-    	}
-    	return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
-    		ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Millisecond)
-    		defer cancel()
-    		return next(ctx, query, args...)
-    	}
-    }
-
-    // getTimeout retrieves the timeout value from the statement's "timeout" attribute.
-    // Returns the timeout value in milliseconds, or 0 if not set or invalid.
-    func (t TimeoutMiddleware) getTimeout(stmt Statement) (timeout int64) {
-    	timeoutAttr := stmt.Attribute("timeout")
-    	if timeoutAttr == "" {
-    		return
-    	}
-    	timeout, _ = strconv.ParseInt(timeoutAttr, 10, 64)
-    	return
-    }
-
-在对应action标签的属性上面加上timeout属性，即可启用这个功能，timeout的单位为毫秒，如：
+也可以在单条语句上关闭：
 
 .. code-block:: xml
 
-    <insert id="xxx" timeout="1000">
-    </insert>
+    <select id="GetUser" debug="false">
+        select * from user where id = #{id}
+    </select>
+
+判断优先级是：
+
+1. 语句级 ``debug="false"`` 会关闭当前语句日志。
+2. 全局 ``<setting name="debug" value="false"/>`` 会关闭全局日志。
+3. 如果两者都没有显式关闭，则默认打印日志。
+
+
+TimeoutMiddleware
+-----------------
+
+``TimeoutMiddleware`` 会读取 statement 的 ``timeout`` 属性，并用 ``context.WithTimeout`` 包裹当前 SQL 执行。
+``timeout`` 的单位是毫秒。
+
+.. code-block:: xml
+
+    <select id="GetUser" timeout="1000">
+        select * from user where id = #{id}
+    </select>
 
 .. attention::
 
-	注意：TimeoutMiddleware是在go语言级别实现的超时，而不是数据库级别。
+    ``TimeoutMiddleware`` 是 Go 侧的上下文超时控制。数据库是否能及时中断正在执行的语句，还取决于具体数据库驱动对
+    ``context.Context`` 的支持。
+
+
+TxSensitiveDataSourceSwitchMiddleware
+-------------------------------------
+
+``TxSensitiveDataSourceSwitchMiddleware`` 用于查询语句的数据源路由，常见用途是读写分离。
+
+启用方式：
+
+.. code-block:: go
+
+    engine.Use(&juice.TxSensitiveDataSourceSwitchMiddleware{})
+
+路由优先级：
+
+1. ``select`` 语句上的 ``dataSource`` 属性。
+2. 全局 ``settings`` 中的 ``selectDataSource``。
+3. 未配置时不切换，继续使用当前 engine 的数据源。
+
+支持的特殊值：
+
+- ``?``：从所有已注册数据源中随机选择。
+- ``?!``：从非当前默认数据源中随机选择；如果没有可用从库，则回退到当前数据源。
+- 其他字符串：按具体环境 id 切换，例如 ``slave1``。
+
+示例：
+
+.. code-block:: xml
+
+    <settings>
+        <setting name="selectDataSource" value="?!"/>
+    </settings>
+
+    <select id="GetUser" dataSource="slave1">
+        select * from user where id = #{id}
+    </select>
+
+该中间件是事务感知的：如果当前执行已经在事务中，它不会切换数据源，而是继续使用当前事务 session。
+
 
 自定义中间件
 -------------
 
-自定义中间只需要实现 ``Middleware`` 接口, 然后注册入对应的engine即可，如：
+自定义中间件只需要实现 ``Middleware`` 接口。
+
+下面是一个简单的链路追踪示例：
 
 .. code-block:: go
 
-    func main() {
-        var mymiddleware juice.Middleware = yourMiddlewareImpl{}
+    type TraceMiddleware struct{}
 
-        cfg, err := juice.NewXMLConfiguration("config.xml")
-        if err != nil {
-            panic(err)
+    func (m TraceMiddleware) QueryContext(sc *juice.StatementContext, next juice.QueryHandler) juice.QueryHandler {
+        stmt := sc.Statement()
+        return func(ctx context.Context, query string, args ...any) (juiceSql.Rows, error) {
+            trace.Log(ctx, "statement", stmt.Name())
+            trace.Log(ctx, "query", query)
+            return next(ctx, query, args...)
         }
-
-        engine, err := juice.Default(cfg)
-        if err != nil {
-            panic(err)
-        }
-
-        engine.Use(mymiddleware)
     }
 
+    func (m TraceMiddleware) ExecContext(sc *juice.StatementContext, next juice.ExecHandler) juice.ExecHandler {
+        stmt := sc.Statement()
+        return func(ctx context.Context, query string, args ...any) (juiceSql.Result, error) {
+            trace.Log(ctx, "statement", stmt.Name())
+            trace.Log(ctx, "exec", query)
+            return next(ctx, query, args...)
+        }
+    }
+
+上面的示例中，``juiceSql`` 是 ``github.com/go-juicedev/juice/sql`` 的导入别名。
+
+注册方式：
+
+.. code-block:: go
+
+    engine.Use(TraceMiddleware{})
 
 
+修改执行 Session
+----------------
+
+如果中间件需要把后续 SQL 路由到其他 session，可以通过 ``StatementContext.WithSession`` 替换当前执行链使用的 session。
+内置的 ``TxSensitiveDataSourceSwitchMiddleware`` 就是通过这个机制在非事务查询中切换数据源。
+
+一般业务中间件不需要修改 session；日志、指标、追踪、审计类中间件只要包裹 ``next`` 即可。

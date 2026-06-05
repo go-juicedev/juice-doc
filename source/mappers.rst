@@ -215,7 +215,8 @@ Juice 支持四种类型的 SQL 语句标签：``select``、``insert``、``updat
         </select>
     </mapper>
 
-或者通过环境变量 ``JUICE_PARAM_NAME`` 来全局设置。
+如果没有设置 ``paramName``，单一参数默认会被包装为 ``param``。可以在程序启动前通过环境变量
+``JUICE_PARAM_KEY`` 修改这个默认 key。
 
 **便捷类型：**
 
@@ -365,5 +366,4 @@ SQL 语句标签支持多种属性来控制执行行为：
     </mapper>
 
 通过以上的配置和使用方式，您可以充分利用 Juice 的 SQL Mapper 功能来构建高效、安全的数据访问层。
-
 

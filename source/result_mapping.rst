@@ -1,6 +1,13 @@
 结果集映射
 ==============================
-结果集映射是 Juice 框架中一个核心功能，它负责将数据库查询结果转换为 Go 语言中的结构化数据。Juice 提供了多种灵活的映射方式，从简单的单行映射到复杂的嵌套对象映射都能优雅处理。
+结果集映射是 Juice 框架中一个核心功能，它负责将数据库查询结果转换为 Go 语言中的结构化数据。
+当前版本主要通过 ``column`` 结构体标签、泛型绑定函数和 ``sql.RowScanner`` 扩展点完成映射。
+
+.. attention::
+
+    XML 中虽然保留了 ``resultMap`` 相关结构约束，但当前 XML statement 的 ``ResultMap`` 实现会返回
+    ``sql.ErrResultMapNotSet``，实际执行时会回退到默认映射逻辑。复杂嵌套对象映射建议通过 SQL alias、
+    结构体 ``column`` 标签或自定义 ``sql.RowScanner`` 实现。
 
 原生SQL.Rows支持
 ----------------
@@ -107,7 +114,7 @@ Juice提供了强大的泛型支持，使结果集映射更加类型安全：
            Object("GetUsers").QueryContext(context.TODO(), nil)
 
 .. attention::
-    - 结构体必须使用 ``column`` 标签指定数据库字段映射
+    - 结构体建议使用 ``column`` 标签指定数据库字段映射
     - 多行结果必须使用切片类型接收
     - 不支持使用map接收结果（设计选择）
 
@@ -222,6 +229,28 @@ Iter 函数
     }
 
 ``Iter`` 返回 ``iter.Seq2[T, error]``。迭代期间需要保持 rows 打开，并在使用结束后关闭。
+
+
+RowScanner 自定义映射
+"""""""""""""""""""""
+
+当默认的 ``column`` 标签映射不能满足需求时，可以让目标类型实现 ``sql.RowScanner``。
+实现后，绑定逻辑会把当前 ``Rows`` 交给你的类型自行扫描。
+
+.. code-block:: go
+
+    import "github.com/go-juicedev/juice/sql"
+
+    type User struct {
+        ID   int64
+        Name string
+    }
+
+    func (u *User) ScanRows(rows sql.Rows) error {
+        return rows.Scan(&u.ID, &u.Name)
+    }
+
+这个扩展点适合处理复杂列转换、旧库字段命名、JSON 字段反序列化等默认映射不方便覆盖的场景。
 
 
 Context 快捷函数

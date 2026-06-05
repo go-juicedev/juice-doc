@@ -137,7 +137,8 @@ Juice 将根据 ``environments`` 的 ``default`` 属性来确定默认加载的�
     engine, err = juice.NewFromFS(configFS, "config.xml")
     engine, err = juice.DefaultFromFS(configFS, "config.xml")
 
-``NewFromFile`` / ``NewFromFS`` 会返回新的 manager；``DefaultFromFile`` / ``DefaultFromFS`` 会把创建出的 manager 设置为默认 manager。
+``NewFromFile`` / ``NewFromFS`` 会创建一个新的 ``Engine``，只包含基础中间件（例如自动回填自增主键）。
+``DefaultFromFile`` / ``DefaultFromFS`` 同样会创建新的 ``Engine``，并额外启用默认中间件（当前包括 ``TimeoutMiddleware`` 与 ``DebugMiddleware``）。
 
 
 
@@ -242,7 +243,10 @@ Juice 默认提供了环境变量提供器（env），用于从系统环境变�
     // RegisterEnvValueProvider 注册自定义的配置值提供器
     // name: 提供器名称，对应 XML 中的 provider 属性
     // provider: 提供器实现
-    func RegisterEnvValueProvider(name string, provider EnvValueProvider)
+    func RegisterEnvValueProvider(name string, provider EnvValueProvider) error
+
+    // MustRegisterEnvValueProvider 注册失败时会 panic，适合初始化阶段使用。
+    func MustRegisterEnvValueProvider(name string, provider EnvValueProvider)
 
 默认环境变量提供器实现
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -251,23 +255,14 @@ Juice 默认提供了环境变量提供器（env），用于从系统环境变�
 
 .. code-block:: go
 
-    var formatRegexp = regexp.MustCompile(`\$\{ *?([a-zA-Z0-9_\.]+) *?\}`)
-
     type OsEnvValueProvider struct{}
 
     func (p OsEnvValueProvider) Get(key string) (string, error) {
-        var err error
-        key = formatRegexp.ReplaceAllStringFunc(key, func(find string) string {
-            value := os.Getenv(formatRegexp.FindStringSubmatch(find)[1])
-            if len(value) == 0 {
-                err = fmt.Errorf("environment variable %s not found", find)
-            }
-            return value
-        })
-        return key, err
+        return os.Expand(key, os.Getenv), nil
     }
 
-它可以在配置文件中使用 ``${}`` 语法来获取环境变量值。
+它遵循标准库 ``os.Expand`` 的规则，可以在配置文件中使用 ``$VAR`` 或 ``${VAR}`` 语法来获取环境变量值。
+未设置的环境变量会展开为空字符串，不会直接返回错误。
 
 
 连接池配置

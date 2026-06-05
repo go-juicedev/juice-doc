@@ -254,7 +254,7 @@ sql 片段参数化
 
     <select id="searchUsers">
        <bind name="searchPattern" value='"%" + name + "%"'/>
-       <bind name="upperName" value='name.toUpperCase()'/>
+       <bind name="upperName" value='upper(name)'/>
        SELECT * FROM users WHERE name LIKE #{searchPattern} OR UPPER(name) = #{upperName}
     </select>
 
@@ -804,21 +804,21 @@ sql 片段参数化
 SQL 调试技巧
 ------------
 
-**1. 启用调试模式**
+**1. 控制调试模式**
 
-全局启用：
+``juice.Default`` 会注册 ``DebugMiddleware``，默认会打印 SQL。生产环境通常在全局关闭：
 
 .. code-block:: xml
 
     <settings>
-        <setting name="debug" value="true"/>
+        <setting name="debug" value="false"/>
     </settings>
 
-单个语句启用：
+单个语句关闭：
 
 .. code-block:: xml
 
-    <select id="GetUsers" debug="true">
+    <select id="GetUsers" debug="false">
         SELECT * FROM users
     </select>
 
@@ -830,11 +830,13 @@ SQL 调试技巧
         logger *log.Logger
     }
 
-    func (m *SQLLogger) QueryContext(stmt juice.Statement, cfg juice.Configuration, next juice.QueryHandler) juice.QueryHandler {
-        return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
+    func (m *SQLLogger) QueryContext(sc *juice.StatementContext, next juice.QueryHandler) juice.QueryHandler {
+        stmt := sc.Statement()
+        return func(ctx context.Context, query string, args ...any) (juiceSql.Rows, error) {
             start := time.Now()
             
             // 记录SQL和参数
+            m.logger.Printf("[STATEMENT] %s", stmt.Name())
             m.logger.Printf("[SQL] %s", query)
             m.logger.Printf("[ARGS] %v", args)
             
@@ -863,8 +865,8 @@ SQL 调试技巧
         reporter  func(query string, duration time.Duration, args []any)
     }
 
-    func (m *SlowQueryMonitor) QueryContext(stmt juice.Statement, cfg juice.Configuration, next juice.QueryHandler) juice.QueryHandler {
-        return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
+    func (m *SlowQueryMonitor) QueryContext(sc *juice.StatementContext, next juice.QueryHandler) juice.QueryHandler {
+        return func(ctx context.Context, query string, args ...any) (juiceSql.Rows, error) {
             start := time.Now()
             rows, err := next(ctx, query, args...)
             duration := time.Since(start)
@@ -876,6 +878,8 @@ SQL 调试技巧
             return rows, err
         }
     }
+
+上面的示例中，``juiceSql`` 是 ``github.com/go-juicedev/juice/sql`` 的导入别名。
 
 **2. 查询统计**
 

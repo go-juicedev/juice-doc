@@ -214,19 +214,25 @@ Juice 支持多种读操作路由策略，可以在语句级别或全局级别�
 
     type TraceMiddleware struct{}
 
-    func (r TraceMiddleware) QueryContext(_ juice.Statement, _ juice.Configuration, next juice.QueryHandler) juice.QueryHandler {
-        return func(ctx context.Context, query string, args ...any) (sql.Rows, error) {
-            trace.Log(ctx, "query", query) // your own trace
+    func (r TraceMiddleware) QueryContext(sc *juice.StatementContext, next juice.QueryHandler) juice.QueryHandler {
+        stmt := sc.Statement()
+        return func(ctx context.Context, query string, args ...any) (juiceSql.Rows, error) {
+            trace.Log(ctx, "statement", stmt.Name()) // your own trace
+            trace.Log(ctx, "query", query)
             return next(ctx, query, args...)
         }
     }
 
-    func (r TraceMiddleware) ExecContext(_ juice.Statement, _ juice.Configuration, next juice.ExecHandler) juice.ExecHandler {
-        return func(ctx context.Context, query string, args ...any) (sql.Result, error) {
-            trace.Log(ctx, "exec", query) // your own trace
+    func (r TraceMiddleware) ExecContext(sc *juice.StatementContext, next juice.ExecHandler) juice.ExecHandler {
+        stmt := sc.Statement()
+        return func(ctx context.Context, query string, args ...any) (juiceSql.Result, error) {
+            trace.Log(ctx, "statement", stmt.Name()) // your own trace
+            trace.Log(ctx, "exec", query)
             return next(ctx, query, args...)
         }
     }
+
+上面的示例中，``juiceSql`` 是 ``github.com/go-juicedev/juice/sql`` 的导入别名。
 
 
 XML文档约束

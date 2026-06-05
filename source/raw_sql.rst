@@ -93,9 +93,24 @@ sql.DB 执行
 
 .. code-block:: go
 
-    engine.Raw("SELECT id, name FROM user WHERE id = {id}").Select(context.TODO(), juice.H{"id": 1})
+    engine.Raw("SELECT id, name FROM user WHERE id = #{id}").Select(context.TODO(), juice.H{"id": 1})
 
 
 - ``engine.Raw()`` 可以屏蔽底层驱动占位符的差异，而 ``DB.Exec()`` 和 ``DB.Query()`` 需要开发者手动指定占位符。
 
 - ``engine.Raw()`` 会走中间件，而 ``DB.Exec()`` 和 ``DB.Query()`` 不会走。
+
+
+Raw SQL 与语句属性
+------------------
+
+``engine.Raw()`` 会经过 engine 上注册的中间件，但 ``timeout``、``debug``、``dataSource`` 等 statement 属性主要面向
+XML mapper 标签。原始 SQL 场景如果需要控制超时，优先使用 ``context.WithTimeout``：
+
+.. code-block:: go
+
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    defer cancel()
+
+    rows, err := engine.Raw("SELECT id, name FROM user WHERE id = #{id}").
+        Select(ctx, juice.H{"id": 1})

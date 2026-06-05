@@ -21,7 +21,7 @@ Juice 是一个用 Go 语言编写的 SQL Mapper 框架。它的设计目标是�
 #### 1. 安装 Juice
 
 ```bash
-go get -u github.com/go-juicedev/juice
+go get github.com/go-juicedev/juice
 ```
 *(请确保你的 Go 版本 >= 1.25)*
 
@@ -31,23 +31,37 @@ go get -u github.com/go-juicedev/juice
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//juice.org//DTD Config 1.0//EN"
+        "https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/config.dtd">
+
 <configuration>
-    <environments default="dev">
-        <environment id="dev">
-            <!-- 替换为你的数据库连接字符串 -->
-            <dataSource>user:password@tcp(127.0.0.1:3306)/database_name?charset=utf8mb4&parseTime=True&loc=Local</dataSource>
-            <driver>mysql</driver> <!-- 确保已导入相应的数据库驱动 -->
+    <environments default="prod">
+        <environment id="prod">
+            <dataSource>sqlite.db</dataSource>
+            <driver>sqlite3</driver>
         </environment>
     </environments>
 
     <mappers>
-        <mapper namespace="main">
-            <select id="GetMessage">
-                select "Hello, Juice!" as message
-            </select>
-        </mapper>
+        <mapper resource="mappers.xml"/>
     </mappers>
 </configuration>
+```
+
+创建一个 `mappers.xml` 文件：
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//juice.org//DTD Config 1.0//EN"
+        "https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/mapper.dtd">
+
+<mapper namespace="main.Repository">
+    <select id="HelloWorld">
+        <if test="1 == 1">
+            select "hello world"
+        </if>
+    </select>
+</mapper>
 ```
 
 #### 3. Go 代码示例
@@ -60,12 +74,21 @@ import (
 	"fmt"
 	
 	"github.com/go-juicedev/juice"
-	_ "github.com/go-sql-driver/mysql" // 导入 MySQL 驱动示例
+	_ "github.com/mattn/go-sqlite3"
 )
 
-// 定义一个与 Mapper 中 select 语句对应的函数签名
-// 函数名 GetMessage 对应 <select id="GetMessage">
-func GetMessage() {}
+type Repository interface {
+	HelloWorld(ctx context.Context) (string, error)
+}
+
+type RepositoryImpl struct {
+	manager juice.Manager
+}
+
+func (r RepositoryImpl) HelloWorld(ctx context.Context) (string, error) {
+	executor := juice.NewGenericManager[string](r.manager).Object(Repository(r).HelloWorld)
+	return executor.QueryContext(ctx, nil)
+}
 
 func main() {
 	// 加载配置文件
@@ -83,14 +106,20 @@ func main() {
 
 	// 执行查询
 	// 使用泛型指定期望的返回类型为 string
-	// Object(GetMessage) 会将函数 GetMessage 与 config.xml 中 namespace="main" 下 id="GetMessage" 的 select 语句关联
-	message, err := juice.NewGenericManager[string](engine).Object(GetMessage).QueryContext(context.Background(), nil)
+	repo := RepositoryImpl{manager: engine}
+	message, err := repo.HelloWorld(context.Background())
 	if err != nil {
 		panic(fmt.Errorf("执行查询失败: %w", err))
 	}
 
-	fmt.Println(message) // 输出: Hello, Juice!
+	fmt.Println(message) // 输出: hello world
 }
+```
+
+SQLite 驱动依赖 CGO，运行示例时请使用：
+
+```bash
+CGO_ENABLED=1 go run main.go
 ```
 
 ### 文档

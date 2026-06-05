@@ -218,31 +218,30 @@ Juice 在设计时特别注重性能优化：
 
 .. code-block:: bash
 
-   go get -u github.com/go-juicedev/juice
+   go get github.com/go-juicedev/juice
 
 快速开始
 ------------------------------
 
-1. 编写sql mapper配置文件
+1. 编写主配置文件 ``config.xml``
 
 
-.. code-block:: html
+.. code-block:: xml
 
    <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE configuration PUBLIC "-//juice.org//DTD Config 1.0//EN"
+           "https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/config.dtd">
+
    <configuration>
        <environments default="prod">
            <environment id="prod">
-               <dataSource>root:qwe123@tcp(localhost:3306)/database</dataSource>
-               <driver>mysql</driver>
+               <dataSource>sqlite.db</dataSource>
+               <driver>sqlite3</driver>
            </environment>
        </environments>
 
        <mappers>
-           <mapper namespace="main">
-               <select id="HelloWorld">
-                   select "hello world" as message
-               </select>
-           </mapper>
+           <mapper resource="mappers.xml"/>
        </mappers>
    </configuration>
 
@@ -250,7 +249,25 @@ Juice 在设计时特别注重性能优化：
    注意：`dataSource` 的格式跟用 `sql.Open()` 函数的格式相同。
 
 
-2. 编写代码
+2. 编写 mapper 文件 ``mappers.xml``
+
+
+.. code-block:: xml
+
+   <?xml version="1.0" encoding="utf-8" ?>
+   <!DOCTYPE mapper PUBLIC "-//juice.org//DTD Config 1.0//EN"
+           "https://raw.githubusercontent.com/go-juicedev/juice/refs/heads/main/mapper.dtd">
+
+   <mapper namespace="main.Repository">
+       <select id="HelloWorld">
+           <if test="1 == 1">
+               select "hello world"
+           </if>
+       </select>
+   </mapper>
+
+
+3. 编写代码
 
 
 .. code-block:: go
@@ -262,10 +279,21 @@ Juice 在设计时特别注重性能优化：
       "fmt"
 
       "github.com/go-juicedev/juice"
-      _ "github.com/go-sql-driver/mysql"
+      _ "github.com/mattn/go-sqlite3"
    )
 
-   func HelloWorld() {}
+   type Repository interface {
+      HelloWorld(ctx context.Context) (string, error)
+   }
+
+   type RepositoryImpl struct {
+      manager juice.Manager
+   }
+
+   func (r RepositoryImpl) HelloWorld(ctx context.Context) (string, error) {
+      executor := juice.NewGenericManager[string](r.manager).Object(Repository(r).HelloWorld)
+      return executor.QueryContext(ctx, nil)
+   }
 
    func main() {
       cfg, err := juice.NewXMLConfiguration("config.xml")
@@ -281,7 +309,8 @@ Juice 在设计时特别注重性能优化：
       }
       defer engine.Close()
 
-      message, err := juice.NewGenericManager[string](engine).Object(HelloWorld).QueryContext(context.Background(), nil)
+      repo := RepositoryImpl{manager: engine}
+      message, err := repo.HelloWorld(context.Background())
       if err != nil {
          fmt.Println(err)
          return
@@ -294,24 +323,25 @@ Juice 在设计时特别注重性能优化：
 
 ..  attention::
 
-   注意：虽然 `juice` 不依赖第三方库，但是它需要依赖数据库驱动，所以在使用 juice 之前，你需要先安装数据库驱动，比如要使用mysql，
-   那么你需要先安装 `github.com/go-sql-driver/mysql`
+   注意：虽然 `juice` 不依赖第三方库，但是它需要依赖数据库驱动。上面的示例使用 SQLite，
+   因此需要安装 `github.com/mattn/go-sqlite3`，并且运行时开启 CGO。
 
-   如果运行报错，那么可能是因为你的数据库没有启动，或者你的数据库配置有误，检查一下数据库配置是否正确。
+   如果运行报错，请先检查数据库驱动是否已经导入，以及 `dataSource` 与驱动名称是否匹配。
 
-3. 运行代码
-
-
-.. code-block:: bash
-
-   go run .
-
-4. 输出结果
+4. 运行代码
 
 
 .. code-block:: bash
 
-   [juice] 2022/11/05 19:56:49 [main.HelloWorld]  select "hello world" as message  []  5.3138ms
+   CGO_ENABLED=1 go run main.go
+
+5. 输出结果
+
+
+.. code-block:: bash
+
+   [juice] 2026/06/05 19:56:49 [main.Repository.HelloWorld] args: [] time: 5.3138ms
+   select "hello world"
    hello world
 
 
@@ -492,14 +522,14 @@ A: Juice 提供了多种调试方式：
 
 **Q: 支持哪些数据库？**
 
-A: Juice 支持所有 database/sql 兼容的数据库：
+A: Juice 通过 ``database/sql`` 打开连接，同时需要 Juice driver translator 来处理不同数据库的占位符。当前内置支持：
 
 - MySQL / MariaDB
 - PostgreSQL
 - SQLite
 - Oracle
-- SQL Server
-- 其他支持 database/sql 的数据库
+
+其他数据库可以通过注册自定义 ``driver.Driver`` 扩展。
 
 
 社区与支持
