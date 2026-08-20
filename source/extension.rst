@@ -217,7 +217,7 @@ Juice 支持多种读操作路由策略，可以在语句级别或全局级别�
     func (r TraceMiddleware) QueryContext(sc *juice.StatementContext, next juice.QueryHandler) juice.QueryHandler {
         stmt := sc.Statement()
         return func(ctx context.Context, query string, args ...any) (juiceSql.Rows, error) {
-            trace.Log(ctx, "statement", stmt.Name()) // your own trace
+            trace.Log(ctx, "statement", stmt.ID().String()) // your own trace
             trace.Log(ctx, "query", query)
             return next(ctx, query, args...)
         }
@@ -226,7 +226,7 @@ Juice 支持多种读操作路由策略，可以在语句级别或全局级别�
     func (r TraceMiddleware) ExecContext(sc *juice.StatementContext, next juice.ExecHandler) juice.ExecHandler {
         stmt := sc.Statement()
         return func(ctx context.Context, query string, args ...any) (juiceSql.Result, error) {
-            trace.Log(ctx, "statement", stmt.Name()) // your own trace
+            trace.Log(ctx, "statement", stmt.ID().String()) // your own trace
             trace.Log(ctx, "exec", query)
             return next(ctx, query, args...)
         }

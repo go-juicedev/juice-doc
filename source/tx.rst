@@ -7,7 +7,7 @@
 事务用于保证一组数据库操作的原子性、一致性、隔离性和持久性。Juice 提供两套事务使用方式：
 
 1. 手动事务（``engine.Tx()`` / ``engine.ContextTx(...)``）
-2. 函数式事务（``juice.Transaction(...)`` / ``juice.NestedTransaction(...)``）
+2. 函数式事务（``juice.Transaction(...)``）
 
 事务接口
 ----------------
@@ -57,15 +57,12 @@ Juice 的事务相关核心接口如下：
 函数式事务
 ----------------
 
-函数式事务会在回调中自动注入事务 manager，适合 service 层封装：
+函数式事务会在回调中传入事务 manager，适合 service 层封装：
 
 .. code-block:: go
 
-    baseCtx := juice.ContextWithManager(context.Background(), engine)
-
-    err := juice.Transaction(baseCtx, func(ctx context.Context) error {
-        repo := NewUserRepository()
-        _, err := repo.CreateUser(ctx, user)
+    err := juice.Transaction(ctx, engine, func(ctx context.Context, manager juice.Manager) error {
+        _, err := manager.Object(Repo{}.CreateUser).ExecContext(ctx, user)
         return err
     },
         tx.WithIsolationLevel(sql.LevelReadCommitted),
@@ -78,26 +75,26 @@ Juice 的事务相关核心接口如下：
 
 ``Transaction`` 的行为是：回调返回 ``nil`` 时提交，返回非 ``nil`` 时回滚。
 
-嵌套调用语义
+复用当前事务
 ----------------
 
-``NestedTransaction`` 的语义是“**已在事务中则复用当前事务，否则新开事务**”：
+内层需要复用外层事务时，可以再次调用 ``juice.Transaction``，并把回调收到的 transaction-scoped manager 作为 manager 参数传入：
 
 .. code-block:: go
 
-    err := juice.Transaction(baseCtx, func(ctx context.Context) error {
-        if err := serviceA(ctx); err != nil {
+    err := juice.Transaction(ctx, engine, func(ctx context.Context, manager juice.Manager) error {
+        if err := serviceA(ctx, manager); err != nil {
             return err
         }
 
-        return juice.NestedTransaction(ctx, func(ctx context.Context) error {
-            return serviceB(ctx)
+        return juice.Transaction(ctx, manager, func(ctx context.Context, inner juice.Manager) error {
+            return serviceB(ctx, inner)
         })
     })
 
 .. attention::
 
-    ``NestedTransaction`` 不是数据库 savepoint 语义；它不会自动创建独立的内层提交点。
+    向 ``Transaction`` 传入 transaction-scoped manager 会复用当前事务，并忽略本次调用传入的 ``opts``；这不是数据库 savepoint 语义。
 
 隔离级别与只读选项
 ----------------------
@@ -106,7 +103,7 @@ Juice 的事务相关核心接口如下：
 
 .. code-block:: go
 
-    err := juice.Transaction(baseCtx, handler,
+    err := juice.Transaction(ctx, engine, handler,
         tx.WithIsolationLevel(sql.LevelSerializable),
         tx.WithReadOnly(true),
     )

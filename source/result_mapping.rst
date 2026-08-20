@@ -81,8 +81,8 @@ Juice提供了强大的泛型支持，使结果集映射更加类型安全：
    .. code-block:: go
 
        // 查询单个计数
-       count, err := juice.NewGenericManager[int](engine).
-           Object("CountUsers").QueryContext(context.TODO(), nil)
+       count, err := juice.NewGenericManager(engine).
+           Object("CountUsers").QueryContext[int](context.TODO(), nil)
 
 2. **多字段单行**：
 
@@ -94,24 +94,24 @@ Juice提供了强大的泛型支持，使结果集映射更加类型安全：
        }
 
        // 查询单个用户
-       user, err := juice.NewGenericManager[User](engine).
-           Object("GetUser").QueryContext(context.TODO(), nil)
+       user, err := juice.NewGenericManager(engine).
+           Object("GetUser").QueryContext[User](context.TODO(), nil)
 
 3. **单字段多行**：
 
    .. code-block:: go
 
        // 查询多个ID
-       ids, err := juice.NewGenericManager[[]int64](engine).
-           Object("GetUserIDs").QueryContext(context.TODO(), nil)
+       ids, err := juice.NewGenericManager(engine).
+           Object("GetUserIDs").QueryContext[[]int64](context.TODO(), nil)
 
 4. **多字段多行**：
 
    .. code-block:: go
 
        // 查询用户列表
-       users, err := juice.NewGenericManager[[]User](engine).
-           Object("GetUsers").QueryContext(context.TODO(), nil)
+       users, err := juice.NewGenericManager(engine).
+           Object("GetUsers").QueryContext[[]User](context.TODO(), nil)
 
 .. attention::
     - 结构体建议使用 ``column`` 标签指定数据库字段映射
@@ -246,8 +246,8 @@ RowScanner 自定义映射
         Name string
     }
 
-    func (u *User) ScanRows(rows sql.Rows) error {
-        return rows.Scan(&u.ID, &u.Name)
+    func (u *User) ScanRow(row sql.Row) error {
+        return row.Scan(&u.ID, &u.Name)
     }
 
 这个扩展点适合处理复杂列转换、旧库字段命名、JSON 字段反序列化等默认映射不方便覆盖的场景。
@@ -256,17 +256,15 @@ RowScanner 自定义映射
 Context 快捷函数
 """"""""""""""""
 
-当 context 通过 ``juice.ContextWithManager`` 携带 manager 时，可以使用快捷函数，避免手动创建 executor。
+当需要避免手动创建 executor 时，可以使用快捷函数，并在参数中显式传入 manager。
 
 .. code-block:: go
 
-    ctx := juice.ContextWithManager(context.Background(), engine)
+    user, err := juice.QueryContext[User](ctx, engine, "GetUser", juice.H{"id": 1})
+    users, err := juice.QueryListContext[User](ctx, engine, "ListUsers", nil)
+    userPtrs, err := juice.QueryList2Context[User](ctx, engine, "ListUsers", nil)
 
-    user, err := juice.QueryContext[User](ctx, "GetUser", juice.H{"id": 1})
-    users, err := juice.QueryListContext[User](ctx, "ListUsers", nil)
-    userPtrs, err := juice.QueryList2Context[User](ctx, "ListUsers", nil)
-
-    iter, err := juice.QueryIterContext[User](ctx, "ListUsers", nil)
+    iter, err := juice.QueryIterContext[User](ctx, engine, "ListUsers", nil)
 
 迭代器快捷函数会在迭代完成或提前停止时关闭底层 rows。返回的迭代器仍然需要被消费，否则包装器无法代为关闭 rows。
 
@@ -300,24 +298,28 @@ Context 快捷函数
     - ``Iter`` 当需要迭代大量数据时，性能最好，但是如果处理数据需要很长时间的话，会持续占用一个连接
 
 
-自增主键映射
+自增主键处理
 ------------
 
-支持自动获取自增主键值：
+Juice 当前不提供 ``useGeneratedKeys`` / ``keyProperty`` 自动回填。自增主键通常由数据库驱动通过
+``sql.Result.LastInsertId()`` 返回：
 
-.. code-block:: xml
+.. code-block:: go
 
-    <insert id="CreateUser" useGeneratedKeys="true" keyProperty="ID">
-        INSERT INTO users (name, age) VALUES (#{name}, #{age})
-    </insert>
+    result, err := engine.Object("CreateUser").ExecContext(ctx, user)
+    if err != nil {
+        return err
+    }
+    id, err := result.LastInsertId()
+    if err != nil {
+        return err
+    }
 
 使用条件：
 
 1. 数据库驱动支持 ``LastInsertId``
-2. 参数必须是结构体指针
-3. ``useGeneratedKeys="true"``
-4. 指定 ``keyProperty`` 或使用 ``autoincr:"true"`` 标签
-5. 主键字段类型必须支持整数赋值
+2. 参数能被 mapper 正确解析并执行 insert
+3. 主键由数据库生成
 
 批量插入优化
 ------------

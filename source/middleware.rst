@@ -55,8 +55,7 @@
 
     C before -> B before -> A before -> database -> A after -> B after -> C after
 
-``juice.New`` 会默认注册自增主键回填中间件。``juice.Default`` 会在 ``New`` 的基础上额外注册 ``TimeoutMiddleware`` 和
-``DebugMiddleware``。
+``juice.New`` 不注册任何中间件。``juice.Default`` 会在 ``New`` 的基础上注册 ``DebugMiddleware``。
 
 
 DebugMiddleware
@@ -93,22 +92,18 @@ DebugMiddleware
 3. 如果两者都没有显式关闭，则默认打印日志。
 
 
-TimeoutMiddleware
------------------
+SQL 超时控制
+-------------
 
-``TimeoutMiddleware`` 会读取 statement 的 ``timeout`` 属性，并用 ``context.WithTimeout`` 包裹当前 SQL 执行。
-``timeout`` 的单位是毫秒。
+当前版本不提供内置的 ``TimeoutMiddleware``。如果需要限制单条 SQL 执行时间，请在调用侧使用 ``context.WithTimeout`` 或
+``context.WithDeadline``：
 
-.. code-block:: xml
+.. code-block:: go
 
-    <select id="GetUser" timeout="1000">
-        select * from user where id = #{id}
-    </select>
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    defer cancel()
 
-.. attention::
-
-    ``TimeoutMiddleware`` 是 Go 侧的上下文超时控制。数据库是否能及时中断正在执行的语句，还取决于具体数据库驱动对
-    ``context.Context`` 的支持。
+    rows, err := engine.Object("GetUser").QueryContext(ctx, juice.H{"id": 1})
 
 
 TxSensitiveDataSourceSwitchMiddleware
@@ -163,7 +158,7 @@ TxSensitiveDataSourceSwitchMiddleware
     func (m TraceMiddleware) QueryContext(sc *juice.StatementContext, next juice.QueryHandler) juice.QueryHandler {
         stmt := sc.Statement()
         return func(ctx context.Context, query string, args ...any) (juiceSql.Rows, error) {
-            trace.Log(ctx, "statement", stmt.Name())
+            trace.Log(ctx, "statement", stmt.ID().String())
             trace.Log(ctx, "query", query)
             return next(ctx, query, args...)
         }
@@ -172,7 +167,7 @@ TxSensitiveDataSourceSwitchMiddleware
     func (m TraceMiddleware) ExecContext(sc *juice.StatementContext, next juice.ExecHandler) juice.ExecHandler {
         stmt := sc.Statement()
         return func(ctx context.Context, query string, args ...any) (juiceSql.Result, error) {
-            trace.Log(ctx, "statement", stmt.Name())
+            trace.Log(ctx, "statement", stmt.ID().String())
             trace.Log(ctx, "exec", query)
             return next(ctx, query, args...)
         }

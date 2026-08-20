@@ -68,10 +68,8 @@
 .. code-block:: go
 
     func (s *UserService) CreateUser(ctx context.Context, req CreateUserReq) error {
-        ctx = juice.ContextWithManager(ctx, s.engine)
-
-        return juice.Transaction(ctx, func(ctx context.Context) error {
-            if _, err := s.userRepo.Create(ctx, req.ToEntity()); err != nil {
+        return juice.Transaction(ctx, s.engine, func(ctx context.Context, manager juice.Manager) error {
+            if _, err := s.userRepo.Create(ctx, manager, req.ToEntity()); err != nil {
                 return err
             }
             return nil
@@ -81,7 +79,7 @@
 读写分离实践
 --------------------------------
 
-- 写路径：使用 ``master`` engine 注入上下文并开启事务。
+- 写路径：使用 ``master`` engine 作为 transaction manager 开启事务。
 - 读路径：可使用 ``engine.With("slave")`` 单独查询（通常无需事务）。
 - 避免在同一事务回调内切换到另一个数据源进行写入。
 

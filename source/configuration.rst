@@ -137,8 +137,8 @@ Juice 将根据 ``environments`` 的 ``default`` 属性来确定默认加载的�
     engine, err = juice.NewFromFS(configFS, "config.xml")
     engine, err = juice.DefaultFromFS(configFS, "config.xml")
 
-``NewFromFile`` / ``NewFromFS`` 会创建一个新的 ``Engine``，只包含基础中间件（例如自动回填自增主键）。
-``DefaultFromFile`` / ``DefaultFromFS`` 同样会创建新的 ``Engine``，并额外启用默认中间件（当前包括 ``TimeoutMiddleware`` 与 ``DebugMiddleware``）。
+``New`` / ``NewFromFile`` / ``NewFromFS`` 会创建一个不包含任何默认中间件的 ``Engine``。
+``Default`` / ``DefaultFromFile`` / ``DefaultFromFS`` 会创建新的 ``Engine``，并额外启用 ``DebugMiddleware``。
 
 
 

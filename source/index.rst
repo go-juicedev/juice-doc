@@ -151,7 +151,7 @@ Juice 特别适合以下场景：
 
 - 🔗 **中间件机制，可扩展架构**
   
-  内置调试、超时中间件，支持自定义扩展
+  内置调试中间件，支持自定义扩展
 
 - 📝 **自定义表达式和函数**
   
@@ -291,8 +291,8 @@ Juice 在设计时特别注重性能优化：
    }
 
    func (r RepositoryImpl) HelloWorld(ctx context.Context) (string, error) {
-      executor := juice.NewGenericManager[string](r.manager).Object(Repository(r).HelloWorld)
-      return executor.QueryContext(ctx, nil)
+      executor := juice.NewGenericManager(r.manager).Object(Repository(r).HelloWorld)
+      return executor.QueryContext[string](ctx, nil)
    }
 
    func main() {
@@ -448,9 +448,9 @@ Juice 在设计时特别注重性能优化：
 
    func (r *userRepositoryImpl) GetUserByID(ctx context.Context, id int64) (*User, error) {
        params := juice.H{"id": id}
-       return juice.NewGenericManager[*User](r.engine).
+       return juice.NewGenericManager(r.engine).
            Object(r.GetUserByID).
-           QueryContext(ctx, params)
+           QueryContext[*User](ctx, params)
    }
 
    func (r *userRepositoryImpl) SearchUsers(ctx context.Context, name string, minAge, maxAge int) ([]*User, error) {
@@ -459,9 +459,9 @@ Juice 在设计时特别注重性能优化：
            "minAge": minAge,
            "maxAge": maxAge,
        }
-       return juice.NewGenericManager[[]*User](r.engine).
+       return juice.NewGenericManager(r.engine).
            Object(r.SearchUsers).
-           QueryContext(ctx, params)
+           QueryContext[[]*User](ctx, params)
    }
 
    func (r *userRepositoryImpl) BatchInsertUsers(ctx context.Context, users []*User) error {

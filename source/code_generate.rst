@@ -42,7 +42,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
     )
 
     type User struct {
-        ID   int64  `column:"id" autoincr:"true"`
+        ID   int64  `column:"id"`
         Name string `param:"name" column:"name"`
     }
 
@@ -114,52 +114,34 @@ juice提供了一个代码生成工具来方便开发者简化开发。
         "github.com/go-juicedev/juice"
     )
 
-    type UserRepositoryImpl struct{}
+    type UserRepositoryImpl struct {
+        manager juice.Manager
+    }
 
     func (u UserRepositoryImpl) CreateUser(ctx context.Context, user *User) (result0 sql.Result, result1 error) {
-        manager, err := juice.ManagerFromContext(ctx)
-        if err != nil {
-            return nil, err
-        }
         var iface UserRepository = u
-        executor := juice.NewGenericManager[any](manager).Object(iface.CreateUser)
-        return executor.ExecContext(ctx, user)
+        return u.manager.Object(iface.CreateUser).ExecContext(ctx, user)
     }
 
     func (u UserRepositoryImpl) DeleteUserByID(ctx context.Context, id int64) (result0 sql.Result, result1 error) {
-        manager, err := juice.ManagerFromContext(ctx)
-        if err != nil {
-            return nil, err
-        }
         var iface UserRepository = u
-        executor := juice.NewGenericManager[any](manager).Object(iface.DeleteUserByID)
-        return executor.ExecContext(ctx, id)
+        return u.manager.Object(iface.DeleteUserByID).ExecContext(ctx, id)
     }
 
     func (u UserRepositoryImpl) UpdateUserNameByID(ctx context.Context, id int64, name string) (result0 sql.Result, result1 error) {
-        manager, err := juice.ManagerFromContext(ctx)
-        if err != nil {
-            return nil, err
-        }
         var iface UserRepository = u
-        executor := juice.NewGenericManager[any](manager).Object(iface.UpdateUserNameByID)
-        return executor.ExecContext(ctx, juice.H{"id": id, "name": name})
+        return u.manager.Object(iface.UpdateUserNameByID).ExecContext(ctx, juice.H{"id": id, "name": name})
     }
 
     func (u UserRepositoryImpl) GetUserByID(ctx context.Context, id int64) (result0 *User, result1 error) {
-        manager, err := juice.ManagerFromContext(ctx)
-        if err != nil {
-            return nil, err
-        }
         var iface UserRepository = u
-        executor := juice.NewGenericManager[User](manager).Object(iface.GetUserByID)
-        ret, err := executor.QueryContext(ctx, id)
-        return &ret, err
+        executor := juice.NewGenericManager(u.manager).Object(iface.GetUserByID)
+        return executor.QueryContext[*User](ctx, id)
     }
 
     // NewUserRepository returns a new UserRepository.
-    func NewUserRepository() UserRepository {
-        return &UserRepositoryImpl{}
+    func NewUserRepository(manager juice.Manager) UserRepository {
+        return &UserRepositoryImpl{manager: manager}
     }
 
 
@@ -182,7 +164,7 @@ juice提供了一个代码生成工具来方便开发者简化开发。
     )
 
     type User struct {
-        ID   int64  `column:"id" autoincr:"true"`
+        ID   int64  `column:"id"`
         Name string `param:"name" column:"name"`
     }
 
@@ -205,9 +187,9 @@ juice提供了一个代码生成工具来方便开发者简化开发。
             panic(err)
         }
 
-        ctx := juice.ContextWithManager(context.Background(), engine)
+        ctx := context.Background()
 
-        userRepo := NewUserRepository()
+        userRepo := NewUserRepository(engine)
 
         // create user
         user := &User{
@@ -286,18 +268,9 @@ namespace 也可以不指定，它会自动去找go.mod这个文件和你接口�
 版本参数
 ----------
 
-``juicecli impl`` 支持通过 ``--version`` 指定生成代码的版本：
-
-.. code-block:: shell
-
-    juicecli impl -t UserRepository -o user_repo.go --version v2
-
-``--version`` 当前支持两个值：
-
-* ``v1``：默认值。生成的实现结构体不保存 ``juice.Manager``，方法执行时会从传入的 ``context.Context`` 中读取 manager。因此调用接口方法前，需要先使用 ``juice.ContextWithManager`` 把 manager 放进 context。
-* ``v2``：生成的实现结构体会保存 ``juice.Manager``，构造函数也会接收 manager，例如 ``NewUserRepository(manager juice.Manager)``。方法内部会自动把 manager 注入到 context，再调用 ``juice.QueryContext``、``juice.QueryListContext``、``juice.QueryList2Context`` 或 ``juice.ExecContext``。
-
-也就是说，``v2`` 更适合依赖注入场景：repository 创建时绑定 manager，业务代码调用方法时可以直接传普通的 context。
+``juicecli impl`` 支持通过 ``--version`` 参数选择生成风格，但当前 Juice 核心已移除
+``ContextWithManager`` / ``ManagerFromContext`` 等旧 API。因此新代码应使用当前风格：实现结构体保存
+``juice.Manager``，构造函数接收 manager。
 
 .. code-block:: go
 
@@ -313,21 +286,7 @@ namespace 也可以不指定，它会自动去找go.mod这个文件和你接口�
         panic(err)
     }
 
-如果使用默认的 ``v1``，则需要在调用前手动注入 manager：
-
-.. code-block:: go
-
-    manager, err := juice.DefaultFromFile("config.xml")
-    if err != nil {
-        panic(err)
-    }
-
-    repo := NewUserRepository()
-    ctx := juice.ContextWithManager(context.Background(), manager)
-
-    user, err := repo.GetUserByID(ctx, 1)
-
-``--version`` 只影响生成代码的结构和 manager 获取方式，不改变接口方法约束、mapper namespace 匹配规则和 SQL 参数映射规则。
+业务代码调用时直接传普通 context 即可，不需要把 manager 注入 context。
 
 
 接口约束
@@ -419,21 +378,14 @@ Context 参数
 Context 要求
 ~~~~~~~~~~~~~~~~~~~~
 
-接口方法的第一个参数仍然必须是 ``context.Context``。manager 的传递方式取决于生成版本：
-
-* ``v1``：调用前必须使用 ``juice.ContextWithManager`` 把 manager 注入到 context。
-* ``v2``：repository 创建时已经绑定 manager，方法内部会自动注入，调用时可以直接传普通 context。
+接口方法的第一个参数仍然必须是 ``context.Context``。当前生成代码由实现结构体保存 ``juice.Manager``，
+构造函数接收 manager，因此业务代码调用时直接传普通 context 即可：
 
 .. code-block:: go
 
-    // v1：需要手动注入 manager
-    repo := NewUserRepository()
-    ctx := juice.ContextWithManager(context.Background(), manager)
-    users, err := repo.SearchUsers(ctx, "John", 25, "New York")
-
-    // v2：构造时传入 manager，调用时可直接使用普通 context
     repo := NewUserRepository(manager)
     users, err := repo.SearchUsers(context.Background(), "John", 25, "New York")
+
 
 注意事项
 --------------------
@@ -447,7 +399,7 @@ go generate
 
 .. code-block:: go
 
-    //go:generate juicecli impl -t UserRepository -o user_repo.go --version v2
+    //go:generate juicecli impl -t UserRepository -o user_repo.go
     type UserRepository interface {
         CreateUser(ctx context.Context, user *User) (sql.Result, error)
         DeleteUserByID(ctx context.Context, id int64) (sql.Result, error)
@@ -455,4 +407,4 @@ go generate
         GetUserByID(ctx context.Context, id int64) (*User, error)
     }
 
-在你的接口定义处写上这么一句，然后在控制台执行 `go generate` 即可生成对应的代码。如果仍然希望生成默认的 v1 代码，可以省略 ``--version v2``。
+在你的接口定义处写上这么一句，然后在控制台执行 `go generate` 即可生成对应的代码。

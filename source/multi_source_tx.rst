@@ -10,8 +10,8 @@
 ----------------
 
 - ``engine.With("name")`` 会返回绑定到目标数据源的新 ``Engine`` 视图。
-- ``juice.Transaction`` 的事务只覆盖**当前 engine 对应的数据源连接**。
-- ``NestedTransaction`` 只处理“是否已在事务中”，不负责跨数据源一致性。
+- ``juice.Transaction`` 的事务只覆盖**传入 manager 对应的数据源连接**。
+- 向 ``Transaction`` 传入 transaction-scoped manager 只会复用当前事务，不负责跨数据源一致性。
 - Juice 不提供分布式事务（2PC/XA）抽象；跨库一致性建议由业务侧策略保证。
 
 交互矩阵
@@ -49,16 +49,13 @@
 
 .. code-block:: go
 
-    base := juice.ContextWithManager(context.Background(), engine)
-
     writeEngine, err := engine.With("master")
     if err != nil {
         return err
     }
 
-    ctx := juice.ContextWithManager(base, writeEngine)
-    return juice.Transaction(ctx, func(ctx context.Context) error {
-        _, err := repo.CreateOrder(ctx, req)
+    return juice.Transaction(ctx, writeEngine, func(ctx context.Context, manager juice.Manager) error {
+        _, err := repo.CreateOrder(ctx, manager, req)
         return err
     })
 
@@ -81,15 +78,14 @@
 .. code-block:: go
 
     // 外层在 master 开事务
-    _ = juice.Transaction(ctx, func(ctx context.Context) error {
-        if _, err := repoA.WriteOnMaster(ctx, a); err != nil {
+    _ = juice.Transaction(ctx, engine, func(ctx context.Context, manager juice.Manager) error {
+        if _, err := repoA.WriteOnMaster(ctx, manager, a); err != nil {
             return err
         }
 
         // 在同一回调里切到 slave/other 再写
         other, _ := engine.With("other")
-        otherCtx := juice.ContextWithManager(ctx, other)
-        _, err := repoB.WriteOnOther(otherCtx, b)
+        _, err := repoB.WriteOnOther(ctx, other, b)
         return err
     })
 
@@ -99,5 +95,5 @@
 ----------------
 
 - 若出现“部分成功部分失败”，先检查是否在一个业务动作里写了多个数据源。
-- 若事务似乎“没生效”，检查调用链是否混入了另一个 ``engine.With(...)`` 的上下文。
+- 若事务似乎“没生效”，检查调用链是否把另一个 ``engine.With(...)`` 产生的 manager 传给了当前事务。
 - 在日志中打印 EnvID（若你在中间件里可拿到）有助于快速定位数据源漂移问题。

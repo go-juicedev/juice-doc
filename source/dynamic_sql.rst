@@ -836,7 +836,7 @@ SQL 调试技巧
             start := time.Now()
             
             // 记录SQL和参数
-            m.logger.Printf("[STATEMENT] %s", stmt.Name())
+            m.logger.Printf("[STATEMENT] %s", stmt.ID().String())
             m.logger.Printf("[SQL] %s", query)
             m.logger.Printf("[ARGS] %v", args)
             

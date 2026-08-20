@@ -33,18 +33,18 @@ Juice 提供了多种方式来映射查询结果到 Go 结构体：
     runner := engine.Raw("SELECT id, name FROM user WHERE id = #{id}")
 
     // 方式 1: 直接绑定到切片
-    users, err := juice.NewGenericRunner[[]User](runner).
-        Bind(context.TODO(), juice.H{"id": 1})
+    users, err := juice.NewGenericRunner(runner).
+        Bind[[]User](context.TODO(), juice.H{"id": 1})
     // users 类型为 []User
 
     // 方式 2: 使用 List 方法
-    users, err := juice.NewGenericRunner[User](runner).
-        List(context.TODO(), juice.H{"id": 1})
+    users, err := juice.NewGenericRunner(runner).
+        List[User](context.TODO(), juice.H{"id": 1})
     // users 类型为 []User
 
     // 方式 3: 使用 List2 方法（返回指针切片）
-    users, err := juice.NewGenericRunner[User](runner).
-        List2(context.TODO(), juice.H{"id": 1})
+    users, err := juice.NewGenericRunner(runner).
+        List2[User](context.TODO(), juice.H{"id": 1})
     // users 类型为 []*User
 
 事务支持
@@ -104,7 +104,7 @@ sql.DB 执行
 Raw SQL 与语句属性
 ------------------
 
-``engine.Raw()`` 会经过 engine 上注册的中间件，但 ``timeout``、``debug``、``dataSource`` 等 statement 属性主要面向
+``engine.Raw()`` 会经过 engine 上注册的中间件，但 ``debug``、``dataSource`` 等 statement 属性主要面向
 XML mapper 标签。原始 SQL 场景如果需要控制超时，优先使用 ``context.WithTimeout``：
 
 .. code-block:: go

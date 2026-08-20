@@ -246,27 +246,22 @@ SQL 语句标签支持多种属性来控制执行行为：
 .. code-block:: xml
 
     <mapper namespace="main">
-        <select id="GetUser" 
-                timeout="5000" 
-                debug="false"
-                paramName="userId">
+        <select id="GetUser" debug="false" paramName="userId" dataSource="slave1">
             select * from user where id = #{userId}
         </select>
-        
-        <insert id="CreateUser" 
-                useGeneratedKeys="true" 
-                keyProperty="id">
+
+        <insert id="CreateUser" batchSize="100">
             insert into user (name, email) values (#{name}, #{email})
         </insert>
     </mapper>
 
 **常用属性说明：**
 
-- ``timeout``: 设置 SQL 执行超时时间（毫秒）
-- ``debug``: 是否启用调试模式
+- ``debug``: 设置 ``debug="false"`` 关闭当前语句的调试日志
 - ``paramName``: 自定义单一参数的名称
-- ``useGeneratedKeys``: 是否使用自动生成的主键
-- ``keyProperty``: 指定接收自动生成主键的属性名
+- ``dataSource``: 指定当前语句使用的数据源
+- ``affectData``: 控制当前语句是否影响数据，影响数据源路由和事务行为
+- ``batchSize``: 设置批量执行大小
 
 最佳实践
 --------
@@ -335,7 +330,7 @@ SQL 语句标签支持多种属性来控制执行行为：
         </select>
         
         <!-- 创建用户 -->
-        <insert id="Create" useGeneratedKeys="true" keyProperty="id">
+        <insert id="Create">
             insert into users (name, email, age, created_at) 
             values (#{name}, #{email}, #{age}, now())
         </insert>
